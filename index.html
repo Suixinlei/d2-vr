@@ -116,6 +116,11 @@ controls.standing = true;
 var effect = new THREE.VREffect(renderer);
 effect.setSize(window.innerWidth, window.innerHeight);
 
+// raycaster
+var raycaster = new THREE.Raycaster();
+// Mouse Position
+var mouse = new THREE.Vector2();
+
 
 // Add a repeating grid as a skybox.
 var boxSize = 5;
@@ -157,18 +162,51 @@ var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
 var material = new THREE.MeshNormalMaterial();
 var cube = new THREE.Mesh(geometry, material);
 
+// Create Gun Object
+var Gun_Geometry = new THREE.BoxGeometry(0.5, 0.5, 2);
+var Gun_Material = new THREE.MeshNormalMaterial();
+var gun = new THREE.Mesh(Gun_Geometry, Gun_Material);
+
+// Create Laser Object
+var Laser_Geometry = new THREE.CylinderGeometry( 1, 1, 20, 32 );
+var Laser_Material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+var cylinder = new THREE.Mesh( Laser_Geometry, Laser_Material );
+scene.add( cylinder );
+
 // Position cube mesh to be right in front of you.
 cube.position.set(0, controls.userHeight, -1);
 
+//
+gun.position.set(-0.5, controls.userHeight - 0.5, 0);
+
 // Add cube mesh to your three.js scene
 scene.add(cube);
+scene.add(gun);
 
 window.addEventListener('resize', onResize, true);
 window.addEventListener('vrdisplaypresentchange', onResize, true);
+window.addEventListener('mousemove', onMouseMove, true);
 
 // Request animation frame loop function
 var lastRender = 0;
 function animate(timestamp) {
+  var direction = camera.getWorldDirection();
+  gun.lookAt(direction);
+  console.log(direction);
+
+  raycaster.setFromCamera( mouse, camera );
+
+  // calculate objects intersecting the picking ray
+  var intersects = raycaster.intersectObjects( scene.children );
+
+  console.log(intersects);
+
+//  for ( var i = 0; i < intersects.length; i++ ) {
+//
+//    intersects[ i ].object.material.color.set( 0xff0000 );
+//
+//  }
+
   var delta = Math.min(timestamp - lastRender, 500);
   lastRender = timestamp;
 
@@ -187,6 +225,18 @@ function onResize(e) {
   effect.setSize(window.innerWidth, window.innerHeight);
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
+}
+
+function onMouseMove( event ) {
+
+  // calculate mouse position in normalized device coordinates
+  // (-1 to +1) for both components
+
+  mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+  mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+  console.log('mouse', mouse);
+
 }
 
 var vrDisplay;
