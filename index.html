@@ -312,7 +312,7 @@ ObjLoader.load('asset_src/1-3.obj', function (cabinet) {
   //循环生成阵列
   for (var i = 0; i < matrixW; i++) {
     for (var j = 0; j < matrixH; j++) {
-      if (i > outsideLeft && i < outsideRight && j > outsideTop && j < outsideBottom) {
+      if (i >= outsideLeft && i <= outsideRight && j >= outsideTop && j <= outsideBottom) {
         continue;
       }
       var newPbj = cabinet.clone();
