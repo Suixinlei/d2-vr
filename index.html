@@ -167,10 +167,6 @@ var params = {
 var manager = new WebVRManager(renderer, effect, params);
 
 //----------------------Model---------------------------
-// Create 3D objects.
-var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-var material = new THREE.MeshNormalMaterial();
-var cube = new THREE.Mesh(geometry, material);
 
 // Create Gun Object
 var Gun_Geometry = new THREE.BoxGeometry(0.5, 0.5, 2);
@@ -183,18 +179,36 @@ var Laser_Material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
 var cylinder = new THREE.Mesh( Laser_Geometry, Laser_Material );
 scene.add( cylinder );
 
-// Position cube mesh to be right in front of you.
-cube.position.set(0, controls.userHeight, 1);
-
 //
 gun.position.set(-0.5, controls.userHeight - 0.5, 0);
 
-// Add cube mesh to your three.js scene
-scene.add(cube);
 //scene.add(gun);
 //----------------------Model---------------------------
 
 //----------------------Monster---------------------------
+
+// monster spawn point
+var Monster_Spawn_Points = [];
+[4, 7, 11].forEach(function (var_radius) {
+  var MonsterGeoMetry = new THREE.SphereGeometry(var_radius, 25, 5);
+  for (var n = 52; n <= 77; n++) {
+    Monster_Spawn_Points.push(MonsterGeoMetry.vertices[n]);
+  }
+});
+console.log(Monster_Spawn_Points);
+
+for (var i=0; i< Monster_Spawn_Points.length; i++) {
+  var geometry2 = new THREE.BoxGeometry(0.3, 0.5, 0.5);
+  var material2 = new THREE.MeshNormalMaterial();
+  var cube2 = new THREE.Mesh(geometry2, material2);
+//  var SphereLight = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshNormalMaterial());
+//  console.log(Monster_Spawn_Points[i]);
+  cube2.position.x = Monster_Spawn_Points[i].x;
+  cube2.position.y = Monster_Spawn_Points[i].y;
+  cube2.position.z = Monster_Spawn_Points[i].z;
+  scene.add(cube2);
+}
+
 
 
 var onProgress = function ( xhr ) {
@@ -326,12 +340,14 @@ var GUIControl = function () {
 
 //
 
+
 window.addEventListener('resize', onResize, true);
 window.addEventListener('vrdisplaypresentchange', onResize, true);
 window.addEventListener('mousemove', onMouseMove, true);
 
 // Request animation frame loop function
 var lastRender = 0;
+
 function animate(timestamp) {
   var direction = camera.getWorldDirection();
   gun.lookAt(direction);
@@ -354,9 +370,6 @@ function animate(timestamp) {
 
   var delta = Math.min(timestamp - lastRender, 500);
   lastRender = timestamp;
-
-  // Apply rotation to cube mesh
-  cube.rotation.y += delta * 0.0006;
 
   controls.update();
   // Render the scene through the manager.
