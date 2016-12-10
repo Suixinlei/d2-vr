@@ -230,11 +230,11 @@ var monster3 = null;
 var monster4 = null;
 var Monster_Material = new THREE.MeshNormalMaterial();
 //ObjLoader.setMaterials(Monster_Material);
-ObjLoader.load('asset_src/怪物1.obj', function (monster) {
+ObjLoader.load('asset_src/a.obj', function (monster) {
   monster.material = new THREE.MeshLambertMaterial();
   monster.position.y = controls.userHeight;
   monster.position.z = -1.2;
-  monster.lookAt(camera.position);
+//  monster.lookAt(camera.position);
 //  monster.position.x = -1;
   monster.rotateX(Math.PI);
 //  monster.rotation.y = 90;
@@ -242,37 +242,37 @@ ObjLoader.load('asset_src/怪物1.obj', function (monster) {
   scene.add(monster);
   monster1 = monster;
 }, onProgress, onError);
-ObjLoader.load('asset_src/怪物2.obj', function (monster) {
+ObjLoader.load('asset_src/b.obj', function (monster) {
   monster.material = new THREE.MeshLambertMaterial();
   monster.position.y = controls.userHeight;
   monster.position.z = -1.5;
   monster.position.x = -1;
-  monster.lookAt(camera.position);
+//  monster.lookAt(camera.position);
 //  monster.rotateX(Math.PI);
 //  monster.rotation.y = 90;
 
   scene.add(monster);
   monster2 = monster;
 }, onProgress, onError);
-ObjLoader.load('asset_src/怪物3.obj', function (monster) {
+ObjLoader.load('asset_src/c.obj', function (monster) {
   monster.material = new THREE.MeshLambertMaterial();
   monster.position.y = controls.userHeight;
   monster.position.z = -1.2;
   monster.position.x = -2;
-  monster.lookAt(camera.position);
+//  monster.lookAt(camera.position);
 //  monster.rotateX(Math.PI);
 //  monster.rotation.y = 90;
 
   scene.add(monster);
   monster3 = monster;
 }, onProgress, onError);
-ObjLoader.load('asset_src/怪物4.obj', function (monster) {
+ObjLoader.load('asset_src/d.obj', function (monster) {
   monster.material = new THREE.MeshLambertMaterial();
   monster.position.y = controls.userHeight;
   monster.position.z = -1.2;
   monster.position.x = -3;
   monster.rotateX(Math.PI);
-  monster.lookAt(camera.position);
+//  monster.lookAt(camera.position);
 //  monster.rotation.y = 90;
 
   scene.add(monster);
@@ -375,7 +375,10 @@ function animate(timestamp) {
 
   }
 
-//  monster1.rotation.x += 0.1;
+  monster1.rotation.y += 0.01;
+  monster2.rotation.y += 0.01;
+  monster3.rotation.y += 0.01;
+  monster4.rotation.y += 0.01;
 
   var delta = Math.min(timestamp - lastRender, 500);
   lastRender = timestamp;
