@@ -70,7 +70,8 @@ WebVRConfig = {
 <!--
   three.js 3d library
   -->
-<script src="node_modules/three/build/three.min.js"></script>
+<script src="node_modules/three/build/three.js"></script>
+<script src="asset_src/OBJLoader.js"></script>
 
 <!--
   VRControls.js acquires positional information from connected VR devices and applies the transformations to a three.js camera object.
@@ -92,6 +93,9 @@ WebVRConfig = {
   -->
 <script src="build/webvr-manager.js"></script>
 
+<!-- dat.gui control our dat.gui -->
+<script src="node_modules/dat.gui/build/dat.gui.js"></script>
+
 
 <script>
 // Setup three.js WebGL renderer. Note: Antialiasing is a big performance hit.
@@ -112,6 +116,11 @@ var controls = new THREE.VRControls(camera);
 controls.standing = true;
 controls.standing = true;
 
+// light
+var ambient = new THREE.AmbientLight( 0x101030 );
+ambient.position.y = controls.userHeight + 30;
+scene.add( ambient );
+
 // Apply VR stereo rendering to renderer.
 var effect = new THREE.VREffect(renderer);
 effect.setSize(window.innerWidth, window.innerHeight);
@@ -123,7 +132,7 @@ var mouse = new THREE.Vector2();
 
 
 // Add a repeating grid as a skybox.
-var boxSize = 5;
+var boxSize = 100;
 var loader = new THREE.TextureLoader();
 loader.load('img/box.png', onTextureLoaded);
 
@@ -157,6 +166,7 @@ var params = {
 };
 var manager = new WebVRManager(renderer, effect, params);
 
+//----------------------Model---------------------------
 // Create 3D objects.
 var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
 var material = new THREE.MeshNormalMaterial();
@@ -174,14 +184,56 @@ var cylinder = new THREE.Mesh( Laser_Geometry, Laser_Material );
 scene.add( cylinder );
 
 // Position cube mesh to be right in front of you.
-cube.position.set(0, controls.userHeight, -1);
+cube.position.set(0, controls.userHeight, 1);
 
 //
 gun.position.set(-0.5, controls.userHeight - 0.5, 0);
 
 // Add cube mesh to your three.js scene
 scene.add(cube);
-scene.add(gun);
+//scene.add(gun);
+//----------------------Model---------------------------
+
+//----------------------Monster---------------------------
+
+
+var onProgress = function ( xhr ) {
+  if ( xhr.lengthComputable ) {
+    var percentComplete = xhr.loaded / xhr.total * 100;
+    console.log( Math.round(percentComplete, 2) + '% downloaded' );
+  }
+};
+
+var onError = function (xhr) {
+
+};
+
+var ObjLoader = new THREE.OBJLoader();
+var monster1 = null;
+var Monster_Material = new THREE.MeshNormalMaterial();
+//ObjLoader.setMaterials(Monster_Material);
+ObjLoader.load('asset_src/怪物1.obj', function (monster) {
+  monster.material = new THREE.MeshLambertMaterial();
+  monster.position.y = controls.userHeight;
+  monster.position.z = -1;
+//  monster.position.x = -1;
+  monster.rotateX(Math.PI);
+//  monster.rotation.y = 90;
+
+  scene.add(monster);
+  monster1 = monster;
+}, onProgress, onError);
+
+
+//----------------------Monster---------------------------
+
+//
+var GUIControl = function () {
+  this.positionX = monster1.position.x;
+  this.positionZ = monster1.position.z;
+};
+
+//
 
 window.addEventListener('resize', onResize, true);
 window.addEventListener('vrdisplaypresentchange', onResize, true);
@@ -192,20 +244,22 @@ var lastRender = 0;
 function animate(timestamp) {
   var direction = camera.getWorldDirection();
   gun.lookAt(direction);
-  console.log(direction);
+//  console.log(direction); // 方向输出
 
   raycaster.setFromCamera( mouse, camera );
 
   // calculate objects intersecting the picking ray
   var intersects = raycaster.intersectObjects( scene.children );
 
-  console.log(intersects);
+//  console.log(intersects); // 鼠标指向
 
 //  for ( var i = 0; i < intersects.length; i++ ) {
 //
 //    intersects[ i ].object.material.color.set( 0xff0000 );
 //
 //  }
+
+//  monster1.rotation.x += 0.1;
 
   var delta = Math.min(timestamp - lastRender, 500);
   lastRender = timestamp;
@@ -235,7 +289,7 @@ function onMouseMove( event ) {
   mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
   mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
-  console.log('mouse', mouse);
+//  console.log('mouse', mouse); // 鼠标位置
 
 }
 
