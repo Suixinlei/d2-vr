@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>artyom test</title>
+  <script src="../node_modules/artyom.js/src/artyom.min.js"></script>
+</head>
+<body>
+<h1><a href="https://github.com/sdkcarlos/artyom.js" target="_blank">github artyom.js</a></h1>
+
+<h1><a href="https://sdkcarlos.github.io/sites/artyom.html" target="_blank">homepage artyom.js</a></h1>
+
+<h1>请带上耳机, 对着话筒说话, 打开console, 会有日志输出</h1>
+
+<h1>你可以试试[你好/干/大/爆]</h1>
+<h1 style="color:mediumvioletred" id="text"></h1>
+</body>
+<script>
+  // Add command (Short code artisan way)
+  artyom.on(['Good morning', 'Good afternoon']).then(function(i) {
+    switch (i) {
+      case 0:
+        artyom.say("Good morning, how are you?");
+        break;
+      case 1:
+        artyom.say("Good afternoon, how are you?");
+        break;
+    }
+  });
+
+  artyom.on(['你好', '干']).then(function(i) {
+    switch (i) {
+      case 0:
+        artyom.say("你好帅");
+        document.getElementById('text').innerText = '你好帅'
+        console.log('你好帅')
+        break;
+      case 1:
+        artyom.say("干她娘啊");
+        document.getElementById('text').innerText = '干她娘啊'
+        break;
+    }
+  });
+
+  artyom.on(['打', '达', '大', '搭', '答']).then(function(i) {
+    document.getElementById('text').innerText = '放大'
+    artyom.say('放大');
+  });
+
+  artyom.on(['报', '包', '爆', '宝', '抱', '保', '饱', '暴', '薄']).then(function(i) {
+    document.getElementById('text').innerText = '爆炸 boom~'
+    artyom.say('爆炸啦');
+  });
+
+  // Smart command (Short code artisan way), set the second parameter of .on to true
+  artyom.on(['Repeat after me *'], true).then(function(i, wildcard) {
+    artyom.say("You've said : " + wildcard);
+  });
+
+  // or add some commands in the normal way
+
+  artyom.addCommands([
+    {
+      indexes: ['Hello', 'Hi', 'is someone there'],
+      action: function(i) {
+        artyom.say("Hello, it's me");
+      }
+    },
+    {
+      indexes: ['Repeat after me *'],
+      smart: true,
+      action: function(i, wildcard) {
+        artyom.say("You've said : " + wildcard);
+      }
+    }
+  ]);
+
+  // Start the commands !
+  artyom.initialize({
+    lang: "zh-CN", // GreatBritain english
+    continuous: true, // Listen forever
+    soundex: true,// Use the soundex algorithm to increase accuracy
+    debug: true, // Show messages in the console
+    executionKeyword: "and do it now",
+    listen: true // Start to listen commands !
+  });
+
+  /**
+   * To speech text
+   */
+  artyom.say("Hello, this is a demo text.", {
+    onStart: function() {
+      console.log("Reading ...");
+    },
+    onEnd: function() {
+      console.log("No more text to talk");
+    }
+  });
+
+</script>
+</html>
