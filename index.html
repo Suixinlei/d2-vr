@@ -188,6 +188,7 @@ gun.position.set(-0.5, controls.userHeight - 0.5, 0);
 //----------------------Monster---------------------------
 
 // monster spawn point
+// 怪物生成点
 var Monster_Spawn_Points = [];
 [4, 7, 11].forEach(function (var_radius) {
   var MonsterGeoMetry = new THREE.SphereGeometry(var_radius, 25, 5);
@@ -299,8 +300,8 @@ ObjLoader.load('asset_src/1-3.obj', function (cabinet) {
   var matrixH = 10;
 
   //阵列中心空缺的长宽个数
-  var vacancyW = 0;
-  var vacancyH = 0;
+  var vacancyW = 3;
+  var vacancyH = 3;
 
   //辅助运算的变量
   var outsideLeft = (matrixW - vacancyW)/2;
@@ -356,15 +357,23 @@ function animate(timestamp) {
   raycaster.setFromCamera( mouse, camera );
 
   // calculate objects intersecting the picking ray
-  var intersects = raycaster.intersectObjects( scene.children );
+  const monsters = [];
+  scene.children.forEach(function (value) {
+    if (!(value.geometry instanceof THREE.BoxGeometry)) {
+      monsters.push(value);
+    }
+  });
+  console.log(monsters);
 
-//  console.log(intersects); // 鼠标指向
+  var intersects = raycaster.intersectObjects( monsters );
 
-//  for ( var i = 0; i < intersects.length; i++ ) {
-//
-//    intersects[ i ].object.material.color.set( 0xff0000 );
-//
-//  }
+  console.log(intersects); // 鼠标指向
+
+  for ( var i = 0; i < intersects.length; i++ ) {
+
+    intersects[ i ].object.material.color.set( 0xff0000 );
+
+  }
 
 //  monster1.rotation.x += 0.1;
 
