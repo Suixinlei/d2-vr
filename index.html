@@ -228,6 +228,9 @@ var monster1 = null;
 var monster2 = null;
 var monster3 = null;
 var monster4 = null;
+
+var monsterGroup = new THREE.Object3D();
+scene.add(monsterGroup);
 var Monster_Material = new THREE.MeshNormalMaterial();
 //ObjLoader.setMaterials(Monster_Material);
 ObjLoader.load('asset_src/a.obj', function (monster) {
@@ -239,7 +242,7 @@ ObjLoader.load('asset_src/a.obj', function (monster) {
   monster.rotateX(Math.PI);
 //  monster.rotation.y = 90;
 
-  scene.add(monster);
+  monsterGroup.add(monster);
   monster1 = monster;
 }, onProgress, onError);
 ObjLoader.load('asset_src/b.obj', function (monster) {
@@ -251,7 +254,7 @@ ObjLoader.load('asset_src/b.obj', function (monster) {
 //  monster.rotateX(Math.PI);
 //  monster.rotation.y = 90;
 
-  scene.add(monster);
+  monsterGroup.add(monster);
   monster2 = monster;
 }, onProgress, onError);
 ObjLoader.load('asset_src/c.obj', function (monster) {
@@ -263,7 +266,7 @@ ObjLoader.load('asset_src/c.obj', function (monster) {
 //  monster.rotateX(Math.PI);
 //  monster.rotation.y = 90;
 
-  scene.add(monster);
+  monsterGroup.add(monster);
   monster3 = monster;
 }, onProgress, onError);
 ObjLoader.load('asset_src/d.obj', function (monster) {
@@ -275,7 +278,7 @@ ObjLoader.load('asset_src/d.obj', function (monster) {
 //  monster.lookAt(camera.position);
 //  monster.rotation.y = 90;
 
-  scene.add(monster);
+  monsterGroup.add(monster);
   monster4 = monster;
 }, onProgress, onError);
 
@@ -290,18 +293,18 @@ hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
 hemiLight.position.set( 0, 500, 0 );
 scene.add( hemiLight );
 
-ObjLoader.load('asset_src/1-3.obj', function (cabinet) {
+ObjLoader.load('asset_src/box(2).obj', function (cabinet) {
   cabinet.material = new THREE.MeshLambertMaterial({
     color: new THREE.Color(6, 135, 250)
   });
 
   //阵列的长宽个数
-  var matrixW = 10;
-  var matrixH = 10;
+  var matrixW = 5;
+  var matrixH = 5;
 
   //阵列中心空缺的长宽个数
-  var vacancyW = 3;
-  var vacancyH = 3;
+  var vacancyW = 0;
+  var vacancyH = 0;
 
   //辅助运算的变量
   var outsideLeft = (matrixW - vacancyW)/2;
@@ -354,26 +357,29 @@ function animate(timestamp) {
   gun.lookAt(direction);
 //  console.log(direction); // 方向输出
 
-  raycaster.setFromCamera( mouse, camera );
+  raycaster.setFromCamera(mouse, camera );
 
   // calculate objects intersecting the picking ray
-  const monsters = [];
-  scene.children.forEach(function (value) {
-    if (!(value.geometry instanceof THREE.BoxGeometry)) {
-      monsters.push(value);
+  if (monsterGroup.children.length > 0) {
+    var intersects = raycaster.intersectObjects( monsterGroup.children, true );
+
+    intersects.length > 0 ? console.log(intersects) : ''; // 鼠标指向
+
+    for ( var i = 0; i < intersects.length; i++ ) {
+
+      intersects[ i ].object.material.color.set( 0xff0000 );
+
     }
-  });
-  console.log(monsters);
-
-  var intersects = raycaster.intersectObjects( monsters );
-
-  console.log(intersects); // 鼠标指向
-
-  for ( var i = 0; i < intersects.length; i++ ) {
-
-    intersects[ i ].object.material.color.set( 0xff0000 );
-
   }
+//  const monsters = [];
+//  scene.children.forEach(function (value) {
+//    if (!(value.geometry instanceof THREE.BoxGeometry)) {
+//      monsters.push(value);
+//    }
+//  });
+//  console.log(monsters);
+
+
 
   monster1.rotation.y += 0.01;
   monster2.rotation.y += 0.01;
@@ -404,6 +410,9 @@ function onMouseMove( event ) {
 
   mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
   mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+//  mouse.x = 0;
+//  mouse.y = 0;
 
 //  console.log('mouse', mouse); // 鼠标位置
 
