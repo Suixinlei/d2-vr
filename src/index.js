@@ -95,7 +95,7 @@ var manager = new WebVRManager(renderer, effect, params);
 // monster spawn point
 // 怪物生成点
 var Monster_Spawn_Points = [];
-[4, 7, 11].forEach(function (var_radius) {
+[4.5, 5, 5.5, 6].forEach(function (var_radius) {
   var MonsterGeoMetry = new THREE.SphereGeometry(var_radius, 25, 5);
   for (var n = 52; n <= 77; n++) {
     Monster_Spawn_Points.push(MonsterGeoMetry.vertices[n]);
@@ -139,20 +139,44 @@ var Monster2_is_loaded = false;
 var Monster3_is_loaded = false;
 var Monster4_is_loaded = false;
 
-var monsterGroup = new THREE.Object3D();
+var monsterGroup = [];
 var Monster_Spawn_Number = 25;
-var Monster_Material = new THREE.MeshNormalMaterial();
+var Monster_Material1 = new THREE.MeshBasicMaterial({
+  color: 0xf4c60b,
+  // emissive: 0x0587fa,
+  // emissiveIntensity: 0.5,
+  shading: THREE.FlatShading,
+  envMaps: 'reflection'
+});
+var Monster_Material2 = new THREE.MeshBasicMaterial({
+  color: 0xea6c00,
+  shading: THREE.FlatShading,
+  envMaps: 'reflection'
+});
+var Monster_Material3 = new THREE.MeshBasicMaterial({
+  color: 0xa452cb,
+  shading: THREE.FlatShading,
+  envMaps: 'reflection'
+});
+var Monster_Material4 = new THREE.MeshBasicMaterial({
+  color: 0x20cdab,
+  shading: THREE.FlatShading,
+  envMaps: 'reflection'
+});
+
 //ObjLoader.setMaterials(Monster_Material);
 ObjLoader.load('asset_src/a.obj', function (monster) {
-  monster.material = new THREE.MeshLambertMaterial();
   monster.rotateX(Math.PI);
   for (var i = 0; i < Monster_Spawn_Number; i ++) {
     var RealMonster = monster.children[0].clone();
-    var RandomSpawnPoint = Monster_Spawn_Points[Helper.getRandomInt(0, 78)];
+    RealMonster.material = Monster_Material1;
+    var RandomNumber = Helper.getRandomInt(0, Monster_Spawn_Points.length -1);
+    var RandomSpawnPoint = Monster_Spawn_Points[RandomNumber];
+    Monster_Spawn_Points.splice(RandomNumber, 1);
     RealMonster.position.x = RandomSpawnPoint.x;
     RealMonster.position.y = RandomSpawnPoint.y;
     RealMonster.position.z = RandomSpawnPoint.z;
-    monsterGroup.add(RealMonster);
+    monsterGroup.push(RealMonster);
   }
   // monster.position.y = controls.userHeight;
   // monster.position.z = -1.2;
@@ -164,46 +188,67 @@ ObjLoader.load('asset_src/a.obj', function (monster) {
   Monster1_is_loaded = true;
 }, onProgress, onError);
 ObjLoader.load('asset_src/b.obj', function (monster) {
-  monster.material = new THREE.MeshLambertMaterial();
-  monster.position.y = controls.userHeight;
-  monster.position.z = -1.5;
-  monster.position.x = -1;
-
-  monsterGroup.add(monster.children);
-  monster2 = monster;
+  for (var i = 0; i < Monster_Spawn_Number; i ++) {
+    var RealMonster = monster.children[0].clone();
+    RealMonster.material = Monster_Material2;
+    var RandomNumber = Helper.getRandomInt(0, Monster_Spawn_Points.length -1);
+    var RandomSpawnPoint = Monster_Spawn_Points[RandomNumber];
+    Monster_Spawn_Points.splice(RandomNumber, 1);
+    RealMonster.position.x = RandomSpawnPoint.x;
+    RealMonster.position.y = RandomSpawnPoint.y;
+    RealMonster.position.z = RandomSpawnPoint.z;
+    monsterGroup.push(RealMonster);
+  }
   Monster2_is_loaded = true;
 }, onProgress, onError);
 ObjLoader.load('asset_src/c.obj', function (monster) {
-  monster.material = new THREE.MeshLambertMaterial();
-  monster.position.y = controls.userHeight;
-  monster.position.z = -1.2;
-  monster.position.x = -2;
-//  monster.lookAt(camera.position);
-//  monster.rotateX(Math.PI);
-//  monster.rotation.y = 90;
+  for (var i = 0; i < Monster_Spawn_Number; i ++) {
+    var RealMonster = monster.children[0].clone();
+    RealMonster.material = Monster_Material3;
+    var RandomNumber = Helper.getRandomInt(0, Monster_Spawn_Points.length -1);
+    var RandomSpawnPoint = Monster_Spawn_Points[RandomNumber];
+    Monster_Spawn_Points.splice(RandomNumber, 1);
+    RealMonster.position.x = RandomSpawnPoint.x;
+    RealMonster.position.y = RandomSpawnPoint.y;
+    RealMonster.position.z = RandomSpawnPoint.z;
+    monsterGroup.push(RealMonster);
+  }
 
-  monsterGroup.add(monster);
-  monster3 = monster;
-  Monster3_is_loaded = true;
+  // monsterGroup.add(monster);
+  // monster3 = monster;
+  // Monster3_is_loaded = true;
 }, onProgress, onError);
 ObjLoader.load('asset_src/d.obj', function (monster) {
-  monster.material = new THREE.MeshLambertMaterial();
-  monster.position.y = controls.userHeight;
-  monster.position.z = -1.2;
-  monster.position.x = -3;
-  monster.rotateX(Math.PI);
-//  monster.lookAt(camera.position);
-//  monster.rotation.y = 90;
-
-  monsterGroup.add(monster);
-  monster4 = monster;
-  Monster4_is_loaded = true;
+  for (var i = 0; i < Monster_Spawn_Number; i ++) {
+    var RealMonster = monster.children[0].clone();
+    RealMonster.material = Monster_Material4;
+    var RandomNumber = Helper.getRandomInt(0, Monster_Spawn_Points.length -1);
+    var RandomSpawnPoint = Monster_Spawn_Points[RandomNumber];
+    Monster_Spawn_Points.splice(RandomNumber, 1);
+    RealMonster.position.x = RandomSpawnPoint.x;
+    RealMonster.position.y = RandomSpawnPoint.y;
+    RealMonster.position.z = RandomSpawnPoint.z;
+    monsterGroup.push(RealMonster);
+  }
+//
+//   monsterGroup.add(monster);
+//   monster4 = monster;
+//   Monster4_is_loaded = true;
 }, onProgress, onError);
 
 var isMonsterSpawn = false;
+var monsterDisplayGroup = new THREE.Object3D();
 var startMonsterSpawn = function () {
-  scene.add(monsterGroup);
+  scene.add(monsterDisplayGroup);
   isMonsterSpawn = true;
+};
+
+var addMonster = function () {
+  monsterGroup.forEach(function (value) {
+    monsterDisplayGroup.add(value);
+  });
+  // var monster = monsterGroup.pop();
+  // monsterDisplayGroup.add(monster);
 };
 
 
@@ -264,11 +309,15 @@ ObjLoader.load('asset_src/box(2).obj', function (cabinet) {
 var GUIControl = {
   start: function () {
     startMonsterSpawn();
+  },
+  add: function () {
+    addMonster();
   }
 };
 
 var gui = new dat.GUI();
 gui.add(GUIControl, 'start');
+gui.add(GUIControl, 'add');
 
 window.addEventListener('resize', onResize, true);
 window.addEventListener('vrdisplaypresentchange', onResize, true);
@@ -305,10 +354,10 @@ function animate(timestamp) {
 
 
 
-  monster1.rotation.y += 0.01;
-  monster2.rotation.y += 0.01;
-  monster3.rotation.y += 0.01;
-  monster4.rotation.y += 0.01;
+  monsterDisplayGroup.children.map(function (monster) {
+    monster.rotation.y += 0.01;
+    return monster;
+  });
 
   var delta = Math.min(timestamp - lastRender, 500);
   lastRender = timestamp;
