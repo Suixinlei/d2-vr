@@ -227,6 +227,24 @@ var addMonster = function () {
 
 //----------------------Monster---------------------------
 
+var monsterShock = { x: 0, y: 0, z: 0 };
+var tween = new TWEEN.Tween(monsterShock)
+  .to({ x: 100, y: 100, z: 100 }, 1000)
+  .repeat(Infinity)//无限重复
+  .yoyo(true)//到达to的值后回到from的值
+  .onUpdate(function(interpolation) {
+    //interpolation 值域在[0,1]，this指向了monsterShock
+    var monsterArr = monsterDisplayGroup.children;
+    monsterArr.forEach(function (mon) {
+      if (interpolation > 0.5) {
+        mon.position.y += 0.001;
+      } else {
+        mon.position.y -= 0.001;
+      }
+    });
+  })
+  .start();
+
 //----------------------Cabinet---------------------------
 var hemiLight;
 hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 1 );
@@ -304,6 +322,7 @@ var lastRender = 0;
 var cursor = new THREE.Vector2(0, 0);
 function animate(timestamp) {
   stats.update();
+  tween.update(timestamp);
 
   var direction = camera.getWorldDirection();
 //  console.log(direction); // 方向输出
@@ -318,7 +337,7 @@ function animate(timestamp) {
     console.log(intersects);
     if (intersects.length == 0) {
       hud.position.x = 0;
-      hud.position.y = 0;
+      hud.position.y = -1;
       hud.position.z = 0;
     }
 
@@ -331,10 +350,10 @@ function animate(timestamp) {
     }
   }
 
-  monsterDisplayGroup.children.map(function (monster) {
-    monster.rotation.y += 0.01;
-    return monster;
-  });
+  // monsterDisplayGroup.children.map(function (monster) {
+  //   monster.rotation.y += 0.01;
+  //   return monster;
+  // });
 
   hud.lookAt(camera.position);
 
