@@ -1,3 +1,7 @@
+/*
+ * voice output
+ */
+
 function createMusic(src, loop) {
   var au = document.createElement('audio');
   au.preload = 'auto';
@@ -14,15 +18,15 @@ function palyBackGroundMusic() {
   return au;
 }
 
-var bgMusic = palyBackGroundMusic();
-
-setTimeout(function() {
-  bgMusic.pause();
-},10000)
-
-setTimeout(function() {
-  bgMusic.play();
-},20000)
+//var bgMusic = palyBackGroundMusic();
+//
+//setTimeout(function() {
+//  bgMusic.pause();
+//}, 10000)
+//
+//setTimeout(function() {
+//  bgMusic.play();
+//}, 20000)
 
 
 function palyKeyBoardMusic() {
@@ -35,3 +39,31 @@ function palyKeyBoardMusic() {
 //  var kbMusic = palyKeyBoardMusic();
 //},30000)
 
+
+/*
+ * voice input
+ */
+
+function doLisenVoiceInput(callback) {
+  var julius = new Julius('./voxforge/sample.dfa', './voxforge/sample.dict', {
+    //verbose: true,
+    transfer:true
+  });
+  julius.onrecognition = function(sentence, score) {
+    console.log(sentence, score);
+    //if (/^[BC]ALL/.test(sentence)) {
+    if (/ALL/.test(sentence)) {
+      console.log('爆')
+      callback && callback();
+    } else {
+      //document.getElementById('text').innerText = sentence
+    }
+  };
+  julius.onfail = function(){
+    console.log('fail....')
+  }
+  console.log('record start, please input...')
+  return julius;
+}
+
+var voiceInput = doLisenVoiceInput();
