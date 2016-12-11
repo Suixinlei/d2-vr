@@ -146,22 +146,18 @@ var Monster_Material1 = new THREE.MeshBasicMaterial({
   // emissive: 0x0587fa,
   // emissiveIntensity: 0.5,
   shading: THREE.FlatShading,
-  envMaps: 'reflection'
 });
 var Monster_Material2 = new THREE.MeshBasicMaterial({
   color: 0xea6c00,
   shading: THREE.FlatShading,
-  envMaps: 'reflection'
 });
 var Monster_Material3 = new THREE.MeshBasicMaterial({
   color: 0xa452cb,
   shading: THREE.FlatShading,
-  envMaps: 'reflection'
 });
 var Monster_Material4 = new THREE.MeshBasicMaterial({
   color: 0x20cdab,
   shading: THREE.FlatShading,
-  envMaps: 'reflection'
 });
 
 //ObjLoader.setMaterials(Monster_Material);
@@ -334,7 +330,7 @@ function animate(timestamp) {
 
   // calculate objects intersecting the picking ray
   if (isMonsterSpawn) {
-    var intersects = raycaster.intersectObjects( monsterGroup.children );
+    var intersects = raycaster.intersectObjects( monsterDisplayGroup.children );
 
     intersects.length > 0 ? console.log(intersects) : ''; // 鼠标指向
 
