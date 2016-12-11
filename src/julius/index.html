@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head></head>
+<body>
+<script src="julius.js"></script>
+</body>
+<body>
+<h1>请带上耳机, 对着话筒说话, 打开console, 会有日志输出</h1>
+
+<h1 style="color:mediumvioletred" id="text"></h1>
+</body>
+<script>
+  // bootstrap JuliusJS
+  var julius = new Julius('./voxforge/sample.dfa', './voxforge/sample.dict');
+
+  // register listener
+  julius.onrecognition = function(sentence, score) {
+    // ...
+    console.log(sentence);
+    //if (/^[BC]ALL/.test(sentence)) {
+    if (/ALL/.test(sentence)) {
+      document.getElementById('text').innerText = '爆'+new Date() .getTime()
+    } else {
+      document.getElementById('text').innerText = sentence
+    }
+  };
+</script>
+</html>

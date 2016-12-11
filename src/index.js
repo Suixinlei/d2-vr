@@ -39,6 +39,7 @@ var mouse = new THREE.Vector2();
 
 // Add a repeating grid as a skybox.
 var boxSize = 100;
+var hudSize = 0.6;
 var loader = new THREE.TextureLoader();
 loader.load('img/box.png', onTextureLoaded);
 
@@ -64,7 +65,6 @@ function onTextureLoaded(texture) {
   setupStage();
 }
 
-
 // Create a VR manager helper to enter and exit VR mode.
 var params = {
   hideButton: false, // Default: false.
@@ -75,20 +75,35 @@ var manager = new WebVRManager(renderer, effect, params);
 //----------------------Model---------------------------
 
 // Create Gun Object
-var Gun_Geometry = new THREE.BoxGeometry(0.5, 0.5, 2);
-var Gun_Material = new THREE.MeshNormalMaterial();
-var gun = new THREE.Mesh(Gun_Geometry, Gun_Material);
+// var Gun_Geometry = new THREE.BoxGeometry(0.5, 0.5, 2);
+// var Gun_Material = new THREE.MeshNormalMaterial();
+// var gun = new THREE.Mesh(Gun_Geometry, Gun_Material);
 
 // Create Laser Object
-var Laser_Geometry = new THREE.CylinderGeometry( 1, 1, 20, 32 );
-var Laser_Material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
-var cylinder = new THREE.Mesh( Laser_Geometry, Laser_Material );
-scene.add( cylinder );
+// var Laser_Geometry = new THREE.CylinderGeometry( 1, 1, 20, 32 );
+// var Laser_Material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+// var cylinder = new THREE.Mesh( Laser_Geometry, Laser_Material );
+// scene.add( cylinder );
 
 //
-gun.position.set(-0.5, controls.userHeight - 0.5, 0);
+// gun.position.set(-0.5, controls.userHeight - 0.5, 0);
 
 //scene.add(gun);
+loader.load('img/hover.png', onHUDLoaded);
+function onHUDLoaded(texture) {
+  var geometry = new THREE.PlaneGeometry(hudSize, hudSize, hudSize);
+  var material = new THREE.MeshBasicMaterial({
+    map: texture,
+    transparent: true,
+    depthWrite: false,
+    // color: 0x01BE00,
+    side: THREE.DoubleSide
+  });
+
+  hud = new THREE.Mesh(geometry, material);
+  scene.add(hud);
+}
+
 //----------------------Model---------------------------
 
 //----------------------Monster---------------------------
@@ -96,7 +111,7 @@ gun.position.set(-0.5, controls.userHeight - 0.5, 0);
 // monster spawn point
 // 怪物生成点
 var Monster_Spawn_Points = [];
-[4, 7, 11].forEach(function (var_radius) {
+[2, 3, 5, 6].forEach(function (var_radius) {
   var MonsterGeoMetry = new THREE.SphereGeometry(var_radius, 25, 5);
   for (var n = 52; n <= 77; n++) {
     Monster_Spawn_Points.push(MonsterGeoMetry.vertices[n]);
@@ -104,25 +119,11 @@ var Monster_Spawn_Points = [];
 });
 console.log(Monster_Spawn_Points);
 
-for (var i=0; i< Monster_Spawn_Points.length; i++) {
-  var geometry2 = new THREE.BoxGeometry(0.3, 0.5, 0.5);
-  var material2 = new THREE.MeshNormalMaterial();
-  var cube2 = new THREE.Mesh(geometry2, material2);
-//  var SphereLight = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshNormalMaterial());
-//  console.log(Monster_Spawn_Points[i]);
-  cube2.position.x = Monster_Spawn_Points[i].x;
-  cube2.position.y = Monster_Spawn_Points[i].y;
-  cube2.position.z = Monster_Spawn_Points[i].z;
-  scene.add(cube2);
-}
-
-
-
 var onProgress = function ( xhr ) {
-  if ( xhr.lengthComputable ) {
-    var percentComplete = xhr.loaded / xhr.total * 100;
-    console.log( Math.round(percentComplete, 2) + '% downloaded' );
-  }
+  // if ( xhr.lengthComputable ) {
+  //   var percentComplete = xhr.loaded / xhr.total * 100;
+  //   console.log( Math.round(percentComplete, 2) + '% downloaded' );
+  // }
 };
 
 var onError = function (xhr) {
@@ -131,9 +132,9 @@ var onError = function (xhr) {
 
 var ObjLoader = new THREE.OBJLoader();
 var monster1 = null;
-var monster2 = null;
-var monster3 = null;
-var monster4 = null;
+//var monster2 = null;
+//var monster3 = null;
+//var monster4 = null;
 var keyboard1 = null;//键盘初始状态
 var keyboard2 = null;//键盘状态2
 var keyboard3 = null;//键盘状态3
@@ -161,7 +162,7 @@ var texture = THREE.ImageUtils.loadTexture("img/keyboard.png",null,function(t) {
   var material = new THREE.MeshBasicMaterial({map:texture});
   material.transparent=true;
   material.opacity=1;
-  var keyboardGeometry = new THREE.BoxGeometry(0.5, 0, 0.125);
+  var keyboardGeometry = new THREE.BoxGeometry(1, 0, 0.25);
   var mesh = new THREE.Mesh( keyboardGeometry,material );
   keyboard1 = mesh;
   //console.log(mesh)
@@ -220,74 +221,131 @@ ObjLoader.load('asset_src/boom.obj', function (boom) {//爆炸特效
 
   boomLoaded = true;
 }, onProgress, onError);
+
+var monsterGroup = [];
+var Monster_Spawn_Number = 10;
 ObjLoader.load('asset_src/a.obj', function (monster) {
-  monster.material = new THREE.MeshLambertMaterial();
-  monster.position.y = controls.userHeight;
-  monster.position.z = -1.2;
-//  monster.lookAt(camera.position);
-//  monster.position.x = -1;
   monster.rotateX(Math.PI);
-//  monster.rotation.y = 90;
-  monsterGroup.add(monster);
+  for (var i = 0; i < Monster_Spawn_Number; i ++) {
+    var RealMonster = monster.children[0].clone();
+    var Monster_Material1 = new THREE.MeshBasicMaterial({
+      color: 0xf4c60b,
+      // emissive: 0x0587fa,
+      // emissiveIntensity: 0.5,
+      shading: THREE.FlatShading,
+    });
+    RealMonster.material = Monster_Material1;
+    var RandomNumber = Helper.getRandomInt(0, Monster_Spawn_Points.length -1);
+    var RandomSpawnPoint = Monster_Spawn_Points[RandomNumber];
+    Monster_Spawn_Points.splice(RandomNumber, 1);
+    RealMonster.position.x = RandomSpawnPoint.x;
+    RealMonster.position.y = RandomSpawnPoint.y;
+    RealMonster.position.z = RandomSpawnPoint.z;
+    RealMonster.lookAt(camera.position);
+    monsterGroup.push(RealMonster);
+  }
   monster1 = monster;
-
-  var BoxGeometry = new THREE.BoxGeometry(5, 5, 5);
-  var BoxMaterial = new THREE.MeshLambertMaterial();
-  var Box = new THREE.Mesh(BoxGeometry, BoxMaterial);
-  Box.position.y = controls.userHeight;
-  Box.position.z = -1.2;
-  scene.add(Box);
-
   Monster1_is_loaded = true;
 }, onProgress, onError);
 ObjLoader.load('asset_src/b.obj', function (monster) {
-  monster.material = new THREE.MeshLambertMaterial();
-  monster.position.y = controls.userHeight;
-  monster.position.z = -1.5;
-  monster.position.x = -1;
-//  monster.lookAt(camera.position);
-//  monster.rotateX(Math.PI);
-//  monster.rotation.y = 90;
-
-  monsterGroup.add(monster);
-  monster2 = monster;
+  for (var i = 0; i < Monster_Spawn_Number; i ++) {
+    var RealMonster = monster.children[0].clone();
+    var Monster_Material2 = new THREE.MeshBasicMaterial({
+      color: 0xea6c00,
+      shading: THREE.FlatShading,
+    });
+    RealMonster.material = Monster_Material2;
+    var RandomNumber = Helper.getRandomInt(0, Monster_Spawn_Points.length -1);
+    var RandomSpawnPoint = Monster_Spawn_Points[RandomNumber];
+    Monster_Spawn_Points.splice(RandomNumber, 1);
+    RealMonster.position.x = RandomSpawnPoint.x;
+    RealMonster.position.y = RandomSpawnPoint.y;
+    RealMonster.position.z = RandomSpawnPoint.z;
+    RealMonster.lookAt(camera.position);
+    monsterGroup.push(RealMonster);
+  }
   Monster2_is_loaded = true;
 }, onProgress, onError);
 ObjLoader.load('asset_src/c.obj', function (monster) {
-  monster.material = new THREE.MeshLambertMaterial();
-  monster.position.y = controls.userHeight;
-  monster.position.z = -1.2;
-  monster.position.x = -2;
-//  monster.lookAt(camera.position);
-//  monster.rotateX(Math.PI);
-//  monster.rotation.y = 90;
-
-  monsterGroup.add(monster);
-  monster3 = monster;
-  Monster3_is_loaded = true;
+  for (var i = 0; i < Monster_Spawn_Number; i ++) {
+    var RealMonster = monster.children[0].clone();
+    var Monster_Material3 = new THREE.MeshBasicMaterial({
+      color: 0xa452cb,
+      shading: THREE.FlatShading,
+    });
+    RealMonster.material = Monster_Material3;
+    var RandomNumber = Helper.getRandomInt(0, Monster_Spawn_Points.length -1);
+    var RandomSpawnPoint = Monster_Spawn_Points[RandomNumber];
+    Monster_Spawn_Points.splice(RandomNumber, 1);
+    RealMonster.position.x = RandomSpawnPoint.x;
+    RealMonster.position.y = RandomSpawnPoint.y;
+    RealMonster.position.z = RandomSpawnPoint.z;
+    RealMonster.lookAt(camera.position);
+    monsterGroup.push(RealMonster);
+  }
 }, onProgress, onError);
 ObjLoader.load('asset_src/d.obj', function (monster) {
-  monster.material = new THREE.MeshLambertMaterial();
-  monster.position.y = controls.userHeight;
-  monster.position.z = -1.2;
-  monster.position.x = -3;
-  monster.rotateX(Math.PI);
-//  monster.lookAt(camera.position);
-//  monster.rotation.y = 90;
-
-  monsterGroup.add(monster);
-  monster4 = monster;
-  Monster4_is_loaded = true;
+  for (var i = 0; i < Monster_Spawn_Number; i ++) {
+    var RealMonster = monster.children[0].clone();
+    var Monster_Material4 = new THREE.MeshBasicMaterial({
+      color: 0x20cdab,
+      shading: THREE.FlatShading,
+    });
+    RealMonster.material = Monster_Material4;
+    var RandomNumber = Helper.getRandomInt(0, Monster_Spawn_Points.length -1);
+    var RandomSpawnPoint = Monster_Spawn_Points[RandomNumber];
+    Monster_Spawn_Points.splice(RandomNumber, 1);
+    RealMonster.position.x = RandomSpawnPoint.x;
+    RealMonster.position.y = RandomSpawnPoint.y;
+    RealMonster.position.z = RandomSpawnPoint.z;
+    RealMonster.lookAt(camera.position);
+    monsterGroup.push(RealMonster);
+  }
 }, onProgress, onError);
 
 var isMonsterSpawn = false;
+var monsterDisplayGroup = new THREE.Object3D();
 var startMonsterSpawn = function () {
-  scene.add(monsterGroup);
+  scene.add(monsterDisplayGroup);
   isMonsterSpawn = true;
+};
+
+var addMonster = function () {
+  // monsterGroup.forEach(function (value) {
+  //   monsterDisplayGroup.add(value);
+  // });
+  var monster = monsterGroup.pop();
+  monsterDisplayGroup.add(monster);
+};
+
+var removeMonster = function () {
+  monsterDisplayGroup.children.pop();
 };
 
 
 //----------------------Monster---------------------------
+
+var monsterShock = { x: 0, y: 0, z: 0 };
+var tween = new TWEEN.Tween(monsterShock)
+  .to({ x: 100, y: 100, z: 100 }, 1000)
+  .repeat(Infinity)//无限重复
+  .yoyo(true)//到达to的值后回到from的值
+  .onUpdate(function(interpolation) {
+    //interpolation 值域在[0,1]，this指向了monsterShock
+    var monsterArr = monsterDisplayGroup.children;
+    monsterArr.forEach(function (mon) {
+      if (interpolation >= 0.5) {
+        mon.position.y += 0.001;
+        mon.position.x += 0.001;
+        mon.rotation.y += Math.PI / 2 / 200;
+      } else {
+        mon.position.y -= 0.001;
+        mon.position.x -= 0.001;
+        mon.rotation.y -= Math.PI / 2 / 200;
+      }
+    });
+  })
+  .start();
 
 //----------------------Cabinet---------------------------
 var hemiLight;
@@ -344,11 +402,22 @@ ObjLoader.load('asset_src/box(2).obj', function (cabinet) {
 var GUIControl = {
   start: function () {
     startMonsterSpawn();
+  },
+  add: function () {
+    addMonster();
+  },
+  remove: function () {
+    removeMonster();
   }
 };
 
 var gui = new dat.GUI();
 gui.add(GUIControl, 'start');
+gui.add(GUIControl, 'add');
+gui.add(GUIControl, 'remove');
+
+var stats = new Stats();
+document.body.appendChild( stats.dom );
 
 window.addEventListener('resize', onResize, true);
 window.addEventListener('vrdisplaypresentchange', onResize, true);
@@ -361,38 +430,40 @@ var shootCount=0;//子弹计时器
 var shootFlag=75;//子弹帧数
 var shootStartPos=null;
 function animate(timestamp) {
+  stats.update();
+  tween.update(timestamp);
+
   var direction = camera.getWorldDirection();
-  gun.lookAt(direction);
 //  console.log(direction); // 方向输出
 
   raycaster.setFromCamera(mouse, camera );
 
   // calculate objects intersecting the picking ray
   if (isMonsterSpawn) {
-    var intersects = raycaster.intersectObjects( monsterGroup.children, true );
+    var intersects = raycaster.intersectObjects( monsterDisplayGroup.children );
 
     intersects.length > 0 ? console.log(intersects) : ''; // 鼠标指向
+    if (intersects.length == 0) {
+      hud.position.x = 0;
+      hud.position.y = -1;
+      hud.position.z = 0;
+    }
 
     for ( var i = 0; i < intersects.length; i++ ) {
 
-      intersects[ i ].object.material.color.set( 0xff0000 );
-
+      hud.position.x = intersects[i].object.position.x;
+      hud.position.y = intersects[i].object.position.y;
+      hud.position.z = intersects[i].object.position.z;
+      // intersects[ i ].object.material.color.set( 0xff0000 );
     }
   }
-//  const monsters = [];
-//  scene.children.forEach(function (value) {
-//    if (!(value.geometry instanceof THREE.BoxGeometry)) {
-//      monsters.push(value);
-//    }
-//  });
-//  console.log(monsters);
 
+  // monsterDisplayGroup.children.map(function (monster) {
+  //   monster.rotation.y += 0.01;
+  //   return monster;
+  // });
 
-
-  monster1.rotation.y += 0.01;
-  monster2.rotation.y += 0.01;
-  monster3.rotation.y += 0.01;
-  monster4.rotation.y += 0.01;
+  hud.lookAt(camera.position);
 
   var delta = Math.min(timestamp - lastRender, 500);
   lastRender = timestamp;
@@ -423,14 +494,14 @@ function animate(timestamp) {
     keyboard1.position.copy( camera.position );// 复制位置
     keyboard1.rotation.copy( camera.rotation );// 复制视角偏移角度
     //keyboard1.updateMatrix();
-    keyboard1.translateY( - 0.3 );
-    keyboard1.translateZ( - 0.45 );
+    keyboard1.translateY( - 0.2 );
+    keyboard1.translateZ( - 0.4 );
 
     keyboard2.position.copy( camera.position );
     keyboard2.rotation.copy( camera.rotation );
     //keyboard2.updateMatrix();
-    keyboard2.translateY( - 0.3 );
-    keyboard2.translateZ( - 0.45 );
+    keyboard2.translateY( - 0.2 );
+    keyboard2.translateZ( - 0.4 );
     //changeKeyboard(keyboard1,keyboard2,1000)
   }
   if(shoot1Loaded){
@@ -446,7 +517,7 @@ function animate(timestamp) {
       //console.log(shootStartPos)
     }
     shootFly(shoot1,shootStartPos,monster1.position,shootFlag,shootCount)
-    shootFly(boom1,shootStartPos,monster1.position,shootFlag,0)
+    shootFly(boom1,shootStartPos,monster1.position,shootFlag,shootCount)
     shootCount=(shootCount+1)%shootFlag;
     //changeKeyboard(keyboard1,keyboard2,1000)
   }
@@ -466,11 +537,11 @@ function onMouseMove( event ) {
   // calculate mouse position in normalized device coordinates
   // (-1 to +1) for both components
 
-  mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-  mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+  // mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+  // mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
-//  mouse.x = 0;
-//  mouse.y = 0;
+ mouse.x = 0;
+ mouse.y = 0;
 
 //  console.log('mouse', mouse); // 鼠标位置
 
@@ -523,6 +594,7 @@ function changeKeyboard(key1,key2,flag){//初始键盘对象,最终键盘对象,
 
 function shootFly(shoot,startPos,endPos,flag,count){//子弹对象,初始位置,目标点位置,过渡帧数,计时器
   var position=new THREE.Vector3(startPos.x+(endPos.x-startPos.x)*count/flag,startPos.y+(endPos.y-startPos.y)*count/flag,startPos.z+(endPos.z-startPos.z)*count/flag);
+  console.log(shoot,startPos,endPos,flag,count)
   shoot.position.copy( position );
   shoot.rotation.copy( camera.rotation );
   shoot.updateMatrix();
