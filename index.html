@@ -229,8 +229,12 @@ var monster2 = null;
 var monster3 = null;
 var monster4 = null;
 
+var Monster1_is_loaded = false;
+var Monster2_is_loaded = false;
+var Monster3_is_loaded = false;
+var Monster4_is_loaded = false;
+
 var monsterGroup = new THREE.Object3D();
-scene.add(monsterGroup);
 var Monster_Material = new THREE.MeshNormalMaterial();
 //ObjLoader.setMaterials(Monster_Material);
 ObjLoader.load('asset_src/a.obj', function (monster) {
@@ -241,9 +245,17 @@ ObjLoader.load('asset_src/a.obj', function (monster) {
 //  monster.position.x = -1;
   monster.rotateX(Math.PI);
 //  monster.rotation.y = 90;
-
   monsterGroup.add(monster);
   monster1 = monster;
+
+  var BoxGeometry = new THREE.BoxGeometry(5, 5, 5);
+  var BoxMaterial = new THREE.MeshLambertMaterial();
+  var Box = new THREE.Mesh(BoxGeometry, BoxMaterial);
+  Box.position.y = controls.userHeight;
+  Box.position.z = -1.2;
+  scene.add(Box);
+
+  Monster1_is_loaded = true;
 }, onProgress, onError);
 ObjLoader.load('asset_src/b.obj', function (monster) {
   monster.material = new THREE.MeshLambertMaterial();
@@ -256,6 +268,7 @@ ObjLoader.load('asset_src/b.obj', function (monster) {
 
   monsterGroup.add(monster);
   monster2 = monster;
+  Monster2_is_loaded = true;
 }, onProgress, onError);
 ObjLoader.load('asset_src/c.obj', function (monster) {
   monster.material = new THREE.MeshLambertMaterial();
@@ -268,6 +281,7 @@ ObjLoader.load('asset_src/c.obj', function (monster) {
 
   monsterGroup.add(monster);
   monster3 = monster;
+  Monster3_is_loaded = true;
 }, onProgress, onError);
 ObjLoader.load('asset_src/d.obj', function (monster) {
   monster.material = new THREE.MeshLambertMaterial();
@@ -280,7 +294,14 @@ ObjLoader.load('asset_src/d.obj', function (monster) {
 
   monsterGroup.add(monster);
   monster4 = monster;
+  Monster4_is_loaded = true;
 }, onProgress, onError);
+
+var isMonsterSpawn = false;
+var startMonsterSpawn = function () {
+  scene.add(monsterGroup);
+  isMonsterSpawn = true;
+};
 
 
 //----------------------Monster---------------------------
@@ -351,7 +372,7 @@ window.addEventListener('mousemove', onMouseMove, true);
 
 // Request animation frame loop function
 var lastRender = 0;
-
+var cursor = new THREE.Vector2(0, 0);
 function animate(timestamp) {
   var direction = camera.getWorldDirection();
   gun.lookAt(direction);
@@ -360,7 +381,7 @@ function animate(timestamp) {
   raycaster.setFromCamera(mouse, camera );
 
   // calculate objects intersecting the picking ray
-  if (monsterGroup.children.length > 0) {
+  if (isMonsterSpawn) {
     var intersects = raycaster.intersectObjects( monsterGroup.children, true );
 
     intersects.length > 0 ? console.log(intersects) : ''; // 鼠标指向
