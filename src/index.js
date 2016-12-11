@@ -39,6 +39,7 @@ var mouse = new THREE.Vector2();
 
 // Add a repeating grid as a skybox.
 var boxSize = 100;
+var hudSize = 0.6;
 var loader = new THREE.TextureLoader();
 loader.load('img/box.png', onTextureLoaded);
 
@@ -88,6 +89,21 @@ var manager = new WebVRManager(renderer, effect, params);
 // gun.position.set(-0.5, controls.userHeight - 0.5, 0);
 
 //scene.add(gun);
+loader.load('img/hover.png', onHUDLoaded);
+function onHUDLoaded(texture) {
+  var geometry = new THREE.PlaneGeometry(hudSize, hudSize, hudSize);
+  var material = new THREE.MeshBasicMaterial({
+    map: texture,
+    transparent: true,
+    depthWrite: false,
+    // color: 0x01BE00,
+    side: THREE.DoubleSide
+  });
+
+  hud = new THREE.Mesh(geometry, material);
+  scene.add(hud);
+}
+
 //----------------------Model---------------------------
 
 //----------------------Monster---------------------------
@@ -95,7 +111,7 @@ var manager = new WebVRManager(renderer, effect, params);
 // monster spawn point
 // 怪物生成点
 var Monster_Spawn_Points = [];
-[4.5, 5, 5.5, 6].forEach(function (var_radius) {
+[2, 3, 5, 6].forEach(function (var_radius) {
   var MonsterGeoMetry = new THREE.SphereGeometry(var_radius, 25, 5);
   for (var n = 52; n <= 77; n++) {
     Monster_Spawn_Points.push(MonsterGeoMetry.vertices[n]);
@@ -103,25 +119,11 @@ var Monster_Spawn_Points = [];
 });
 console.log(Monster_Spawn_Points);
 
-// for (var i=0; i< Monster_Spawn_Points.length; i++) {
-//   var geometry2 = new THREE.BoxGeometry(0.3, 0.5, 0.5);
-//   var material2 = new THREE.MeshNormalMaterial();
-//   var cube2 = new THREE.Mesh(geometry2, material2);
-// //  var SphereLight = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshNormalMaterial());
-// //  console.log(Monster_Spawn_Points[i]);
-//   cube2.position.x = Monster_Spawn_Points[i].x;
-//   cube2.position.y = Monster_Spawn_Points[i].y;
-//   cube2.position.z = Monster_Spawn_Points[i].z;
-//   scene.add(cube2);
-// }
-
-
-
 var onProgress = function ( xhr ) {
-  if ( xhr.lengthComputable ) {
-    var percentComplete = xhr.loaded / xhr.total * 100;
-    console.log( Math.round(percentComplete, 2) + '% downloaded' );
-  }
+  // if ( xhr.lengthComputable ) {
+  //   var percentComplete = xhr.loaded / xhr.total * 100;
+  //   console.log( Math.round(percentComplete, 2) + '% downloaded' );
+  // }
 };
 
 var onError = function (xhr) {
@@ -129,46 +131,19 @@ var onError = function (xhr) {
 };
 
 var ObjLoader = new THREE.OBJLoader();
-var monster1 = null;
-var monster2 = null;
-var monster3 = null;
-var monster4 = null;
-
-var Monster1_is_loaded = false;
-var Monster2_is_loaded = false;
-var Monster3_is_loaded = false;
-var Monster4_is_loaded = false;
 
 var monsterGroup = [];
 var Monster_Spawn_Number = 25;
-var Monster_Material1 = new THREE.MeshBasicMaterial({
-  color: 0xf4c60b,
-  // emissive: 0x0587fa,
-  // emissiveIntensity: 0.5,
-  shading: THREE.FlatShading,
-  envMaps: 'reflection'
-});
-var Monster_Material2 = new THREE.MeshBasicMaterial({
-  color: 0xea6c00,
-  shading: THREE.FlatShading,
-  envMaps: 'reflection'
-});
-var Monster_Material3 = new THREE.MeshBasicMaterial({
-  color: 0xa452cb,
-  shading: THREE.FlatShading,
-  envMaps: 'reflection'
-});
-var Monster_Material4 = new THREE.MeshBasicMaterial({
-  color: 0x20cdab,
-  shading: THREE.FlatShading,
-  envMaps: 'reflection'
-});
-
-//ObjLoader.setMaterials(Monster_Material);
 ObjLoader.load('asset_src/a.obj', function (monster) {
   monster.rotateX(Math.PI);
   for (var i = 0; i < Monster_Spawn_Number; i ++) {
     var RealMonster = monster.children[0].clone();
+    var Monster_Material1 = new THREE.MeshBasicMaterial({
+      color: 0xf4c60b,
+      // emissive: 0x0587fa,
+      // emissiveIntensity: 0.5,
+      shading: THREE.FlatShading,
+    });
     RealMonster.material = Monster_Material1;
     var RandomNumber = Helper.getRandomInt(0, Monster_Spawn_Points.length -1);
     var RandomSpawnPoint = Monster_Spawn_Points[RandomNumber];
@@ -178,18 +153,16 @@ ObjLoader.load('asset_src/a.obj', function (monster) {
     RealMonster.position.z = RandomSpawnPoint.z;
     monsterGroup.push(RealMonster);
   }
-  // monster.position.y = controls.userHeight;
-  // monster.position.z = -1.2;
-  // monster.lookAt(camera.position);
-  // monster.position.x = -1;
-  // monster.rotation.y = 90;
-  // monsterGroup.add(monster);
   monster1 = monster;
   Monster1_is_loaded = true;
 }, onProgress, onError);
 ObjLoader.load('asset_src/b.obj', function (monster) {
   for (var i = 0; i < Monster_Spawn_Number; i ++) {
     var RealMonster = monster.children[0].clone();
+    var Monster_Material2 = new THREE.MeshBasicMaterial({
+      color: 0xea6c00,
+      shading: THREE.FlatShading,
+    });
     RealMonster.material = Monster_Material2;
     var RandomNumber = Helper.getRandomInt(0, Monster_Spawn_Points.length -1);
     var RandomSpawnPoint = Monster_Spawn_Points[RandomNumber];
@@ -204,6 +177,10 @@ ObjLoader.load('asset_src/b.obj', function (monster) {
 ObjLoader.load('asset_src/c.obj', function (monster) {
   for (var i = 0; i < Monster_Spawn_Number; i ++) {
     var RealMonster = monster.children[0].clone();
+    var Monster_Material3 = new THREE.MeshBasicMaterial({
+      color: 0xa452cb,
+      shading: THREE.FlatShading,
+    });
     RealMonster.material = Monster_Material3;
     var RandomNumber = Helper.getRandomInt(0, Monster_Spawn_Points.length -1);
     var RandomSpawnPoint = Monster_Spawn_Points[RandomNumber];
@@ -213,14 +190,14 @@ ObjLoader.load('asset_src/c.obj', function (monster) {
     RealMonster.position.z = RandomSpawnPoint.z;
     monsterGroup.push(RealMonster);
   }
-
-  // monsterGroup.add(monster);
-  // monster3 = monster;
-  // Monster3_is_loaded = true;
 }, onProgress, onError);
 ObjLoader.load('asset_src/d.obj', function (monster) {
   for (var i = 0; i < Monster_Spawn_Number; i ++) {
     var RealMonster = monster.children[0].clone();
+    var Monster_Material4 = new THREE.MeshBasicMaterial({
+      color: 0x20cdab,
+      shading: THREE.FlatShading,
+    });
     RealMonster.material = Monster_Material4;
     var RandomNumber = Helper.getRandomInt(0, Monster_Spawn_Points.length -1);
     var RandomSpawnPoint = Monster_Spawn_Points[RandomNumber];
@@ -230,10 +207,6 @@ ObjLoader.load('asset_src/d.obj', function (monster) {
     RealMonster.position.z = RandomSpawnPoint.z;
     monsterGroup.push(RealMonster);
   }
-//
-//   monsterGroup.add(monster);
-//   monster4 = monster;
-//   Monster4_is_loaded = true;
 }, onProgress, onError);
 
 var isMonsterSpawn = false;
@@ -244,15 +217,37 @@ var startMonsterSpawn = function () {
 };
 
 var addMonster = function () {
-  monsterGroup.forEach(function (value) {
-    monsterDisplayGroup.add(value);
-  });
-  // var monster = monsterGroup.pop();
-  // monsterDisplayGroup.add(monster);
+  // monsterGroup.forEach(function (value) {
+  //   monsterDisplayGroup.add(value);
+  // });
+  var monster = monsterGroup.pop();
+  monsterDisplayGroup.add(monster);
+};
+
+var removeMonster = function () {
+  monsterDisplayGroup.children.pop();
 };
 
 
 //----------------------Monster---------------------------
+
+var monsterShock = { x: 0, y: 0, z: 0 };
+var tween = new TWEEN.Tween(monsterShock)
+  .to({ x: 100, y: 100, z: 100 }, 1000)
+  .repeat(Infinity)//无限重复
+  .yoyo(true)//到达to的值后回到from的值
+  .onUpdate(function(interpolation) {
+    //interpolation 值域在[0,1]，this指向了monsterShock
+    var monsterArr = monsterDisplayGroup.children;
+    monsterArr.forEach(function (mon) {
+      if (interpolation > 0.5) {
+        mon.position.y += 0.001;
+      } else {
+        mon.position.y -= 0.001;
+      }
+    });
+  })
+  .start();
 
 //----------------------Cabinet---------------------------
 var hemiLight;
@@ -312,12 +307,19 @@ var GUIControl = {
   },
   add: function () {
     addMonster();
+  },
+  remove: function () {
+    removeMonster();
   }
 };
 
 var gui = new dat.GUI();
 gui.add(GUIControl, 'start');
 gui.add(GUIControl, 'add');
+gui.add(GUIControl, 'remove');
+
+var stats = new Stats();
+document.body.appendChild( stats.dom );
 
 window.addEventListener('resize', onResize, true);
 window.addEventListener('vrdisplaypresentchange', onResize, true);
@@ -327,6 +329,9 @@ window.addEventListener('mousemove', onMouseMove, true);
 var lastRender = 0;
 var cursor = new THREE.Vector2(0, 0);
 function animate(timestamp) {
+  stats.update();
+  tween.update(timestamp);
+
   var direction = camera.getWorldDirection();
 //  console.log(direction); // 方向输出
 
@@ -334,30 +339,30 @@ function animate(timestamp) {
 
   // calculate objects intersecting the picking ray
   if (isMonsterSpawn) {
-    var intersects = raycaster.intersectObjects( monsterGroup.children );
+    var intersects = raycaster.intersectObjects( monsterDisplayGroup.children );
 
     intersects.length > 0 ? console.log(intersects) : ''; // 鼠标指向
+    if (intersects.length == 0) {
+      hud.position.x = 0;
+      hud.position.y = -1;
+      hud.position.z = 0;
+    }
 
     for ( var i = 0; i < intersects.length; i++ ) {
 
-      intersects[ i ].object.material.color.set( 0xff0000 );
-
+      hud.position.x = intersects[i].object.position.x;
+      hud.position.y = intersects[i].object.position.y;
+      hud.position.z = intersects[i].object.position.z;
+      // intersects[ i ].object.material.color.set( 0xff0000 );
     }
   }
-//  const monsters = [];
-//  scene.children.forEach(function (value) {
-//    if (!(value.geometry instanceof THREE.BoxGeometry)) {
-//      monsters.push(value);
-//    }
-//  });
-//  console.log(monsters);
 
+  // monsterDisplayGroup.children.map(function (monster) {
+  //   monster.rotation.y += 0.01;
+  //   return monster;
+  // });
 
-
-  monsterDisplayGroup.children.map(function (monster) {
-    monster.rotation.y += 0.01;
-    return monster;
-  });
+  hud.lookAt(camera.position);
 
   var delta = Math.min(timestamp - lastRender, 500);
   lastRender = timestamp;
@@ -381,11 +386,11 @@ function onMouseMove( event ) {
   // calculate mouse position in normalized device coordinates
   // (-1 to +1) for both components
 
-  mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-  mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+  // mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+  // mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
-//  mouse.x = 0;
-//  mouse.y = 0;
+ mouse.x = 0;
+ mouse.y = 0;
 
 //  console.log('mouse', mouse); // 鼠标位置
 
