@@ -95,7 +95,7 @@ var manager = new WebVRManager(renderer, effect, params);
 // monster spawn point
 // 怪物生成点
 var Monster_Spawn_Points = [];
-[4.5, 5, 5.5, 6].forEach(function (var_radius) {
+[2, 3, 5, 6].forEach(function (var_radius) {
   var MonsterGeoMetry = new THREE.SphereGeometry(var_radius, 25, 5);
   for (var n = 52; n <= 77; n++) {
     Monster_Spawn_Points.push(MonsterGeoMetry.vertices[n]);
@@ -129,42 +129,19 @@ var onError = function (xhr) {
 };
 
 var ObjLoader = new THREE.OBJLoader();
-var monster1 = null;
-var monster2 = null;
-var monster3 = null;
-var monster4 = null;
-
-var Monster1_is_loaded = false;
-var Monster2_is_loaded = false;
-var Monster3_is_loaded = false;
-var Monster4_is_loaded = false;
 
 var monsterGroup = [];
 var Monster_Spawn_Number = 25;
-var Monster_Material1 = new THREE.MeshBasicMaterial({
-  color: 0xf4c60b,
-  // emissive: 0x0587fa,
-  // emissiveIntensity: 0.5,
-  shading: THREE.FlatShading,
-});
-var Monster_Material2 = new THREE.MeshBasicMaterial({
-  color: 0xea6c00,
-  shading: THREE.FlatShading,
-});
-var Monster_Material3 = new THREE.MeshBasicMaterial({
-  color: 0xa452cb,
-  shading: THREE.FlatShading,
-});
-var Monster_Material4 = new THREE.MeshBasicMaterial({
-  color: 0x20cdab,
-  shading: THREE.FlatShading,
-});
-
-//ObjLoader.setMaterials(Monster_Material);
 ObjLoader.load('asset_src/a.obj', function (monster) {
   monster.rotateX(Math.PI);
   for (var i = 0; i < Monster_Spawn_Number; i ++) {
     var RealMonster = monster.children[0].clone();
+    var Monster_Material1 = new THREE.MeshBasicMaterial({
+      color: 0xf4c60b,
+      // emissive: 0x0587fa,
+      // emissiveIntensity: 0.5,
+      shading: THREE.FlatShading,
+    });
     RealMonster.material = Monster_Material1;
     var RandomNumber = Helper.getRandomInt(0, Monster_Spawn_Points.length -1);
     var RandomSpawnPoint = Monster_Spawn_Points[RandomNumber];
@@ -174,18 +151,16 @@ ObjLoader.load('asset_src/a.obj', function (monster) {
     RealMonster.position.z = RandomSpawnPoint.z;
     monsterGroup.push(RealMonster);
   }
-  // monster.position.y = controls.userHeight;
-  // monster.position.z = -1.2;
-  // monster.lookAt(camera.position);
-  // monster.position.x = -1;
-  // monster.rotation.y = 90;
-  // monsterGroup.add(monster);
   monster1 = monster;
   Monster1_is_loaded = true;
 }, onProgress, onError);
 ObjLoader.load('asset_src/b.obj', function (monster) {
   for (var i = 0; i < Monster_Spawn_Number; i ++) {
     var RealMonster = monster.children[0].clone();
+    var Monster_Material2 = new THREE.MeshBasicMaterial({
+      color: 0xea6c00,
+      shading: THREE.FlatShading,
+    });
     RealMonster.material = Monster_Material2;
     var RandomNumber = Helper.getRandomInt(0, Monster_Spawn_Points.length -1);
     var RandomSpawnPoint = Monster_Spawn_Points[RandomNumber];
@@ -200,6 +175,10 @@ ObjLoader.load('asset_src/b.obj', function (monster) {
 ObjLoader.load('asset_src/c.obj', function (monster) {
   for (var i = 0; i < Monster_Spawn_Number; i ++) {
     var RealMonster = monster.children[0].clone();
+    var Monster_Material3 = new THREE.MeshBasicMaterial({
+      color: 0xa452cb,
+      shading: THREE.FlatShading,
+    });
     RealMonster.material = Monster_Material3;
     var RandomNumber = Helper.getRandomInt(0, Monster_Spawn_Points.length -1);
     var RandomSpawnPoint = Monster_Spawn_Points[RandomNumber];
@@ -209,14 +188,14 @@ ObjLoader.load('asset_src/c.obj', function (monster) {
     RealMonster.position.z = RandomSpawnPoint.z;
     monsterGroup.push(RealMonster);
   }
-
-  // monsterGroup.add(monster);
-  // monster3 = monster;
-  // Monster3_is_loaded = true;
 }, onProgress, onError);
 ObjLoader.load('asset_src/d.obj', function (monster) {
   for (var i = 0; i < Monster_Spawn_Number; i ++) {
     var RealMonster = monster.children[0].clone();
+    var Monster_Material4 = new THREE.MeshBasicMaterial({
+      color: 0x20cdab,
+      shading: THREE.FlatShading,
+    });
     RealMonster.material = Monster_Material4;
     var RandomNumber = Helper.getRandomInt(0, Monster_Spawn_Points.length -1);
     var RandomSpawnPoint = Monster_Spawn_Points[RandomNumber];
