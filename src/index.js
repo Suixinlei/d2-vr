@@ -39,6 +39,7 @@ var mouse = new THREE.Vector2();
 
 // Add a repeating grid as a skybox.
 var boxSize = 100;
+var hudSize = 1;
 var loader = new THREE.TextureLoader();
 loader.load('img/box.png', onTextureLoaded);
 
@@ -88,6 +89,19 @@ var manager = new WebVRManager(renderer, effect, params);
 // gun.position.set(-0.5, controls.userHeight - 0.5, 0);
 
 //scene.add(gun);
+loader.load('img/box.png', onHUDLoaded);
+function onHUDLoaded(texture) {
+  var geometry = new THREE.PlaneGeometry(hudSize, hudSize, hudSize);
+  var material = new THREE.MeshBasicMaterial({
+    map: texture,
+    color: 0x01BE00,
+    side: THREE.DoubleSide
+  });
+
+  hud = new THREE.Mesh(geometry, material);
+  scene.add(hud);
+}
+
 //----------------------Model---------------------------
 
 //----------------------Monster---------------------------
@@ -103,25 +117,11 @@ var Monster_Spawn_Points = [];
 });
 console.log(Monster_Spawn_Points);
 
-// for (var i=0; i< Monster_Spawn_Points.length; i++) {
-//   var geometry2 = new THREE.BoxGeometry(0.3, 0.5, 0.5);
-//   var material2 = new THREE.MeshNormalMaterial();
-//   var cube2 = new THREE.Mesh(geometry2, material2);
-// //  var SphereLight = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshNormalMaterial());
-// //  console.log(Monster_Spawn_Points[i]);
-//   cube2.position.x = Monster_Spawn_Points[i].x;
-//   cube2.position.y = Monster_Spawn_Points[i].y;
-//   cube2.position.z = Monster_Spawn_Points[i].z;
-//   scene.add(cube2);
-// }
-
-
-
 var onProgress = function ( xhr ) {
-  if ( xhr.lengthComputable ) {
-    var percentComplete = xhr.loaded / xhr.total * 100;
-    console.log( Math.round(percentComplete, 2) + '% downloaded' );
-  }
+  // if ( xhr.lengthComputable ) {
+  //   var percentComplete = xhr.loaded / xhr.total * 100;
+  //   console.log( Math.round(percentComplete, 2) + '% downloaded' );
+  // }
 };
 
 var onError = function (xhr) {
@@ -205,10 +205,6 @@ ObjLoader.load('asset_src/d.obj', function (monster) {
     RealMonster.position.z = RandomSpawnPoint.z;
     monsterGroup.push(RealMonster);
   }
-//
-//   monsterGroup.add(monster);
-//   monster4 = monster;
-//   Monster4_is_loaded = true;
 }, onProgress, onError);
 
 var isMonsterSpawn = false;
@@ -320,24 +316,20 @@ function animate(timestamp) {
 
     for ( var i = 0; i < intersects.length; i++ ) {
 
-      intersects[ i ].object.material.color.set( 0xff0000 );
+      hud.position.x = intersects[i].object.position.x;
+      hud.position.y = intersects[i].object.position.y;
+      hud.position.z = intersects[i].object.position.z;
+      // intersects[ i ].object.material.color.set( 0xff0000 );
 
     }
   }
-//  const monsters = [];
-//  scene.children.forEach(function (value) {
-//    if (!(value.geometry instanceof THREE.BoxGeometry)) {
-//      monsters.push(value);
-//    }
-//  });
-//  console.log(monsters);
-
-
 
   monsterDisplayGroup.children.map(function (monster) {
     monster.rotation.y += 0.01;
     return monster;
   });
+
+  hud.lookAt(camera.position);
 
   var delta = Math.min(timestamp - lastRender, 500);
   lastRender = timestamp;
