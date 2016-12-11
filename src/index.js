@@ -105,6 +105,54 @@ function onHUDLoaded(texture) {
 }
 
 //----------------------Model---------------------------
+var startPage;
+function showStartPage() {
+  var loader = new THREE.TextureLoader();
+  loader.load('img/hover.png', function(texture){
+    var geometry = new THREE.SphereGeometry( 3, 32, 32 );
+    var material = new THREE.MeshBasicMaterial( {
+      map: texture,
+      color: 0xffff00
+    } );
+    var sphere = new THREE.Mesh( geometry, material );
+    sphere.position.set(0, controls.userHeight, -4)
+    //scene.add( sphere );
+
+    var geometry = new THREE.PlaneGeometry( 0.5, 0.5, 32 );
+    var material = new THREE.MeshBasicMaterial( {
+      map: texture,
+      //color: 0xffff00,
+      side: THREE.DoubleSide,
+      //opacity:0.6,
+      transparent: true
+    } );
+    startPage = new THREE.Mesh( geometry, material );
+    startPage.position.set(0, controls.userHeight, -0.5)
+    scene.add( startPage );
+
+  });
+
+}
+
+function pureRemoveMesh(mesh) {
+  if (!mesh) {
+    return;
+  }
+  var it = setInterval(function() {
+    mesh.material.opacity -= 0.1;
+    if (mesh.material.opacity <= 0) {
+      window.clearInterval(it);
+      scene.remove(mesh);
+    }
+  },20);
+}
+
+function removeStartPage() {
+  pureRemoveMesh(startPage)
+}
+
+
+
 
 //----------------------Monster---------------------------
 
@@ -305,6 +353,13 @@ var GUIControl = {
   start: function () {
     startMonsterSpawn();
   },
+  showStartPage: function () {
+    console.log('game start');
+    showStartPage();
+  },
+  removeStartPage: function () {
+    removeStartPage();
+  },
   add: function () {
     addMonster();
   },
@@ -315,6 +370,8 @@ var GUIControl = {
 
 var gui = new dat.GUI();
 gui.add(GUIControl, 'start');
+gui.add(GUIControl, 'showStartPage');
+gui.add(GUIControl, 'removeStartPage');
 gui.add(GUIControl, 'add');
 gui.add(GUIControl, 'remove');
 
