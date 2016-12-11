@@ -213,7 +213,34 @@ var monster1 = null;
 var monster2 = null;
 var monster3 = null;
 var monster4 = null;
+var keyboard1= null;
 var Monster_Material = new THREE.MeshNormalMaterial();
+
+//var imageLoader = new THREE.ImageLoader();
+//ObjLoader.load('asset_src/键盘.obj', function (keyboard) {
+//  console.log(keyboard)
+//  keyboard.material = new THREE.MeshLambertMaterial();
+//  keyboard.position.x = 5;
+//  keyboard.position.y = controls.userHeight;
+//  keyboard.position.z = -1;
+//  keyboard.lookAt(camera.position);
+//  keyboard.rotateX(Math.PI/2);
+//  //scene.add(keyboard);
+//  //keyboard1 = keyboard;
+//}, onProgress, onError);
+var keyboardloaded=false;
+//loader.load('img/keyboard.png', function(){
+  var texture = THREE.ImageUtils.loadTexture("img/keyboard.png",null,function(t) {
+    keyboardloaded=true;
+    var material = new THREE.MeshBasicMaterial({map:texture});
+    var keyboardGeometry = new THREE.BoxGeometry(1, 0, 0.25);//width,height,deep
+    var mesh = new THREE.Mesh( keyboardGeometry,material );
+    keyboard1 = mesh;
+    scene.add( mesh );
+  });
+
+//});
+
 //ObjLoader.setMaterials(Monster_Material);
 ObjLoader.load('asset_src/怪物1.obj', function (monster) {
   monster.material = new THREE.MeshLambertMaterial();
@@ -307,7 +334,19 @@ function animate(timestamp) {
   var direction = camera.getWorldDirection();
   gun.lookAt(direction);
 //  console.log(direction); // 方向输出
-
+//  var cameraPosition=camera.position.clone();
+//  cameraPosition.x=camera.position.x//+1;
+//  cameraPosition.y=camera.position.y//+1.2;
+//  cameraPosition.z=camera.position.z//+1.3;
+//  console.log(keyboard1);
+  if(keyboardloaded){
+    keyboard1.position.copy( camera.position );
+    keyboard1.rotation.copy( camera.rotation );
+    keyboard1.updateMatrix();
+//  keyboard1.translateX( 0.1 );
+  keyboard1.translateY( - 0.6 );
+    keyboard1.translateZ( - 1 );
+  }
   raycaster.setFromCamera( mouse, camera );
 
   // calculate objects intersecting the picking ray
