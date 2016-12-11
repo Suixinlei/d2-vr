@@ -66,7 +66,7 @@
       };
 
       // _Recognition is offloaded to a separate thread to avoid slowing UI_
-      this.recognizer = new Worker('/src/julius/worker.js');
+      this.recognizer = new Worker('./src/julius/worker.js');
 
       this.recognizer.onmessage = function(e) {
         if (e.data.type === 'begin') {

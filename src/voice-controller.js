@@ -45,7 +45,7 @@ function palyKeyBoardMusic() {
  */
 
 function doLisenVoiceInput(callback) {
-  var julius = new Julius('/src/julius/voxforge/sample.dfa', '/src/julius/voxforge/sample.dict', {
+  var julius = new Julius('./voxforge/sample.dfa', './voxforge/sample.dict', {
     //verbose: true,
     transfer:true
   });
@@ -53,6 +53,7 @@ function doLisenVoiceInput(callback) {
     console.log(sentence, score);
     //if (/^[BC]ALL/.test(sentence)) {
     if (/ALL/.test(sentence)) {
+      console.log('爆')
       callback && callback();
     } else {
       //document.getElementById('text').innerText = sentence
@@ -60,9 +61,6 @@ function doLisenVoiceInput(callback) {
   };
   julius.onfail = function(){
     console.log('fail....')
-  }
-  julius.onfirstpass = function(){
-    console.log('onfirstpass....')
   }
   console.log('record start, please input...')
   return julius;
