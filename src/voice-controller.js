@@ -18,7 +18,7 @@ function palyBackGroundMusic() {
   return au;
 }
 
-//var bgMusic = palyBackGroundMusic();
+var bgMusic = palyBackGroundMusic();
 
 //setTimeout(function() {
 //  bgMusic.pause();
@@ -66,4 +66,6 @@ function doLisenVoiceInput(callback) {
   return julius;
 }
 
-var voiceInput = doLisenVoiceInput();
+var voiceInput = doLisenVoiceInput(function(){
+  //removeStartPage();
+});

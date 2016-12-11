@@ -106,19 +106,15 @@ function onHUDLoaded(texture) {
 
 //----------------------Model---------------------------
 var startPage;
+var startPageHover;
+var playBtn;
+var playBtnHover;
+var showstartHoverEffect = true;
+
 function showStartPage() {
   var loader = new THREE.TextureLoader();
-  loader.load('img/hover.png', function(texture){
-    var geometry = new THREE.SphereGeometry( 3, 32, 32 );
-    var material = new THREE.MeshBasicMaterial( {
-      map: texture,
-      color: 0xffff00
-    } );
-    var sphere = new THREE.Mesh( geometry, material );
-    sphere.position.set(0, controls.userHeight, -4)
-    //scene.add( sphere );
-
-    var geometry = new THREE.PlaneGeometry( 0.5, 0.5, 32 );
+  loader.load('img/start-page.png', function(texture){
+    var geometry = new THREE.PlaneGeometry( 1.344, 0.75, 32 );
     var material = new THREE.MeshBasicMaterial( {
       map: texture,
       //color: 0xffff00,
@@ -129,9 +125,35 @@ function showStartPage() {
     startPage = new THREE.Mesh( geometry, material );
     startPage.position.set(0, controls.userHeight, -0.5)
     scene.add( startPage );
-
   });
-
+  var loader = new THREE.TextureLoader();
+  loader.load('img/play-normal.png', function(texture){
+    var geometry = new THREE.PlaneGeometry( 0.212, 0.056, 32 );
+    var material = new THREE.MeshBasicMaterial( {
+      map: texture,
+      //color: 0xffff00,
+      side: THREE.DoubleSide,
+      //opacity:0.6,
+      transparent: true
+    } );
+    playBtn = new THREE.Mesh( geometry, material );
+    playBtn.position.set(0, controls.userHeight-0.25, -0.48)
+    scene.add( playBtn );
+  });
+  var loader = new THREE.TextureLoader();
+  loader.load('img/play-hover.png', function(texture){
+    var geometry = new THREE.PlaneGeometry( 0.212, 0.056, 32 );
+    var material = new THREE.MeshBasicMaterial( {
+      map: texture,
+      //color: 0xffff00,
+      side: THREE.DoubleSide,
+      opacity:0,
+      transparent: true
+    } );
+    playBtnHover = new THREE.Mesh( geometry, material );
+    playBtnHover.position.set(0, controls.userHeight-0.25, -0.46)
+    scene.add( playBtnHover );
+  });
 }
 
 function pureRemoveMesh(mesh) {
@@ -143,14 +165,32 @@ function pureRemoveMesh(mesh) {
     if (mesh.material.opacity <= 0) {
       window.clearInterval(it);
       scene.remove(mesh);
+      console.log(startPage)
     }
   },20);
 }
 
 function removeStartPage() {
-  pureRemoveMesh(startPage)
+  showstartHoverEffect = true;
+  pureRemoveMesh(startPage);
+  startPage = null;
+  pureRemoveMesh(playBtn);
+  playBtn = null;
+  pureRemoveMesh(playBtnHover);
+  playBtnHover = null;
 }
 
+
+document.addEventListener("touchstart",function(e){
+  if (playBtn && playBtnHover) {
+    var intersects = raycaster.intersectObject( playBtn );
+    if (intersects.length) {
+      console.log('game start!')
+      removeStartPage()
+    }
+  }
+  console.log(e)
+}, false);
 
 
 
@@ -362,7 +402,6 @@ var GUIControl = {
     startMonsterSpawn();
   },
   showStartPage: function () {
-    console.log('game start');
     showStartPage();
   },
   removeStartPage: function () {
@@ -421,6 +460,28 @@ function animate(timestamp) {
       // intersects[ i ].object.material.color.set( 0xff0000 );
     }
   }
+
+  if (playBtn&&playBtnHover) {
+    var intersects = raycaster.intersectObject( playBtn );
+    var step = 0.02;
+    if (intersects.length) {
+      if (showstartHoverEffect) {
+        playBtnHover.material.opacity -= step;
+        if (playBtnHover.material.opacity<=0) {
+          showstartHoverEffect = false;
+        }
+      } else {
+        playBtnHover.material.opacity += step;
+        if (playBtnHover.material.opacity>=1) {
+          showstartHoverEffect = true;
+        }
+      }
+    } else if (playBtnHover) {
+      playBtnHover.material.opacity = 0;
+    }
+  }
+
+
 
   // monsterDisplayGroup.children.map(function (monster) {
   //   monster.rotation.y += 0.01;
