@@ -315,6 +315,9 @@ var gui = new dat.GUI();
 gui.add(GUIControl, 'start');
 gui.add(GUIControl, 'add');
 
+var stats = new Stats();
+document.body.appendChild( stats.dom );
+
 window.addEventListener('resize', onResize, true);
 window.addEventListener('vrdisplaypresentchange', onResize, true);
 window.addEventListener('mousemove', onMouseMove, true);
@@ -323,6 +326,8 @@ window.addEventListener('mousemove', onMouseMove, true);
 var lastRender = 0;
 var cursor = new THREE.Vector2(0, 0);
 function animate(timestamp) {
+  stats.update();
+
   var direction = camera.getWorldDirection();
 //  console.log(direction); // 方向输出
 
