@@ -9,6 +9,7 @@
   "dependencies": {
     "dat.gui": "^0.6.1",
     "es6-promise": "^4.0.5",
+    "stats.js": "^0.17.0",
     "three": "^0.82.1",
     "tween.js": "^16.3.5",
     "webvr-polyfill": "^0.9.3"
