@@ -64,7 +64,6 @@ function onTextureLoaded(texture) {
   setupStage();
 }
 
-
 // Create a VR manager helper to enter and exit VR mode.
 var params = {
   hideButton: false, // Default: false.
@@ -75,18 +74,18 @@ var manager = new WebVRManager(renderer, effect, params);
 //----------------------Model---------------------------
 
 // Create Gun Object
-var Gun_Geometry = new THREE.BoxGeometry(0.5, 0.5, 2);
-var Gun_Material = new THREE.MeshNormalMaterial();
-var gun = new THREE.Mesh(Gun_Geometry, Gun_Material);
+// var Gun_Geometry = new THREE.BoxGeometry(0.5, 0.5, 2);
+// var Gun_Material = new THREE.MeshNormalMaterial();
+// var gun = new THREE.Mesh(Gun_Geometry, Gun_Material);
 
 // Create Laser Object
-var Laser_Geometry = new THREE.CylinderGeometry( 1, 1, 20, 32 );
-var Laser_Material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
-var cylinder = new THREE.Mesh( Laser_Geometry, Laser_Material );
-scene.add( cylinder );
+// var Laser_Geometry = new THREE.CylinderGeometry( 1, 1, 20, 32 );
+// var Laser_Material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+// var cylinder = new THREE.Mesh( Laser_Geometry, Laser_Material );
+// scene.add( cylinder );
 
 //
-gun.position.set(-0.5, controls.userHeight - 0.5, 0);
+// gun.position.set(-0.5, controls.userHeight - 0.5, 0);
 
 //scene.add(gun);
 //----------------------Model---------------------------
@@ -104,17 +103,17 @@ var Monster_Spawn_Points = [];
 });
 console.log(Monster_Spawn_Points);
 
-for (var i=0; i< Monster_Spawn_Points.length; i++) {
-  var geometry2 = new THREE.BoxGeometry(0.3, 0.5, 0.5);
-  var material2 = new THREE.MeshNormalMaterial();
-  var cube2 = new THREE.Mesh(geometry2, material2);
-//  var SphereLight = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshNormalMaterial());
-//  console.log(Monster_Spawn_Points[i]);
-  cube2.position.x = Monster_Spawn_Points[i].x;
-  cube2.position.y = Monster_Spawn_Points[i].y;
-  cube2.position.z = Monster_Spawn_Points[i].z;
-  scene.add(cube2);
-}
+// for (var i=0; i< Monster_Spawn_Points.length; i++) {
+//   var geometry2 = new THREE.BoxGeometry(0.3, 0.5, 0.5);
+//   var material2 = new THREE.MeshNormalMaterial();
+//   var cube2 = new THREE.Mesh(geometry2, material2);
+// //  var SphereLight = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshNormalMaterial());
+// //  console.log(Monster_Spawn_Points[i]);
+//   cube2.position.x = Monster_Spawn_Points[i].x;
+//   cube2.position.y = Monster_Spawn_Points[i].y;
+//   cube2.position.z = Monster_Spawn_Points[i].z;
+//   scene.add(cube2);
+// }
 
 
 
@@ -141,26 +140,27 @@ var Monster3_is_loaded = false;
 var Monster4_is_loaded = false;
 
 var monsterGroup = new THREE.Object3D();
+var Monster_Spawn_Number = 25;
 var Monster_Material = new THREE.MeshNormalMaterial();
 //ObjLoader.setMaterials(Monster_Material);
 ObjLoader.load('asset_src/a.obj', function (monster) {
   monster.material = new THREE.MeshLambertMaterial();
-  monster.position.y = controls.userHeight;
-  monster.position.z = -1.2;
-//  monster.lookAt(camera.position);
-//  monster.position.x = -1;
   monster.rotateX(Math.PI);
-//  monster.rotation.y = 90;
-  monsterGroup.add(monster);
+  for (var i = 0; i < Monster_Spawn_Number; i ++) {
+    var RealMonster = monster.children[0].clone();
+    var RandomSpawnPoint = Monster_Spawn_Points[Helper.getRandomInt(0, 78)];
+    RealMonster.position.x = RandomSpawnPoint.x;
+    RealMonster.position.y = RandomSpawnPoint.y;
+    RealMonster.position.z = RandomSpawnPoint.z;
+    monsterGroup.add(RealMonster);
+  }
+  // monster.position.y = controls.userHeight;
+  // monster.position.z = -1.2;
+  // monster.lookAt(camera.position);
+  // monster.position.x = -1;
+  // monster.rotation.y = 90;
+  // monsterGroup.add(monster);
   monster1 = monster;
-
-  var BoxGeometry = new THREE.BoxGeometry(5, 5, 5);
-  var BoxMaterial = new THREE.MeshLambertMaterial();
-  var Box = new THREE.Mesh(BoxGeometry, BoxMaterial);
-  Box.position.y = controls.userHeight;
-  Box.position.z = -1.2;
-  scene.add(Box);
-
   Monster1_is_loaded = true;
 }, onProgress, onError);
 ObjLoader.load('asset_src/b.obj', function (monster) {
@@ -168,11 +168,8 @@ ObjLoader.load('asset_src/b.obj', function (monster) {
   monster.position.y = controls.userHeight;
   monster.position.z = -1.5;
   monster.position.x = -1;
-//  monster.lookAt(camera.position);
-//  monster.rotateX(Math.PI);
-//  monster.rotation.y = 90;
 
-  monsterGroup.add(monster);
+  monsterGroup.add(monster.children);
   monster2 = monster;
   Monster2_is_loaded = true;
 }, onProgress, onError);
@@ -282,14 +279,13 @@ var lastRender = 0;
 var cursor = new THREE.Vector2(0, 0);
 function animate(timestamp) {
   var direction = camera.getWorldDirection();
-  gun.lookAt(direction);
 //  console.log(direction); // 方向输出
 
   raycaster.setFromCamera(mouse, camera );
 
   // calculate objects intersecting the picking ray
   if (isMonsterSpawn) {
-    var intersects = raycaster.intersectObjects( monsterGroup.children, true );
+    var intersects = raycaster.intersectObjects( monsterGroup.children );
 
     intersects.length > 0 ? console.log(intersects) : ''; // 鼠标指向
 
