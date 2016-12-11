@@ -320,12 +320,12 @@ ObjLoader.load('asset_src/box(2).obj', function (cabinet) {
   });
 
   //阵列的长宽个数
-  var matrixW = 5;
-  var matrixH = 5;
+  var matrixW = 10;
+  var matrixH = 10;
 
   //阵列中心空缺的长宽个数
-  var vacancyW = 0;
-  var vacancyH = 0;
+  var vacancyW = 3;
+  var vacancyH = 3;
 
   //辅助运算的变量
   var outsideLeft = (matrixW - vacancyW)/2;
@@ -358,13 +358,14 @@ ObjLoader.load('asset_src/box(2).obj', function (cabinet) {
 //----------------------Cabinet---------------------------
 
 //
-var GUIControl = function () {
-  this.positionX = monster1.position.x;
-  this.positionZ = monster1.position.z;
+var GUIControl = {
+  start: function () {
+    startMonsterSpawn();
+  }
 };
 
-//
-
+var gui = new dat.GUI();
+gui.add(GUIControl, 'start');
 
 window.addEventListener('resize', onResize, true);
 window.addEventListener('vrdisplaypresentchange', onResize, true);
