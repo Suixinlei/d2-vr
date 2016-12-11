@@ -217,11 +217,15 @@ var startMonsterSpawn = function () {
 };
 
 var addMonster = function () {
-  monsterGroup.forEach(function (value) {
-    monsterDisplayGroup.add(value);
-  });
-  // var monster = monsterGroup.pop();
-  // monsterDisplayGroup.add(monster);
+  // monsterGroup.forEach(function (value) {
+  //   monsterDisplayGroup.add(value);
+  // });
+  var monster = monsterGroup.pop();
+  monsterDisplayGroup.add(monster);
+};
+
+var removeMonster = function () {
+  monsterDisplayGroup.children.pop();
 };
 
 
@@ -303,12 +307,16 @@ var GUIControl = {
   },
   add: function () {
     addMonster();
+  },
+  remove: function () {
+    removeMonster();
   }
 };
 
 var gui = new dat.GUI();
 gui.add(GUIControl, 'start');
 gui.add(GUIControl, 'add');
+gui.add(GUIControl, 'remove');
 
 var stats = new Stats();
 document.body.appendChild( stats.dom );
@@ -334,7 +342,6 @@ function animate(timestamp) {
     var intersects = raycaster.intersectObjects( monsterDisplayGroup.children );
 
     intersects.length > 0 ? console.log(intersects) : ''; // 鼠标指向
-    console.log(intersects);
     if (intersects.length == 0) {
       hud.position.x = 0;
       hud.position.y = -1;
