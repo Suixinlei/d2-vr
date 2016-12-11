@@ -181,7 +181,7 @@ var onError = function (xhr) {
 var ObjLoader = new THREE.OBJLoader();
 
 var monsterGroup = [];
-var Monster_Spawn_Number = 25;
+var Monster_Spawn_Number = 10;
 ObjLoader.load('asset_src/a.obj', function (monster) {
   monster.rotateX(Math.PI);
   for (var i = 0; i < Monster_Spawn_Number; i ++) {
@@ -199,6 +199,7 @@ ObjLoader.load('asset_src/a.obj', function (monster) {
     RealMonster.position.x = RandomSpawnPoint.x;
     RealMonster.position.y = RandomSpawnPoint.y;
     RealMonster.position.z = RandomSpawnPoint.z;
+    RealMonster.lookAt(camera.position);
     monsterGroup.push(RealMonster);
   }
   monster1 = monster;
@@ -218,6 +219,7 @@ ObjLoader.load('asset_src/b.obj', function (monster) {
     RealMonster.position.x = RandomSpawnPoint.x;
     RealMonster.position.y = RandomSpawnPoint.y;
     RealMonster.position.z = RandomSpawnPoint.z;
+    RealMonster.lookAt(camera.position);
     monsterGroup.push(RealMonster);
   }
   Monster2_is_loaded = true;
@@ -236,6 +238,7 @@ ObjLoader.load('asset_src/c.obj', function (monster) {
     RealMonster.position.x = RandomSpawnPoint.x;
     RealMonster.position.y = RandomSpawnPoint.y;
     RealMonster.position.z = RandomSpawnPoint.z;
+    RealMonster.lookAt(camera.position);
     monsterGroup.push(RealMonster);
   }
 }, onProgress, onError);
@@ -253,6 +256,7 @@ ObjLoader.load('asset_src/d.obj', function (monster) {
     RealMonster.position.x = RandomSpawnPoint.x;
     RealMonster.position.y = RandomSpawnPoint.y;
     RealMonster.position.z = RandomSpawnPoint.z;
+    RealMonster.lookAt(camera.position);
     monsterGroup.push(RealMonster);
   }
 }, onProgress, onError);
@@ -288,10 +292,14 @@ var tween = new TWEEN.Tween(monsterShock)
     //interpolation 值域在[0,1]，this指向了monsterShock
     var monsterArr = monsterDisplayGroup.children;
     monsterArr.forEach(function (mon) {
-      if (interpolation > 0.5) {
+      if (interpolation >= 0.5) {
         mon.position.y += 0.001;
+        mon.position.x += 0.001;
+        mon.rotation.y += Math.PI / 2 / 200;
       } else {
         mon.position.y -= 0.001;
+        mon.position.x -= 0.001;
+        mon.rotation.y -= Math.PI / 2 / 200;
       }
     });
   })
