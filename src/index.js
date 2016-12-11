@@ -39,7 +39,7 @@ var mouse = new THREE.Vector2();
 
 // Add a repeating grid as a skybox.
 var boxSize = 100;
-var hudSize = 1;
+var hudSize = 0.6;
 var loader = new THREE.TextureLoader();
 loader.load('img/box.png', onTextureLoaded);
 
@@ -89,12 +89,14 @@ var manager = new WebVRManager(renderer, effect, params);
 // gun.position.set(-0.5, controls.userHeight - 0.5, 0);
 
 //scene.add(gun);
-loader.load('img/box.png', onHUDLoaded);
+loader.load('img/hover.png', onHUDLoaded);
 function onHUDLoaded(texture) {
   var geometry = new THREE.PlaneGeometry(hudSize, hudSize, hudSize);
   var material = new THREE.MeshBasicMaterial({
     map: texture,
-    color: 0x01BE00,
+    transparent: true,
+    depthWrite: false,
+    // color: 0x01BE00,
     side: THREE.DoubleSide
   });
 
@@ -313,6 +315,12 @@ function animate(timestamp) {
     var intersects = raycaster.intersectObjects( monsterDisplayGroup.children );
 
     intersects.length > 0 ? console.log(intersects) : ''; // 鼠标指向
+    console.log(intersects);
+    if (intersects.length == 0) {
+      hud.position.x = 0;
+      hud.position.y = 0;
+      hud.position.z = 0;
+    }
 
     for ( var i = 0; i < intersects.length; i++ ) {
 
@@ -320,7 +328,6 @@ function animate(timestamp) {
       hud.position.y = intersects[i].object.position.y;
       hud.position.z = intersects[i].object.position.z;
       // intersects[ i ].object.material.color.set( 0xff0000 );
-
     }
   }
 
@@ -353,11 +360,11 @@ function onMouseMove( event ) {
   // calculate mouse position in normalized device coordinates
   // (-1 to +1) for both components
 
-  mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-  mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+  // mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+  // mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
-//  mouse.x = 0;
-//  mouse.y = 0;
+ mouse.x = 0;
+ mouse.y = 0;
 
 //  console.log('mouse', mouse); // 鼠标位置
 
