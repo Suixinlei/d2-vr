@@ -312,11 +312,16 @@ var startMonsterSpawn = function () {
   isMonsterSpawn = true;
 };
 
+var monsterDanceSteps = [];
 var addMonster = function () {
   // monsterGroup.forEach(function (value) {
   //   monsterDisplayGroup.add(value);
   // });
   var monster = monsterGroup.pop();
+  if (monster.position.y < 1) {
+    monster.position.y = 1;
+  }
+  monsterDanceSteps.push([monster.position.y, true]);
   monsterDisplayGroup.add(monster);
 };
 
@@ -327,23 +332,30 @@ var removeMonster = function () {
 
 //----------------------Monster---------------------------
 
-var monsterShock = { x: 0, y: 0, z: 0 };
+var monsterShock = { 1:1};
+var monsterDanceRange = 0.1;
 var tween = new TWEEN.Tween(monsterShock)
-  .to({ x: 100, y: 100, z: 100 }, 1000)
+  .to({ 1:2}, 1000)
   .repeat(Infinity)//无限重复
   .yoyo(true)//到达to的值后回到from的值
   .onUpdate(function(interpolation) {
+    var self = this;
     //interpolation 值域在[0,1]，this指向了monsterShock
     var monsterArr = monsterDisplayGroup.children;
-    monsterArr.forEach(function (mon) {
-      if (interpolation >= 0.5) {
-        mon.position.y += 0.001;
-        mon.position.x += 0.001;
-        mon.rotation.y += Math.PI / 2 / 200;
-      } else {
-        mon.position.y -= 0.001;
-        mon.position.x -= 0.001;
-        mon.rotation.y -= Math.PI / 2 / 200;
+    monsterArr.forEach(function (mon, index) {
+      if (monsterDanceSteps[index][0] - monsterDanceRange > mon.position.y) {
+        monsterDanceSteps[index][1] = true;
+      }
+      if (monsterDanceSteps[index][0] + monsterDanceRange < mon.position.y) {
+        monsterDanceSteps[index][1] = false;
+      }
+
+      if (monsterDanceSteps[index][0] - monsterDanceRange <= mon.position.y <= monsterDanceSteps[index][0] + monsterDanceRange) {
+        if (monsterDanceSteps[index][1]) {
+          mon.position.y += 0.01;
+        } else {
+          mon.position.y -= 0.01;
+        }
       }
     });
   })
