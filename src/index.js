@@ -191,9 +191,27 @@ document.addEventListener("touchstart",function(e){
     if (intersects.length) {
       console.log('game start!')
       removeStartPage()
+      var bgMusic = palyBackGroundMusic();
     }
   }
+  var audio = document.getElementById('audio');
+  audio.play();
+  //au.play();
+  //
+  //console.log(e)
+}, false);
+
+document.body.addEventListener("click",function(e){
   console.log(e)
+  console.log(palyBackGroundMusic)
+  //var bgMusic = palyBackGroundMusic();
+  document.getElementById('audio').play();
+  //var au = document.createElement('audio');
+  //au.preload = 'auto';
+  //au.src = './asset_src/test-music.m4a';
+  //
+  //au.loop = 'loop';
+  //au.play();
 }, false);
 
 
@@ -460,6 +478,9 @@ var GUIControl = {
   removeStartPage: function () {
     removeStartPage();
   },
+  playMusic: function () {
+    document.getElementById('audio').play();
+  },
   add: function () {
     addMonster();
   },
@@ -472,6 +493,7 @@ var gui = new dat.GUI();
 gui.add(GUIControl, 'start');
 gui.add(GUIControl, 'showStartPage');
 gui.add(GUIControl, 'removeStartPage');
+gui.add(GUIControl, 'playMusic');
 gui.add(GUIControl, 'add');
 gui.add(GUIControl, 'remove');
 
