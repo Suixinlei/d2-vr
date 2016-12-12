@@ -667,7 +667,6 @@ function animate(timestamp) {
   tween.update(timestamp);
 
   var direction = camera.getWorldDirection();
-//  console.log(direction); // 方向输出
 
   raycaster.setFromCamera(mouse, camera );
 
@@ -753,7 +752,6 @@ function animate(timestamp) {
 
   //键盘随视角移动
   if(keyboardloaded) {
-
     keyboard1.position.copy(camera.position);// 复制位置
     keyboard1.rotation.copy(camera.rotation);// 复制视角偏移角度
     //keyboard1.updateMatrix();
