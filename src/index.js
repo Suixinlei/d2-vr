@@ -39,7 +39,7 @@ var mouse = new THREE.Vector2();
 
 // Add a repeating grid as a skybox.
 var boxSize = 100;
-var hudSize = 0.6;
+var hudSize = 0.4;
 var loader = new THREE.TextureLoader();
 loader.load('img/box.png', onTextureLoaded);
 
@@ -333,11 +333,23 @@ ObjLoader.load('asset_src/a.obj', function (monster) {
     RealMonster.position.x = RandomSpawnPoint.x;
     RealMonster.position.y = RandomSpawnPoint.y;
     RealMonster.position.z = RandomSpawnPoint.z;
+
+    var RealMonsterHitBoxGeometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
+    var RealMonsterHitBoxMaterial = new THREE.MeshBasicMaterial({
+      transparent: true,
+      opacity: 0,
+      depthWrite: false
+    });
+
+    var RealMonsterHitBox = new THREE.Mesh(RealMonsterHitBoxGeometry, RealMonsterHitBoxMaterial);
+    RealMonsterHitBox.position.x = RandomSpawnPoint.x;
+    RealMonsterHitBox.position.y = RandomSpawnPoint.y + 1.6;
+    RealMonsterHitBox.position.z = RandomSpawnPoint.z;
+
     RealMonster.lookAt(camera.position);
-    monsterGroup.push(RealMonster);
+    RealMonsterHitBox.add(RealMonster);
+    monsterGroup.push(RealMonsterHitBox);
   }
-  monster1 = monster;
-  Monster1_is_loaded = true;
 }, onProgress, onError);
 ObjLoader.load('asset_src/b.obj', function (monster) {
   for (var i = 0; i < Monster_Spawn_Number; i ++) {
@@ -353,10 +365,23 @@ ObjLoader.load('asset_src/b.obj', function (monster) {
     RealMonster.position.x = RandomSpawnPoint.x;
     RealMonster.position.y = RandomSpawnPoint.y;
     RealMonster.position.z = RandomSpawnPoint.z;
+
+    var RealMonsterHitBoxGeometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
+    var RealMonsterHitBoxMaterial = new THREE.MeshBasicMaterial({
+      transparent: true,
+      opacity: 0,
+      depthWrite: false
+    });
+
+    var RealMonsterHitBox = new THREE.Mesh(RealMonsterHitBoxGeometry, RealMonsterHitBoxMaterial);
+    RealMonsterHitBox.position.x = RandomSpawnPoint.x;
+    RealMonsterHitBox.position.y = RandomSpawnPoint.y + 1.6;
+    RealMonsterHitBox.position.z = RandomSpawnPoint.z;
+
     RealMonster.lookAt(camera.position);
-    monsterGroup.push(RealMonster);
+    RealMonsterHitBox.add(RealMonster);
+    monsterGroup.push(RealMonsterHitBox);
   }
-  Monster2_is_loaded = true;
 }, onProgress, onError);
 ObjLoader.load('asset_src/c.obj', function (monster) {
   for (var i = 0; i < Monster_Spawn_Number; i ++) {
@@ -372,8 +397,22 @@ ObjLoader.load('asset_src/c.obj', function (monster) {
     RealMonster.position.x = RandomSpawnPoint.x;
     RealMonster.position.y = RandomSpawnPoint.y;
     RealMonster.position.z = RandomSpawnPoint.z;
+
+    var RealMonsterHitBoxGeometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
+    var RealMonsterHitBoxMaterial = new THREE.MeshBasicMaterial({
+      transparent: true,
+      opacity: 0,
+      depthWrite: false
+    });
+
+    var RealMonsterHitBox = new THREE.Mesh(RealMonsterHitBoxGeometry, RealMonsterHitBoxMaterial);
+    RealMonsterHitBox.position.x = RandomSpawnPoint.x;
+    RealMonsterHitBox.position.y = RandomSpawnPoint.y + 1.6;
+    RealMonsterHitBox.position.z = RandomSpawnPoint.z;
+
     RealMonster.lookAt(camera.position);
-    monsterGroup.push(RealMonster);
+    RealMonsterHitBox.add(RealMonster);
+    monsterGroup.push(RealMonsterHitBox);
   }
 }, onProgress, onError);
 ObjLoader.load('asset_src/d.obj', function (monster) {
@@ -390,8 +429,22 @@ ObjLoader.load('asset_src/d.obj', function (monster) {
     RealMonster.position.x = RandomSpawnPoint.x;
     RealMonster.position.y = RandomSpawnPoint.y;
     RealMonster.position.z = RandomSpawnPoint.z;
+
+    var RealMonsterHitBoxGeometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
+    var RealMonsterHitBoxMaterial = new THREE.MeshBasicMaterial({
+      transparent: true,
+      opacity: 0,
+      depthWrite: false
+    });
+
+    var RealMonsterHitBox = new THREE.Mesh(RealMonsterHitBoxGeometry, RealMonsterHitBoxMaterial);
+    RealMonsterHitBox.position.x = RandomSpawnPoint.x;
+    RealMonsterHitBox.position.y = RandomSpawnPoint.y + 1.6;
+    RealMonsterHitBox.position.z = RandomSpawnPoint.z;
+
     RealMonster.lookAt(camera.position);
-    monsterGroup.push(RealMonster);
+    RealMonsterHitBox.add(RealMonster);
+    monsterGroup.push(RealMonsterHitBox);
   }
 }, onProgress, onError);
 
@@ -423,7 +476,7 @@ var removeMonster = function () {
 //----------------------Monster---------------------------
 
 var monsterShock = { 1:1};
-var monsterDanceRange = 0.1;
+var monsterDanceRange = 0.05;
 var tween = new TWEEN.Tween(monsterShock)
   .to({ 1:2}, 1000)
   .repeat(Infinity)//无限重复
@@ -777,7 +830,7 @@ function changeKeyboard(key1,key2,flag){//初始键盘对象,最终键盘对象,
 
 function shootFly(shoot,startPos,endPos,flag,count){//子弹对象,初始位置,目标点位置,过渡帧数,计时器
   var position=new THREE.Vector3(startPos.x+(endPos.x-startPos.x)*count/flag,startPos.y+(endPos.y-startPos.y)*count/flag,startPos.z+(endPos.z-startPos.z)*count/flag);
-  console.log(shoot,startPos,endPos,flag,count)
+  // console.log(shoot,startPos,endPos,flag,count)
   shoot.position.copy( position );
   shoot.rotation.copy( camera.rotation );
   shoot.updateMatrix();
