@@ -24,7 +24,7 @@ controls.standing = true;
 
 // light
 var ambient = new THREE.AmbientLight( 0x101030 );
-ambient.position.y = controls.userHeight + 30;
+ambient.position.y = camera.position.y + 30;
 scene.add( ambient );
 
 // Apply VR stereo rendering to renderer.
@@ -35,7 +35,6 @@ effect.setSize(window.innerWidth, window.innerHeight);
 var raycaster = new THREE.Raycaster();
 // Mouse Position
 var mouse = new THREE.Vector2();
-
 
 // Add a repeating grid as a skybox.
 var boxSize = 100;
@@ -76,7 +75,32 @@ var params = {
 };
 var manager = new WebVRManager(renderer, effect, params);
 
+// 结束游戏
+var GAME_OVER_USER_HEIGHT = 40;
+var GAME_OVER_FLAG = false;
+
 //----------------------Model---------------------------
+
+// GAME_OVER_DISPLAY_LOGO
+var GAME_END_LOGO = null;
+var GAME_END_LOGO_SIZE = 50;
+loader.load('img/ais.png', function (texture) {
+  var geometry = new THREE.PlaneGeometry(GAME_END_LOGO_SIZE, GAME_END_LOGO_SIZE);
+  var material = new THREE.MeshBasicMaterial({
+    map: texture,
+    transparent: true,
+    depthWrite: false,
+    side: THREE.DoubleSide
+  });
+
+  GAME_END_LOGO = new THREE.Mesh(geometry, material);
+  GAME_END_LOGO.position.y = 1;
+  GAME_END_LOGO.position.x = 0;
+  GAME_END_LOGO.position.z = 0;
+  GAME_END_LOGO.rotation.x = Math.PI / 2;
+  GAME_END_LOGO.rotation.y = Math.PI;
+  GAME_END_LOGO.rotation.z = Math.PI;
+});
 
 // Create Gun Object
 // var Gun_Geometry = new THREE.BoxGeometry(0.5, 0.5, 2);
@@ -476,9 +500,6 @@ var startMonsterSpawn = function () {
 
 var monsterDanceSteps = [];
 var addMonster = function () {
-  // monsterGroup.forEach(function (value) {
-  //   monsterDisplayGroup.add(value);
-  // });
   var monster = monsterGroup.pop();
   if (monster.position.y < 1) {
     monster.position.y = 1;
@@ -494,10 +515,10 @@ var removeMonster = function () {
 
 //----------------------Monster---------------------------
 
-var monsterShock = { 1:1};
+var monsterShock = { 1:1 };
 var monsterDanceRange = 0.05;
 var tween = new TWEEN.Tween(monsterShock)
-  .to({ 1:2}, 1000)
+  .to({ 1:2 }, 1000)
   .repeat(Infinity)//无限重复
   .yoyo(true)//到达to的值后回到from的值
   .onUpdate(function(interpolation) {
@@ -583,15 +604,15 @@ function addCabinet() {
     // wireframe: true
   });
   var mesh = new THREE.Mesh( geometry, material );
-  mesh.position.y = 5
+  mesh.position.y = 5;
 
   //阵列的长宽个数
   var matrixW = 10;
   var matrixH = 10;
 
   //阵列中心空缺的长宽个数
-  var vacancyW = 3;
-  var vacancyH = 3;
+  var vacancyW = 4;
+  var vacancyH = 4;
 
   //辅助运算的变量
   var outsideLeft = (matrixW - vacancyW)/2;
@@ -620,7 +641,7 @@ function addCabinet() {
   scene.add(cabinetGroup);
 }
 
-addCabinet();
+
 //----------------------Cabinet---------------------------
 
 //
@@ -639,6 +660,10 @@ var GUIControl = {
   },
   remove: function () {
     removeMonster();
+  },
+  gameover: function () {
+    scene.add(GAME_END_LOGO);
+    GAME_OVER_FLAG = !GAME_OVER_FLAG;
   }
 };
 
@@ -648,6 +673,7 @@ gui.add(GUIControl, 'showStartPage');
 gui.add(GUIControl, 'removeStartPage');
 gui.add(GUIControl, 'add');
 gui.add(GUIControl, 'remove');
+gui.add(GUIControl, 'gameover');
 
 var stats = new Stats();
 document.body.appendChild( stats.dom );
@@ -722,10 +748,6 @@ function animate(timestamp) {
   var delta = Math.min(timestamp - lastRender, 500);
   lastRender = timestamp;
 
-  controls.update();
-  // Render the scene through the manager.
-  manager.render(scene, camera, timestamp);
-  effect.render(scene, camera);
   //准星随视角移动
   if(pointer1Loaded){
     pointer1.position.copy( camera.position );// 复制位置
@@ -788,6 +810,21 @@ function animate(timestamp) {
     //shootFly(boom1,shootStartPos,endPostion,shootFlag,shootCount)
     shootCount=(shootCount+1)%shootFlag;
   }
+
+  if (GAME_OVER_FLAG) {
+    camera.lookAt(new THREE.Vector3(0, 0, 0));
+    if (controls.userHeight < GAME_OVER_USER_HEIGHT) {
+      controls.userHeight += 1;
+    }
+    controls.update(new Float32Array([-0.7071030139923096, 0.0023139973636716604, 0.0023139973636716604, 0.7071030139923096]));
+  } else {
+    controls.update();
+  }
+
+  // Render the scene through the manager.
+  manager.render(scene, camera, timestamp);
+  effect.render(scene, camera);
+
   vrDisplay.requestAnimationFrame(animate);
 }
 
@@ -817,6 +854,7 @@ var vrDisplay;
 // Get the HMD, and if we're dealing with something that specifies
 // stageParameters, rearrange the scene.
 function setupStage() {
+  addCabinet();
   navigator.getVRDisplays().then(function(displays) {
     if (displays.length > 0) {
       vrDisplay = displays[0];
@@ -842,7 +880,7 @@ function setStageDimensions(stage) {
   scene.add(skybox);
 
   // Place the cube in the middle of the scene, at user height.
-  cube.position.set(0, controls.userHeight, 0);
+  // cube.position.set(0, controls.userHeight, 0);
 }
 
 function changeKeyboard(key1,key2,flag){//初始键盘对象,最终键盘对象,过渡帧数
