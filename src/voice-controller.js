@@ -12,13 +12,45 @@ function createMusic(src, loop) {
   return au;
 }
 
-function palyBackGroundMusic() {
-  var au = createMusic('./asset_src/test-music.m4a', true);
+function playMusic(kind) {
+  var src;
+  var loop;
+  switch (kind) {
+    case 'background' :
+      src =  'background.mp3';
+      loop = true;
+      break;
+    case 'boom' :
+      src =  'boom.wav';
+      break;
+    case '321' :
+      src =  '321.wav';
+      break;
+    case 'aoh' :
+      src =  'aoh.mp3';
+      break;
+    case 'bi' :
+      src =  'bi.wav';
+      break;
+    case 'shot' :
+      src =  'one-shot.wav';
+      break;
+    case 'right' :
+      src =  'right.wav';
+      break;
+    case 'success' :
+      src =  'success.wav';
+      break;
+  }
+  if (!src) {
+    return null;
+  }
+  var au = createMusic('./asset_src/' + src, loop);
   au.play();
   return au;
 }
 
-//var bgMusic = palyBackGroundMusic();
+var bgMusic = playMusic('background');
 
 //setTimeout(function() {
 //  bgMusic.pause();
@@ -69,3 +101,18 @@ function doLisenVoiceInput(callback) {
 var voiceInput = doLisenVoiceInput(function(){
   removeStartPage();
 });
+
+//artyom.on(['报', '包', '爆', '宝', '抱', '保', '饱', '暴', '薄']).then(function(i) {
+//  console.log('爆炸啦');
+//});
+//
+//
+//artyom.initialize({
+//  lang: "zh-CN", // GreatBritain english
+//  //lang: "en-GB", // GreatBritain english
+//  continuous: true, // Listen forever
+//  soundex: true,// Use the soundex algorithm to increase accuracy
+//  debug: true, // Show messages in the console
+//  //executionKeyword: "and do it now",
+//  listen: true // Start to listen commands !
+//});
