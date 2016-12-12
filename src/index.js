@@ -223,6 +223,96 @@ var onError = function (xhr) {
 };
 
 var ObjLoader = new THREE.OBJLoader();
+var monster1 = null;
+//var monster2 = null;
+//var monster3 = null;
+//var monster4 = null;
+var keyboard1 = null;//键盘初始状态
+var keyboard2 = null;//键盘状态2
+var keyboard3 = null;//键盘状态3
+var boom = null;//键盘
+var shoot1 = null;//子弹
+var boom1 = null;//大招
+var pointer1=null;//准星
+
+var Monster1_is_loaded = false;
+var Monster2_is_loaded = false;
+var Monster3_is_loaded = false;
+var Monster4_is_loaded = false;
+var keyboardloaded=false;//判断加载是否完成
+var keyboardloaded2=false;//判断加载是否完成
+var keyboardloaded3=false;//判断加载是否完成
+var shoot1Loaded=false;//判断加载是否完成
+var boomLoaded=false;//判断加载是否完成
+var pointer1Loaded=false;
+
+var monsterGroup = new THREE.Object3D();
+var Monster_Material = new THREE.MeshNormalMaterial();
+//ObjLoader.setMaterials(Monster_Material);
+
+var texture = THREE.ImageUtils.loadTexture("img/keyboard.png",null,function(t) {
+  var material = new THREE.MeshBasicMaterial({map:texture});
+  material.transparent=true;
+  material.opacity=1;
+  var keyboardGeometry = new THREE.BoxGeometry(1, 0, 0.25);
+  var mesh = new THREE.Mesh( keyboardGeometry,material );
+  keyboard1 = mesh;
+  //console.log(mesh)
+  scene.add( mesh );
+  keyboardloaded=true;
+});
+var pointer = THREE.ImageUtils.loadTexture("img/sight-bead-white.png",null,function(t) {
+  var material = new THREE.MeshBasicMaterial({map:pointer});
+  material.transparent=true;
+  material.opacity=1;
+  var pointerGeometry = new THREE.BoxGeometry(0.125, 0.125, 0);
+  var mesh = new THREE.Mesh( pointerGeometry,material );
+  pointer1 = mesh;
+  scene.add( mesh );
+  pointer1Loaded=true;
+});
+var texture1 = THREE.ImageUtils.loadTexture("img/keyboard1.png",null,function(t) {
+  var material = new THREE.MeshBasicMaterial({map:texture1});
+  material.transparent=true;
+  material.opacity=0;
+  var keyboardGeometry = new THREE.BoxGeometry(0.5, 0, 0.125);
+  var mesh = new THREE.Mesh( keyboardGeometry,material );
+  keyboard2 = mesh;
+  scene.add( mesh );
+  keyboardloaded2=true;
+});
+var texture2 = THREE.ImageUtils.loadTexture("img/keyboard2.png",null,function(t) {
+  var material = new THREE.MeshBasicMaterial({map:texture2});
+  material.transparent=true;
+  material.opacity=0;
+  var keyboardGeometry = new THREE.BoxGeometry(0.5, 0, 0.125);
+  var mesh = new THREE.Mesh( keyboardGeometry,material );
+  keyboard3 = mesh;
+  //scene.add( mesh );
+  keyboardloaded3=true;
+});
+var shoot = THREE.ImageUtils.loadTexture("img/shoot.png",null,function(t) {
+  var material = new THREE.MeshBasicMaterial({map:shoot});
+  material.transparent=true;
+  //material.opacity=0;
+  var shootGeometry = new THREE.BoxGeometry( 0.1, 0.1,0);
+  var mesh = new THREE.Mesh( shootGeometry,material );
+  shoot1 = mesh;
+  scene.add( mesh );
+  shoot1Loaded=true;
+});
+ObjLoader.load('asset_src/boom.obj', function (boom) {//爆炸特效
+  boom.material = new THREE.MeshLambertMaterial();
+  //boom.position.x = -1;
+  //boom.position.y = controls.userHeight;
+  //boom.position.z = -2.2;
+  //boom.rotation.y = 90;
+  //monsterGroup.add(boom);
+  boom1 = boom;
+  scene.add(boom);
+
+  boomLoaded = true;
+}, onProgress, onError);
 
 var monsterGroup = [];
 var Monster_Spawn_Number = 10;
@@ -497,6 +587,9 @@ window.addEventListener('mousemove', onMouseMove, true);
 // Request animation frame loop function
 var lastRender = 0;
 var cursor = new THREE.Vector2(0, 0);
+var shootCount=0;//子弹计时器
+var shootFlag=75;//子弹帧数
+var shootStartPos=null;
 function animate(timestamp) {
   stats.update();
   tween.update(timestamp);
@@ -562,7 +655,57 @@ function animate(timestamp) {
   // Render the scene through the manager.
   manager.render(scene, camera, timestamp);
   effect.render(scene, camera);
+  //准星随视角移动
+  if(pointer1Loaded){
+    pointer1.position.copy( camera.position );// 复制位置
+    pointer1.rotation.copy( camera.rotation );// 复制视角偏移角度
+    //pointer1.translateY( 0.3 );
+    pointer1.translateZ( - 1.5 );
+  }
+  if(boomLoaded){
+    boom1.position.copy( camera.position );// 复制位置
+    boom1.rotation.copy( camera.rotation );// 复制视角偏移角度
+    boom1.updateMatrix();
+    boom1.translateY( - 0.3 );
+    boom1.translateZ( - 0.45 );
+    //console.log(boom1)
+    //changeKeyboard(keyboard1,keyboard2,1000)
+  }
+  //键盘随视角移动
+  if(keyboardloaded){
 
+    keyboard1.position.copy( camera.position );// 复制位置
+    keyboard1.rotation.copy( camera.rotation );// 复制视角偏移角度
+    //keyboard1.updateMatrix();
+    keyboard1.translateY( - 0.2 );
+    keyboard1.translateZ( - 0.4 );
+
+    keyboard2.position.copy( camera.position );
+    keyboard2.rotation.copy( camera.rotation );
+    //keyboard2.updateMatrix();
+    keyboard2.translateY( - 0.2 );
+    keyboard2.translateZ( - 0.4 );
+    //changeKeyboard(keyboard1,keyboard2,1000)
+  }
+  if(shoot1Loaded){
+    shoot1.position.copy( camera.position );
+    shoot1.rotation.copy( camera.rotation );
+    //boom1.position.copy( camera.position );
+    //boom1.rotation.copy( camera.rotation );
+    //shoot1.updateMatrix();
+    shoot1.translateY( - 0.27 );//-0.2~0
+    shoot1.translateZ( - 0.5);
+    if(shootCount==0){
+      shootStartPos=shoot1.position;
+      //console.log(shootStartPos)
+    }
+    shootFly(shoot1,shootStartPos,monster1.position,shootFlag,shootCount)
+    shootFly(boom1,shootStartPos,monster1.position,shootFlag,shootCount)
+    shootCount=(shootCount+1)%shootFlag;
+    //changeKeyboard(keyboard1,keyboard2,1000)
+  }
+  //var shootStartPosition=camera.position,shootEndPosition=monster1.position;
+  //shootLine(shootStartPosition,shootEndPosition,shootFlag,shootCount)
   vrDisplay.requestAnimationFrame(animate);
 }
 
@@ -618,4 +761,25 @@ function setStageDimensions(stage) {
 
   // Place the cube in the middle of the scene, at user height.
   cube.position.set(0, controls.userHeight, 0);
+}
+
+function changeKeyboard(key1,key2,flag){//初始键盘对象,最终键盘对象,过渡帧数
+  //key1.material.opacity=1;
+  //key2.material.opacity=0;
+  if(key1.material.opacity>0){
+    key1.material.opacity-=1/flag;
+    key2.material.opacity+=1/flag;
+  }else{
+    key1.material.opacity=0;
+    key2.material.opacity=1;
+  }
+}
+
+function shootFly(shoot,startPos,endPos,flag,count){//子弹对象,初始位置,目标点位置,过渡帧数,计时器
+  var position=new THREE.Vector3(startPos.x+(endPos.x-startPos.x)*count/flag,startPos.y+(endPos.y-startPos.y)*count/flag,startPos.z+(endPos.z-startPos.z)*count/flag);
+  console.log(shoot,startPos,endPos,flag,count)
+  shoot.position.copy( position );
+  shoot.rotation.copy( camera.rotation );
+  shoot.updateMatrix();
+  shoot.translateY( -0.27+ 0.27*count/flag );//-0.2~0
 }
