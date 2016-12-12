@@ -468,6 +468,77 @@ function addCabinet() {
 addCabinet();
 //----------------------Cabinet---------------------------
 
+// 粒子系统
+function createPoints() {
+  var geometry = new THREE.Geometry();
+  var texture = new THREE.TextureLoader().load( "img/point1.png" );
+  var material = new THREE.PointsMaterial({
+    size: 0.5,
+    map: texture,
+    // blending: THREE.AdditiveBlending,
+    depthTest: false,
+    transparent : true,
+    opacity: 1
+  });
+
+  for (var i = 0; i < 100; i++) {
+    var vertex = new THREE.Vector3();
+    vertex.x = Math.random() * 0.5 - 0.25;
+    vertex.y = Math.random() * 0.5 - 0.25;
+    vertex.z = Math.random() * 0.5 - 0.25;
+    geometry.vertices.push( vertex );
+  }
+
+  var particles = new THREE.Points( geometry, material );
+
+  particles.position.z = -10;
+  scene.add(particles);
+
+  var pointsTween = new TWEEN.Tween({ r: 1 })
+    .to({ r: 1.065 }, 800)
+    .easing(TWEEN.Easing.Exponential.Out)
+    .onUpdate(function(interpolation) {
+      var r = interpolation * 0.065 + 1;
+      geometry.vertices.forEach(function (vertex) {
+        vertex.multiplyScalar(r);
+      });
+      geometry.verticesNeedUpdate = true;
+    })
+    .onComplete(function () {
+      geometry.vertices.forEach(function (vertex) {
+        vertex.set(Math.random() * 0.5 - 0.25, Math.random() * 0.5 - 0.25, Math.random() * 0.5 - 0.25);
+      });
+      geometry.verticesNeedUpdate = true;
+    });
+
+  var pointsOpacityTween = new TWEEN.Tween({ opacity: 1 })
+    .to({ opacity: 0 }, 800)
+    .easing(TWEEN.Easing.Exponential.In)
+    .onUpdate(function(interpolation) {
+      material.opacity = 1 - interpolation;
+    })
+    .onComplete(function () {
+      material.opacity = 1;
+    });
+
+  return {
+    boom: function () {
+      pointsTween.start();
+      pointsOpacityTween.start();
+    },
+    particles: particles
+  }
+}
+/*
+* 粒子系统
+* 属性：
+*   particles：粒子系统的引用对象
+* 方法：
+*   boom: 无参数，开始爆炸效果
+*
+* */
+var pointsSystem = createPoints();
+
 //
 var GUIControl = {
   start: function () {
@@ -489,6 +560,9 @@ var GUIControl = {
   },
   remove: function () {
     removeMonster();
+  },
+  pointsBoom: function () {
+    pointsSystem.boom();
   }
 };
 
@@ -499,6 +573,7 @@ gui.add(GUIControl, 'removeStartPage');
 gui.add(GUIControl, 'playMusic');
 gui.add(GUIControl, 'add');
 gui.add(GUIControl, 'remove');
+gui.add(GUIControl, 'pointsBoom');
 
 var stats = new Stats();
 document.body.appendChild( stats.dom );
@@ -512,7 +587,7 @@ var lastRender = 0;
 var cursor = new THREE.Vector2(0, 0);
 function animate(timestamp) {
   stats.update();
-  tween.update(timestamp);
+  TWEEN.update(timestamp);
 
   var direction = camera.getWorldDirection();
 //  console.log(direction); // 方向输出
