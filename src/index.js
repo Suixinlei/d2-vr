@@ -109,6 +109,7 @@ function onHUDLoaded(texture) {
 }
 
 //----------------------Model---------------------------
+// erfan
 var startPage;
 var startPageHover;
 var playBtn;
@@ -155,7 +156,7 @@ function showStartPage() {
       transparent: true
     } );
     playBtnHover = new THREE.Mesh( geometry, material );
-    playBtnHover.position.set(0, controls.userHeight-0.25, -0.46)
+    playBtnHover.position.set(0, controls.userHeight-0.25, -0.48)
     scene.add( playBtnHover );
   });
 }
@@ -194,25 +195,25 @@ document.addEventListener("touchstart",function(e){
       var bgMusic = palyBackGroundMusic();
     }
   }
-  var audio = document.getElementById('audio');
+  var audio = document.getElementById('myaudio');
   audio.play();
   //au.play();
   //
   //console.log(e)
 }, false);
 
-document.body.addEventListener("click",function(e){
-  console.log(e)
-  console.log(palyBackGroundMusic)
-  //var bgMusic = palyBackGroundMusic();
-  document.getElementById('audio').play();
-  //var au = document.createElement('audio');
-  //au.preload = 'auto';
-  //au.src = './asset_src/test-music.m4a';
-  //
-  //au.loop = 'loop';
-  //au.play();
-}, false);
+//document.body.addEventListener("click",function(e){
+//  console.log(e)
+//  console.log(palyBackGroundMusic)
+//  //var bgMusic = palyBackGroundMusic();
+//  document.getElementById('audio').play();
+//  //var au = document.createElement('audio');
+//  //au.preload = 'auto';
+//  //au.src = './asset_src/test-music.m4a';
+//  //
+//  //au.loop = 'loop';
+//  //au.play();
+//}, false);
 
 
 
@@ -479,7 +480,9 @@ var GUIControl = {
     removeStartPage();
   },
   playMusic: function () {
-    document.getElementById('audio').play();
+    var audio = document.getElementById('myaudio')
+    console.log(audio)
+    audio.play();
   },
   add: function () {
     addMonster();
