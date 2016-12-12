@@ -13,13 +13,13 @@ function createMusic(src, loop) {
 }
 
 function palyBackGroundMusic() {
-  var au = createMusic('../asset_src/test-music.m4a', true);
+  var au = createMusic('./asset_src/test-music.m4a', true);
   au.play();
   return au;
 }
 
-//var bgMusic = palyBackGroundMusic();
-//
+var bgMusic = palyBackGroundMusic();
+
 //setTimeout(function() {
 //  bgMusic.pause();
 //}, 10000)
@@ -47,7 +47,7 @@ function palyKeyBoardMusic() {
 function doLisenVoiceInput(callback) {
   var julius = new Julius('./voxforge/sample.dfa', './voxforge/sample.dict', {
     //verbose: true,
-    transfer:true
+    //transfer:true
   });
   julius.onrecognition = function(sentence, score) {
     console.log(sentence, score);
@@ -66,4 +66,6 @@ function doLisenVoiceInput(callback) {
   return julius;
 }
 
-var voiceInput = doLisenVoiceInput();
+var voiceInput = doLisenVoiceInput(function(){
+  //removeStartPage();
+});
