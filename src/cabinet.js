@@ -159,7 +159,7 @@ function createMonsterGroup() {
     var RandomNumber = Helper.getRandomInt(0, Monster_Spawn_Points.length -1);
     var RandomSpawnPoint = Monster_Spawn_Points[RandomNumber];
     Monster_Spawn_Points.splice(RandomNumber, 1);
-    var RealMonsterHitBoxGeometry = new THREE.PlaneGeometry(0.3, 0.3);
+    var RealMonsterHitBoxGeometry = new THREE.PlaneGeometry(0.5, 0.5);
     var RealMonsterHitBoxMaterial = new THREE.MeshBasicMaterial({
       map: RealMonsterTexture[i % 4],
       transparent: true,

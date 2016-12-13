@@ -61,7 +61,7 @@ var GAME_END_LOGO = null;
  **/
 var pointsSystem = createPoints();
 
-var hudSize = 0.4;
+var hudSize = 0.8;
 var GAME_END_LOGO_SIZE = 50;
 
 // Create a VR manager helper to enter and exit VR mode.
