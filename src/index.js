@@ -27,6 +27,13 @@ var ambient = new THREE.AmbientLight( 0x101030 );
 ambient.position.y = camera.position.y + 30;
 scene.add( ambient );
 
+var hemiLight;
+hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 1 );
+hemiLight.color.setHSL( 0.6, 1, 0.6 );
+hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+hemiLight.position.set( 0, 500, 0 );
+scene.add( hemiLight );
+
 // Apply VR stereo rendering to renderer.
 var effect = new THREE.VREffect(renderer);
 effect.setSize(window.innerWidth, window.innerHeight);
@@ -54,8 +61,7 @@ function onTextureLoaded(texture) {
   var material = new THREE.MeshBasicMaterial({
     map: texture,
     color: 0x0587fa,
-    side: THREE.DoubleSide,
-    // wireframe: true
+    side: THREE.DoubleSide
   });
 
   // Align the skybox to the floor (which is at y=0).
@@ -102,21 +108,6 @@ loader.load('img/ais.png', function (texture) {
   GAME_END_LOGO.rotation.z = Math.PI;
 });
 
-// Create Gun Object
-// var Gun_Geometry = new THREE.BoxGeometry(0.5, 0.5, 2);
-// var Gun_Material = new THREE.MeshNormalMaterial();
-// var gun = new THREE.Mesh(Gun_Geometry, Gun_Material);
-
-// Create Laser Object
-// var Laser_Geometry = new THREE.CylinderGeometry( 1, 1, 20, 32 );
-// var Laser_Material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
-// var cylinder = new THREE.Mesh( Laser_Geometry, Laser_Material );
-// scene.add( cylinder );
-
-//
-// gun.position.set(-0.5, controls.userHeight - 0.5, 0);
-
-//scene.add(gun);
 loader.load('img/hover.png', onHUDLoaded);
 function onHUDLoaded(texture) {
   var geometry = new THREE.PlaneGeometry(hudSize, hudSize, hudSize);
@@ -564,106 +555,6 @@ var tween = new TWEEN.Tween(monsterShock)
   })
   .start();
 
-//----------------------Cabinet---------------------------
-var hemiLight;
-hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 1 );
-hemiLight.color.setHSL( 0.6, 1, 0.6 );
-hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
-hemiLight.position.set( 0, 500, 0 );
-scene.add( hemiLight );
-
-// ObjLoader.load('asset_src/box(2).obj', function (cabinet) {
-//   cabinet.material = new THREE.MeshLambertMaterial({
-//     color: new THREE.Color(6, 135, 250)
-//   });
-//
-//   //阵列的长宽个数
-//   var matrixW = 10;
-//   var matrixH = 10;
-//
-//   //阵列中心空缺的长宽个数
-//   var vacancyW = 3;
-//   var vacancyH = 3;
-//
-//   //辅助运算的变量
-//   var outsideLeft = (matrixW - vacancyW)/2;
-//   var outsideRight = matrixW - outsideLeft;
-//   var outsideTop = (matrixH - vacancyH)/2;
-//   var outsideBottom = matrixH - outsideTop;
-//
-//   //循环生成阵列
-//   for (var i = 0; i < matrixW; i++) {
-//     for (var j = 0; j < matrixH; j++) {
-//       if (i >= outsideLeft && i <= outsideRight && j >= outsideTop && j <= outsideBottom) {
-//         continue;
-//       }
-//       var newPbj = cabinet.clone();
-//       newPbj.position.x = -boxSize/2 + (i + 0.5) * boxSize/matrixW;
-//       newPbj.position.z = -boxSize/2 + (j + 0.5) * boxSize/matrixH;
-//       newPbj.rotateX(- Math.PI/2);
-//
-//       scene.add(newPbj);
-//     }
-//   }
-// }, onProgress, onError);
-
-function addCabinet() {
-  var cabinetGroup = new THREE.Object3D();
-  var geometry = new THREE.BoxGeometry(4,12,4);
-
-  var texture = new THREE.TextureLoader().load( "img/cabinet-bg.png" );
-  texture.wrapS = THREE.RepeatWrapping;
-  texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set( 1, 3 );
-
-  var material = new THREE.MeshPhongMaterial({
-    map: texture,
-    color: 0xffffff,
-    // transparent: true,
-    // opacity: 1,
-    // wireframe: true
-  });
-  var mesh = new THREE.Mesh( geometry, material );
-  mesh.position.y = 5;
-
-  //阵列的长宽个数
-  var matrixW = 10;
-  var matrixH = 10;
-
-  //阵列中心空缺的长宽个数
-  var vacancyW = 4;
-  var vacancyH = 4;
-
-  //辅助运算的变量
-  var outsideLeft = (matrixW - vacancyW)/2;
-  var outsideRight = matrixW - outsideLeft;
-  var outsideTop = (matrixH - vacancyH)/2;
-  var outsideBottom = matrixH - outsideTop;
-
-  //循环生成阵列
-  for (var i = 0; i < matrixW; i++) {
-    for (var j = 0; j < matrixH; j++) {
-      if (i >= outsideLeft && i < outsideRight && j >= outsideTop && j < outsideBottom) {
-        continue;
-      }
-      var newPbj = mesh.clone();
-      newPbj.position.x = -boxSize/2 + (i + 0.5) * boxSize/matrixW;
-      newPbj.position.z = -boxSize/2 + (j + 0.5) * boxSize/matrixH;
-      // newPbj.rotateX(- Math.PI/2);
-
-      cabinetGroup.add(newPbj);
-    }
-  }
-
-  // mesh.position.z = -6;
-  // cabinetGroup.add(mesh);
-
-  scene.add(cabinetGroup);
-}
-
-
-//----------------------Cabinet---------------------------
-
 // 粒子系统
 function createPoints() {
   var geometry = new THREE.Geometry();
@@ -731,8 +622,7 @@ function createPoints() {
 *   particles：粒子系统的引用对象
 * 方法：
 *   boom: 无参数，开始爆炸效果
-*
-* */
+**/
 var pointsSystem = createPoints();
 
 //
@@ -834,13 +724,6 @@ function animate(timestamp) {
       playBtnHover.material.opacity = 0;
     }
   }
-
-
-
-  // monsterDisplayGroup.children.map(function (monster) {
-  //   monster.rotation.y += 0.01;
-  //   return monster;
-  // });
 
   hud.lookAt(camera.position);
 
