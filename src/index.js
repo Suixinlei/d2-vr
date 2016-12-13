@@ -742,15 +742,15 @@ function createGameOver() {
   //正下方视野方向
   var endPose = [-0.7071067690849304, 0, 0, 0.7071067690849304];
 
+  var height = controls.userHeight;
+  var deltaH = GAME_OVER_USER_HEIGHT - height;
+
   var overTween = new TWEEN.Tween(resetPose)
     .to(endPose, 2000)
-    .easing(TWEEN.Easing.Exponential.Out)
+    .easing(TWEEN.Easing.Quintic.Out)
     .onUpdate(function(interpolation) {
       controls.update(this);
-
-      if (controls.userHeight < GAME_OVER_USER_HEIGHT) {
-        controls.userHeight += 0.2;
-      }
+      controls.userHeight = height + interpolation * deltaH;
     })
     .onComplete(function () {
 
