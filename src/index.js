@@ -151,7 +151,8 @@ function showStartPage() {
       //color: 0xffff00,
       side: THREE.DoubleSide,
       //opacity:0.6,
-      transparent: true
+      transparent: true,
+      depthWrite: false
     } );
     startPage = new THREE.Mesh( geometry, material );
     startPage.position.set(0, controls.userHeight, -0.5)
@@ -165,7 +166,8 @@ function showStartPage() {
       //color: 0xffff00,
       side: THREE.DoubleSide,
       //opacity:0.6,
-      transparent: true
+      transparent: true,
+      depthWrite: false
     } );
     playBtn = new THREE.Mesh( geometry, material );
     playBtn.position.set(0, controls.userHeight-0.15, -0.48)
@@ -179,7 +181,8 @@ function showStartPage() {
       //color: 0xffff00,
       side: THREE.DoubleSide,
       opacity:0,
-      transparent: true
+      transparent: true,
+      depthWrite: false
     } );
     playBtnHover = new THREE.Mesh( geometry, material );
     playBtnHover.position.set(0, controls.userHeight-0.15, -0.48)
