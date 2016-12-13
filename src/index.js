@@ -258,6 +258,11 @@ function gameplay() {
   setInterval(function () {
     addMonster();
   }, 500);
+  setTimeout(function () {
+    gameOver.over(function () {
+      showEndPage(SCORE);
+    });
+  }, 60000);
 }
 
 function removeEndPage() {
@@ -462,7 +467,7 @@ function createGameOver() {
     });
 
   return {
-    over: function () {
+    over: function (callback) {
       scene.add(GAME_END_LOGO);
       GAME_OVER_FLAG = !GAME_OVER_FLAG;
 
@@ -477,7 +482,7 @@ function createGameOver() {
       //     .chain(overTween)
       //     .start();
       // } else {
-        overTween.start();
+        overTween.onComplete(callback).start();
       // }
     }
   }
