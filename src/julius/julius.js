@@ -27,8 +27,8 @@
       var audio = this.audio;
       var recognizer = this.recognizer;
       var terminate = this.terminate;var that =this;
-      
-      navigator.webkitGetUserMedia(
+
+      navigator.mediaDevices.getUserMedia(
         { audio: true },
         function(stream) {
           audio.source = audio.context.createMediaStreamSource(stream);

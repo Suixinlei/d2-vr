@@ -166,7 +166,7 @@ function showStartPage() {
       transparent: true
     } );
     playBtn = new THREE.Mesh( geometry, material );
-    playBtn.position.set(0, controls.userHeight-0.25, -0.48)
+    playBtn.position.set(0, controls.userHeight-0.15, -0.48)
     scene.add( playBtn );
   });
   var loader = new THREE.TextureLoader();
@@ -180,7 +180,7 @@ function showStartPage() {
       transparent: true
     } );
     playBtnHover = new THREE.Mesh( geometry, material );
-    playBtnHover.position.set(0, controls.userHeight-0.25, -0.48)
+    playBtnHover.position.set(0, controls.userHeight-0.15, -0.48)
     scene.add( playBtnHover );
   });
 }
@@ -210,21 +210,21 @@ function removeStartPage() {
 }
 
 
-document.addEventListener("touchstart",function(e){
-  if (playBtn && playBtnHover) {
-    var intersects = raycaster.intersectObject( playBtn );
-    if (intersects.length) {
-      console.log('game start!')
-      removeStartPage()
-      var bgMusic = palyBackGroundMusic();
-    }
-  }
-  var audio = document.getElementById('myaudio');
-  audio.play();
-  //au.play();
-  //
-  //console.log(e)
-}, false);
+//document.addEventListener("touchstart",function(e){
+//  if (playBtn && playBtnHover) {
+//    var intersects = raycaster.intersectObject( playBtn );
+//    if (intersects.length) {
+//      console.log('game start!')
+//      removeStartPage()
+//      var bgMusic = palyBackGroundMusic();
+//    }
+//  }
+//  var audio = document.getElementById('myaudio');
+//  audio.play();
+//  //au.play();
+//  //
+//  //console.log(e)
+//}, false);
 
 //document.body.addEventListener("click",function(e){
 //  console.log(e)
@@ -747,9 +747,7 @@ var GUIControl = {
     removeStartPage();
   },
   playMusic: function () {
-    var audio = document.getElementById('myaudio')
-    console.log(audio)
-    audio.play();
+    playMusic('success');
   },
   add: function () {
     addMonster();
