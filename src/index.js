@@ -81,6 +81,10 @@ var MAX_MONSTER_NUMBER_STORAGE = 200;
 var MONSTER_APPEAR_PER_SECOND = 0.5;
 var LOCK_TIME = 1000;
 
+var isMonsterSpawn = false;
+var monsterDisplayGroup = new THREE.Object3D();
+scene.add(monsterDisplayGroup);
+
 // monster spawn point
 // 怪物生成点
 var Monster_Spawn_Points = [];
@@ -99,6 +103,9 @@ addCabinet();
 addHUD();
 addAisLogo();
 createMonsterGroup();
+
+// 显示开始画面
+showStartPage();
 
 // erfan
 var bgMusic;
@@ -217,6 +224,15 @@ function removeStartPage() {
   playBtn = null;
   pureRemoveMesh(playBtnHover);
   playBtnHover = null;
+
+  gameplay();
+}
+
+function gameplay() {
+  isMonsterSpawn = true;
+  setInterval(function () {
+    addMonster();
+  }, 500);
 }
 
 function removeEndPage() {
@@ -373,17 +389,9 @@ ObjLoader.load('asset_src/boom.obj', function (boom) {//爆炸特效
   scene.add(boom);
 }, onProgress, onError);
 
-
-var isMonsterSpawn = false;
-var monsterDisplayGroup = new THREE.Object3D();
-var startMonsterSpawn = function () {
-  scene.add(monsterDisplayGroup);
-  isMonsterSpawn = true;
-};
-
 var monsterDanceSteps = [];
 var addMonster = function () {
-  if (monsterGroup.length > 0 && monsterDisplayGroup.children.length < MAX_MONSTER_NUMBER) {
+  if (isMonsterSpawn && monsterGroup.length > 0 && monsterDisplayGroup.children.length < MAX_MONSTER_NUMBER) {
     var monster = monsterGroup.pop();
     if (monster.position.y < 1) {
       monster.position.y = 1;
@@ -434,9 +442,6 @@ var tween = new TWEEN.Tween(monsterShock)
 
 //
 var GUIControl = {
-  start: function () {
-    startMonsterSpawn();
-  },
   showStartPage: function () {
     showStartPage();
   },
@@ -468,7 +473,6 @@ var GUIControl = {
 };
 
 var gui = new dat.GUI();
-gui.add(GUIControl, 'start');
 gui.add(GUIControl, 'showStartPage');
 gui.add(GUIControl, 'removeStartPage');
 gui.add(GUIControl, 'showEndPage');
