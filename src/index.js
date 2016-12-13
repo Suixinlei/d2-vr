@@ -47,9 +47,19 @@ var mouse = new THREE.Vector2();
 var boxSize = 100;
 var hud;
 var skybox;
+// 怪物存储数组
 var monsterGroup = [];
 // GAME_OVER_DISPLAY_LOGO
 var GAME_END_LOGO = null;
+
+/*
+ * 粒子系统
+ * 属性：
+ *   particles：粒子系统的引用对象
+ * 方法：
+ *   boom: 无参数，开始爆炸效果
+ **/
+var pointsSystem = createPoints();
 
 var hudSize = 0.4;
 var GAME_END_LOGO_SIZE = 50;
@@ -67,15 +77,28 @@ var GAME_OVER_FLAG = false;
 
 var INITIAL_MONSTER_NUMBER = 10;
 var MAX_MONSTER_NUMBER = 50;
+var MAX_MONSTER_NUMBER_STORAGE = 200;
 var MONSTER_APPEAR_PER_SECOND = 0.5;
+var LOCK_TIME = 1000;
+
+// monster spawn point
+// 怪物生成点
+var Monster_Spawn_Points = [];
+[1, 1.4, 2, 1.7, 1.8, 2, 3, 4, 1.5, 4, 3.7].forEach(function (radius) {
+  var MonsterGeoMetry = new THREE.CircleGeometry(radius, 20);
+  MonsterGeoMetry.rotateX(Math.PI / 2);
+  for (var n = 1; n <= 19; n++) {
+    var spawnPoint = MonsterGeoMetry.vertices[n];
+    spawnPoint.y += 5 - radius;
+    Monster_Spawn_Points.push(spawnPoint);
+  }
+});
 
 addSkybox();
 addCabinet();
 addHUD();
 addAisLogo();
 createMonsterGroup();
-
-
 
 // erfan
 var bgMusic;
@@ -198,7 +221,6 @@ function removeEndPage() {
   gameOverPage = null;
 }
 
-
 document.addEventListener("touchstart",function(e){
   if (playBtn && playBtnHover) {
     var intersects = raycaster.intersectObject( playBtn );
@@ -229,18 +251,7 @@ document.addEventListener("touchstart",function(e){
 
 //----------------------Monster---------------------------
 
-// monster spawn point
-// 怪物生成点
-var Monster_Spawn_Points = [];
-[1, 1.4, 2, 1.7].forEach(function (radius) {
-  var MonsterGeoMetry = new THREE.CircleGeometry(radius, 20);
-  MonsterGeoMetry.rotateX(Math.PI / 2);
-  for (var n = 1; n <= 19; n++) {
-    var spawnPoint = MonsterGeoMetry.vertices[n];
-    spawnPoint.y += radius / 3;
-    Monster_Spawn_Points.push(spawnPoint);
-  }
-});
+
 
 var onProgress = function ( xhr ) {
   // if ( xhr.lengthComputable ) {
@@ -275,8 +286,6 @@ var boomLoaded=false;//判断加载是否完成
 var boom2Loaded=false;//判断加载是否完成
 var pointer1Loaded=false;
 
-var monsterGroup = new THREE.Object3D();
-var Monster_Material = new THREE.MeshNormalMaterial();
 //ObjLoader.setMaterials(Monster_Material);
 
 var pointer = THREE.ImageUtils.loadTexture("img/sight-bead-white.png",null,function(t) {
@@ -371,16 +380,21 @@ var startMonsterSpawn = function () {
 
 var monsterDanceSteps = [];
 var addMonster = function () {
-  var monster = monsterGroup.pop();
-  if (monster.position.y < 1) {
-    monster.position.y = 1;
+  if (monsterGroup.length > 0 && monsterDisplayGroup.children.length < MAX_MONSTER_NUMBER) {
+    var monster = monsterGroup.pop();
+    if (monster.position.y < 1) {
+      monster.position.y = 1;
+    }
+    monsterDanceSteps.push([monster.position.y, true]);
+    monsterDisplayGroup.add(monster);
   }
-  monsterDanceSteps.push([monster.position.y, true]);
-  monsterDisplayGroup.add(monster);
 };
 
-var removeMonster = function () {
-  monsterDisplayGroup.children.pop();
+var removeMonster = function (monster) {
+  pointsSystem.particles.position.copy(monster.position);
+  pointsSystem.boom();
+  monster.visible = false;
+  // monsterDisplayGroup.children.pop();
 };
 
 
@@ -414,76 +428,6 @@ var tween = new TWEEN.Tween(monsterShock)
     });
   })
   .start();
-
-// 粒子系统
-function createPoints() {
-  var geometry = new THREE.Geometry();
-  var texture = new THREE.TextureLoader().load( "img/point1.png" );
-  var material = new THREE.PointsMaterial({
-    size: 0.5,
-    map: texture,
-    // blending: THREE.AdditiveBlending,
-    depthTest: false,
-    transparent : true,
-    opacity: 1
-  });
-
-  for (var i = 0; i < 100; i++) {
-    var vertex = new THREE.Vector3();
-    vertex.x = Math.random() * 0.5 - 0.25;
-    vertex.y = Math.random() * 0.5 - 0.25;
-    vertex.z = Math.random() * 0.5 - 0.25;
-    geometry.vertices.push( vertex );
-  }
-
-  var particles = new THREE.Points( geometry, material );
-
-  particles.position.z = -10;
-  scene.add(particles);
-
-  var pointsTween = new TWEEN.Tween({ r: 1 })
-    .to({ r: 1.065 }, 800)
-    .easing(TWEEN.Easing.Exponential.Out)
-    .onUpdate(function(interpolation) {
-      var r = interpolation * 0.065 + 1;
-      geometry.vertices.forEach(function (vertex) {
-        vertex.multiplyScalar(r);
-      });
-      geometry.verticesNeedUpdate = true;
-    })
-    .onComplete(function () {
-      geometry.vertices.forEach(function (vertex) {
-        vertex.set(Math.random() * 0.5 - 0.25, Math.random() * 0.5 - 0.25, Math.random() * 0.5 - 0.25);
-      });
-      geometry.verticesNeedUpdate = true;
-    });
-
-  var pointsOpacityTween = new TWEEN.Tween({ opacity: 1 })
-    .to({ opacity: 0 }, 800)
-    .easing(TWEEN.Easing.Exponential.In)
-    .onUpdate(function(interpolation) {
-      material.opacity = 1 - interpolation;
-    })
-    .onComplete(function () {
-      material.opacity = 1;
-    });
-
-  return {
-    boom: function () {
-      pointsTween.start();
-      pointsOpacityTween.start();
-    },
-    particles: particles
-  }
-}
-/*
-* 粒子系统
-* 属性：
-*   particles：粒子系统的引用对象
-* 方法：
-*   boom: 无参数，开始爆炸效果
-**/
-var pointsSystem = createPoints();
 
 //
 var GUIControl = {
@@ -545,6 +489,8 @@ var cursor = new THREE.Vector2(0, 0);
 var shootCount=0;//子弹计时器
 var shootFlag=75;//子弹帧数
 var shootStartPos=null;
+
+var cursorOnMonster = [null, 0];
 function animate(timestamp) {
   stats.update();
   TWEEN.update(timestamp);
@@ -556,20 +502,34 @@ function animate(timestamp) {
   // calculate objects intersecting the picking ray
   if (isMonsterSpawn) {
     var intersects = raycaster.intersectObjects( monsterDisplayGroup.children );
-
     intersects.length > 0 ? console.log(intersects) : ''; // 鼠标指向
+
     if (intersects.length == 0) {
+      cursorOnMonster[0] = null;
+      cursorOnMonster[1] = 0;
       hud.position.x = 0;
       hud.position.y = -1;
       hud.position.z = 0;
     }
 
-    for ( var i = 0; i < intersects.length; i++ ) {
 
-      hud.position.x = intersects[i].object.position.x;
-      hud.position.y = intersects[i].object.position.y;
-      hud.position.z = intersects[i].object.position.z;
-      // intersects[ i ].object.material.color.set( 0xff0000 );
+    if (intersects.length > 0) {
+      hud.position.x = intersects[0].object.position.x;
+      hud.position.y = intersects[0].object.position.y;
+      hud.position.z = intersects[0].object.position.z;
+      if (intersects[0].object.uuid == cursorOnMonster[0]) {
+        if (cursorOnMonster[1] == 0) {
+          cursorOnMonster[1] = timestamp;
+        }
+        if (timestamp - cursorOnMonster[1] > LOCK_TIME) {
+          cursorOnMonster[0] = null;
+          cursorOnMonster[1] = 0;
+          removeMonster(intersects[0].object);
+        }
+      } else {
+        cursorOnMonster[0] = intersects[0].object.uuid;
+        cursorOnMonster[1] = timestamp;
+      }
     }
   }
 
