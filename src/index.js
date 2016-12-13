@@ -102,6 +102,7 @@ createMonsterGroup();
 
 // erfan
 var bgMusic;
+var startPageGroup;
 var startPageTimeOut;
 var startPage;
 var gameOverPage;
@@ -111,6 +112,9 @@ var playBtnHover;
 var showstartHoverEffect = true;
 
 function showStartPage() {
+  startPageGroup = new THREE.Object3D();
+  scene.add(startPageGroup);
+
   var loader = new THREE.TextureLoader();
   loader.load('img/start-page.png', function(texture){
     var geometry = new THREE.PlaneGeometry( 1.344, 0.75, 32 );
@@ -123,7 +127,7 @@ function showStartPage() {
     } );
     startPage = new THREE.Mesh( geometry, material );
     startPage.position.set(0, controls.userHeight, -0.5)
-    scene.add( startPage );
+    startPageGroup.add( startPage );
   });
   var loader = new THREE.TextureLoader();
   loader.load('img/play-normal.png', function(texture){
@@ -137,7 +141,7 @@ function showStartPage() {
     } );
     playBtn = new THREE.Mesh( geometry, material );
     playBtn.position.set(0, controls.userHeight-0.15, -0.48)
-    scene.add( playBtn );
+    startPageGroup.add( playBtn );
   });
   var loader = new THREE.TextureLoader();
   loader.load('img/play-hover.png', function(texture){
@@ -151,7 +155,7 @@ function showStartPage() {
     } );
     playBtnHover = new THREE.Mesh( geometry, material );
     playBtnHover.position.set(0, controls.userHeight-0.15, -0.48)
-    scene.add( playBtnHover );
+    startPageGroup.add( playBtnHover );
   });
 }
 
