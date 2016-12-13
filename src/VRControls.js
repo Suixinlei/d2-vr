@@ -109,8 +109,6 @@ THREE.VRControls = function ( object, onError ) {
           object.quaternion.fromArray( pose.orientation );
         }
 
-        console.log(pose.orientation)
-
       }
 
       if ( pose.position !== null ) {

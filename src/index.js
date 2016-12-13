@@ -283,6 +283,7 @@ var pointer = THREE.ImageUtils.loadTexture("img/sight-bead-white.png",null,funct
   var pointerGeometry = new THREE.BoxGeometry(0.125, 0.125, 0);
   var mesh = new THREE.Mesh( pointerGeometry,material );
   pointer1 = mesh;
+  pointer1.position.z = -3;
   scene.add( mesh );
   pointer1Loaded=true;
 });
@@ -750,10 +751,10 @@ function animate(timestamp) {
 
   //准星随视角移动
   if(pointer1Loaded){
-    pointer1.position.copy( camera.position );// 复制位置
-    pointer1.rotation.copy( camera.rotation );// 复制视角偏移角度
-    //pointer1.translateY( 0.3 );
-    pointer1.translateZ( - 1.5 );
+    // pointer1.position.copy( camera.position );// 复制位置
+    // pointer1.rotation.copy( camera.rotation );// 复制视角偏移角度
+    // //pointer1.translateY( 0.3 );
+    // pointer1.translateZ( - 1.5 );
   }
   if(boomLoaded){
     boom1.position.copy( camera.position );// 复制位置
@@ -805,7 +806,7 @@ function animate(timestamp) {
       shootBigger(shoot1,2,2,2);
     }
 
-    var endPostion=new THREE.Vector3(0,1.6,-6)
+    var endPostion=new THREE.Vector3(0,1.6,-6);
     shootFly(shoot1,shootStartPos,endPostion,shootFlag,shootCount)
     //shootFly(boom1,shootStartPos,endPostion,shootFlag,shootCount)
     shootCount=(shootCount+1)%shootFlag;
