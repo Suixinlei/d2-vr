@@ -12,12 +12,12 @@ app.use(ssl());
 app.use(serve('.'));
 
 const records = JSON.parse(fs.readFileSync('records.json').toString());
-router.get('/new_record/:record', function* (next) {
+router.get('/new_record', function* (next) {
   const record = this.query.record;
   const now = (new Date()).toLocaleString();
   records[now] = record;
   fs.writeFileSync('records.json', JSON.stringify(records));
-  yield next;
+  this.body = record;
 });
 router.get('/api_rank', function* (next) {
   this.body = JSON.stringify(records);

@@ -81,6 +81,14 @@ var MAX_MONSTER_NUMBER_STORAGE = 200;
 var MONSTER_APPEAR_PER_SECOND = 0.5;
 var LOCK_TIME = 1000;
 
+//分数
+var SCORE = 0;
+var SCORE_PER_MONSTER = 1;
+
+var isMonsterSpawn = false;
+var monsterDisplayGroup = new THREE.Object3D();
+scene.add(monsterDisplayGroup);
+
 // monster spawn point
 // 怪物生成点
 var Monster_Spawn_Points = [];
@@ -99,6 +107,28 @@ addCabinet();
 addHUD();
 addAisLogo();
 createMonsterGroup();
+
+// 显示开始画面
+showStartPage();
+
+var monsterDanceSteps = [];
+var addMonster = function () {
+  if (isMonsterSpawn && monsterGroup.length > 0 && monsterDisplayGroup.children.length < MAX_MONSTER_NUMBER) {
+    var monster = monsterGroup.pop();
+    if (monster.position.y < 1) {
+      monster.position.y = 1;
+    }
+    monsterDanceSteps.push([monster.position.y, true]);
+    monsterDisplayGroup.add(monster);
+  }
+};
+
+var removeMonster = function (monster) {
+  pointsSystem.particles.position.copy(monster.position);
+  pointsSystem.boom();
+  monster.visible = false;
+  SCORE += SCORE_PER_MONSTER;
+};
 
 // erfan
 var bgMusic;
@@ -221,6 +251,15 @@ function removeStartPage() {
   playBtn = null;
   pureRemoveMesh(playBtnHover);
   playBtnHover = null;
+
+  gameplay();
+}
+
+function gameplay() {
+  isMonsterSpawn = true;
+  setInterval(function () {
+    addMonster();
+  }, 500);
 }
 
 function removeEndPage() {
@@ -378,33 +417,6 @@ ObjLoader.load('asset_src/boom.obj', function (boom) {//爆炸特效
 }, onProgress, onError);
 
 
-var isMonsterSpawn = false;
-var monsterDisplayGroup = new THREE.Object3D();
-var startMonsterSpawn = function () {
-  scene.add(monsterDisplayGroup);
-  isMonsterSpawn = true;
-};
-
-var monsterDanceSteps = [];
-var addMonster = function () {
-  if (monsterGroup.length > 0 && monsterDisplayGroup.children.length < MAX_MONSTER_NUMBER) {
-    var monster = monsterGroup.pop();
-    if (monster.position.y < 1) {
-      monster.position.y = 1;
-    }
-    monsterDanceSteps.push([monster.position.y, true]);
-    monsterDisplayGroup.add(monster);
-  }
-};
-
-var removeMonster = function (monster) {
-  pointsSystem.particles.position.copy(monster.position);
-  pointsSystem.boom();
-  monster.visible = false;
-  // monsterDisplayGroup.children.pop();
-};
-
-
 //----------------------Monster---------------------------
 
 var monsterShock = { 1:1 };
@@ -436,11 +448,58 @@ var tween = new TWEEN.Tween(monsterShock)
   })
   .start();
 
+//游戏结束逻辑
+function createGameOver() {
+  //正前方视野方向
+  var resetPose = [0, 0, 0, 1];
+  //正下方视野方向
+  var endPose = [-0.7071067690849304, 0, 0, 0.7071067690849304];
+
+  var height = controls.userHeight;
+  var deltaH = GAME_OVER_USER_HEIGHT - height;
+
+  var overTween = new TWEEN.Tween(resetPose)
+    .to(endPose, 2000)
+    .easing(TWEEN.Easing.Quintic.Out)
+    .onUpdate(function(interpolation) {
+      controls.update(this);
+      controls.userHeight = height + interpolation * deltaH;
+    })
+    .onComplete(function () {
+
+    });
+
+  return {
+    over: function () {
+      scene.add(GAME_END_LOGO);
+      GAME_OVER_FLAG = !GAME_OVER_FLAG;
+
+      // var pose = controls.getPose();
+      // if (pose && pose.orientation) {
+      //   var resetPoseTween = new TWEEN.Tween(pose.orientation)
+      //     .to(resetPose, 2000)
+      //     // .easing(TWEEN.Easing.Exponential.In)
+      //     .onUpdate(function(interpolation) {
+      //       controls.update(this);
+      //     })
+      //     .chain(overTween)
+      //     .start();
+      // } else {
+        overTween.start();
+      // }
+    }
+  }
+}
+
+/*
+* 游戏结束控制器
+* 方法:
+*   over: 无参数，开始结束流程。视野强制回到正前方并开始结束流程
+* */
+var gameOver = createGameOver();
+
 //
 var GUIControl = {
-  start: function () {
-    startMonsterSpawn();
-  },
   showStartPage: function () {
     showStartPage();
   },
@@ -462,9 +521,11 @@ var GUIControl = {
   remove: function () {
     removeMonster();
   },
+  logVRPose: function () {
+    console.log()
+  },
   gameover: function () {
-    scene.add(GAME_END_LOGO);
-    GAME_OVER_FLAG = !GAME_OVER_FLAG;
+    gameOver.over();
   },
   pointsBoom: function () {
     pointsSystem.boom();
@@ -472,7 +533,6 @@ var GUIControl = {
 };
 
 var gui = new dat.GUI();
-gui.add(GUIControl, 'start');
 gui.add(GUIControl, 'showStartPage');
 gui.add(GUIControl, 'removeStartPage');
 gui.add(GUIControl, 'showEndPage');
@@ -656,11 +716,11 @@ function animate(timestamp) {
   }
 
   if (GAME_OVER_FLAG) {
-    camera.lookAt(new THREE.Vector3(0, 0, 0));
-    if (controls.userHeight < GAME_OVER_USER_HEIGHT) {
-      controls.userHeight += 1;
-    }
-    controls.update(new Float32Array([-0.7071030139923096, 0.0023139973636716604, 0.0023139973636716604, 0.7071030139923096]));
+    // controls.resetPose();
+
+    // camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+    // controls.update(new Float32Array([-0.7071030139923096, 0.0023139973636716604, 0.0023139973636716604, 0.7071030139923096]));
   } else {
     controls.update();
   }

@@ -5,6 +5,7 @@
         <title>排行榜</title>
         <link rel="stylesheet" href="./assets/iconfont.css">
         <script src="./assets/jquery-3.1.1.min.js"></script>
+        <script src="./assets/moment.js"></script>
         <style>
             html, body {
                 padding: 0;
@@ -169,18 +170,18 @@
                         latest_index -= 1;
                         var top_list = "";
                         records.slice(0, 10).forEach(function(item, id) {
-                            var time = replace_str(item.time.split(' ')[1]);
+                            var time = replace_str(moment(item.time).format('HH:mm:ss'));
                             var record = replace_str(item.record);
                             document.querySelector('#item' + id + ' .time').innerHTML = time;
                             document.querySelector('#item' + id + ' .record').innerHTML = record;
                         });
                         document.querySelector('#latest .rank').innerHTML = replace_str(latest_index + "");
-                        document.querySelector('#latest .time').innerHTML = replace_str(latest_time.split(' ')[1]);
+                        document.querySelector('#latest .time').innerHTML = replace_str(moment(item.time).format('HH:mm:ss'));
                         document.querySelector('#latest .record').innerHTML = replace_str(latest_record);
                     }
                 });
             }
-            request();
+            setInterval(request, 1000);
         </script>
     </body>
 
