@@ -89,3 +89,45 @@ function addCabinet() {
 
 
 //----------------------Cabinet---------------------------
+
+
+function addSkybox() {
+  var skyboxTexture = new THREE.TextureLoader().load('img/box.png');
+  skyboxTexture.wrapS = THREE.RepeatWrapping;
+  skyboxTexture.wrapT = THREE.RepeatWrapping;
+  skyboxTexture.repeat.set(boxSize, boxSize);
+
+  // var geometry = new THREE.BoxGeometry(boxSize, boxSize/4, boxSize);
+  var geometry = new THREE.PlaneGeometry(boxSize, boxSize);
+
+  geometry.rotateX(Math.PI/2);
+
+  var material = new THREE.MeshBasicMaterial({
+    map: skyboxTexture,
+    color: 0x0587fa,
+    side: THREE.DoubleSide
+  });
+
+  // Align the skybox to the floor (which is at y=0).
+  skybox = new THREE.Mesh(geometry, material);
+  // skybox.position.y = boxSize/8;
+  scene.add(skybox);
+  // For high end VR devices like Vive and Oculus, take into account the stage
+  // parameters provided.
+  setupStage();
+}
+
+function addHUD() {
+  var hudTexture = new THREE.TextureLoader().load('img/hover.png');
+  var geometry = new THREE.PlaneGeometry(hudSize, hudSize, hudSize);
+  var material = new THREE.MeshBasicMaterial({
+    map: hudTexture,
+    transparent: true,
+    depthWrite: false,
+    // color: 0x01BE00,
+    side: THREE.DoubleSide
+  });
+
+  hud = new THREE.Mesh(geometry, material);
+  scene.add(hud);
+}

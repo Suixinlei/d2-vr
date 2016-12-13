@@ -45,34 +45,10 @@ var mouse = new THREE.Vector2();
 
 // Add a repeating grid as a skybox.
 var boxSize = 100;
+var hud;
+var skybox;
 var hudSize = 0.4;
 var loader = new THREE.TextureLoader();
-loader.load('img/box.png', onTextureLoaded);
-
-function onTextureLoaded(texture) {
-  texture.wrapS = THREE.RepeatWrapping;
-  texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set(boxSize, boxSize);
-
-  // var geometry = new THREE.BoxGeometry(boxSize, boxSize/4, boxSize);
-  var geometry = new THREE.PlaneGeometry(boxSize, boxSize);
-  geometry.rotateX(Math.PI/2);
-
-  var material = new THREE.MeshBasicMaterial({
-    map: texture,
-    color: 0x0587fa,
-    side: THREE.DoubleSide
-  });
-
-  // Align the skybox to the floor (which is at y=0).
-  skybox = new THREE.Mesh(geometry, material);
-  // skybox.position.y = boxSize/8;
-  scene.add(skybox);
-
-  // For high end VR devices like Vive and Oculus, take into account the stage
-  // parameters provided.
-  setupStage();
-}
 
 // Create a VR manager helper to enter and exit VR mode.
 var params = {
@@ -84,6 +60,10 @@ var manager = new WebVRManager(renderer, effect, params);
 // 结束游戏
 var GAME_OVER_USER_HEIGHT = 40;
 var GAME_OVER_FLAG = false;
+
+addSkybox();
+addCabinet();
+addHUD();
 
 //----------------------Model---------------------------
 
@@ -108,20 +88,7 @@ loader.load('img/ais.png', function (texture) {
   GAME_END_LOGO.rotation.z = Math.PI;
 });
 
-loader.load('img/hover.png', onHUDLoaded);
-function onHUDLoaded(texture) {
-  var geometry = new THREE.PlaneGeometry(hudSize, hudSize, hudSize);
-  var material = new THREE.MeshBasicMaterial({
-    map: texture,
-    transparent: true,
-    depthWrite: false,
-    // color: 0x01BE00,
-    side: THREE.DoubleSide
-  });
 
-  hud = new THREE.Mesh(geometry, material);
-  scene.add(hud);
-}
 
 //----------------------Model---------------------------
 // erfan
@@ -281,13 +248,15 @@ document.addEventListener("touchstart",function(e){
 // monster spawn point
 // 怪物生成点
 var Monster_Spawn_Points = [];
-[2, 3, 5, 6].forEach(function (var_radius) {
-  var MonsterGeoMetry = new THREE.SphereGeometry(var_radius, 25, 5);
-  for (var n = 52; n <= 77; n++) {
-    Monster_Spawn_Points.push(MonsterGeoMetry.vertices[n]);
+[1, 1.4, 2, 1.7].forEach(function (radius) {
+  var MonsterGeoMetry = new THREE.CircleGeometry(radius, 20);
+  MonsterGeoMetry.rotateX(Math.PI / 2);
+  for (var n = 1; n <= 19; n++) {
+    var spawnPoint = MonsterGeoMetry.vertices[n];
+    spawnPoint.y = radius / 4;
+    Monster_Spawn_Points.push(spawnPoint);
   }
 });
-console.log(Monster_Spawn_Points);
 
 var onProgress = function ( xhr ) {
   // if ( xhr.lengthComputable ) {
@@ -297,7 +266,7 @@ var onProgress = function ( xhr ) {
 };
 
 var onError = function (xhr) {
-
+  console.log(xhr);
 };
 
 var ObjLoader = new THREE.OBJLoader();
@@ -314,10 +283,6 @@ var boom1 = null;//大招
 var boom2 = null;//大招提示
 var pointer1=null;//准星
 
-var Monster1_is_loaded = false;
-var Monster2_is_loaded = false;
-var Monster3_is_loaded = false;
-var Monster4_is_loaded = false;
 var keyboardloaded=false;//判断加载是否完成
 var keyboardloaded2=false;//判断加载是否完成
 var keyboardloaded3=false;//判断加载是否完成
@@ -915,7 +880,6 @@ var vrDisplay;
 // Get the HMD, and if we're dealing with something that specifies
 // stageParameters, rearrange the scene.
 function setupStage() {
-  addCabinet();
   navigator.getVRDisplays().then(function(displays) {
     if (displays.length > 0) {
       vrDisplay = displays[0];
