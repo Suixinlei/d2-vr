@@ -287,7 +287,7 @@ var texture3 = THREE.ImageUtils.loadTexture("img/keyboard3.png",null,function(t)
   var material = new THREE.MeshBasicMaterial({map:texture3});
   material.transparent=true;
   material.opacity=1;
-  var keyboardGeometry = new THREE.BoxGeometry(1/3, 0.1, 0);
+  var keyboardGeometry = new THREE.BoxGeometry(2, 0.6, 0);
   var mesh = new THREE.Mesh( keyboardGeometry,material );
   keyboard3 = mesh;
   scene.add( mesh );
@@ -309,22 +309,22 @@ var boomTip = THREE.ImageUtils.loadTexture("img/boom.png",null,function(t) {
   material.transparent=true;
   //material.opacity=0;
   var boom2Geometry = new THREE.BoxGeometry( 0.7, 0.4,0);
-  console.log(boom2Geometry)
+  //console.log(boom2Geometry)
   var mesh = new THREE.Mesh( boom2Geometry,material );
   boom2 = mesh;
-  //scene.add( mesh );
+  scene.add( mesh );
   boom2Loaded=true;
 });
 
 ObjLoader.load('asset_src/boom.obj', function (boom) {//爆炸特效
-  //boom = boom.children[0];
-  boom.material = new THREE.MeshBasicMaterial({
-    color: 0xF00000,
+  boom = boom.children[0];
+  boom.material = new THREE.MeshLambertMaterial({
+    color: 0xFF3399,
     //shading: THREE.FlatShading,
   });
   //boom.position.x = -1;
   //console.log(boom)
-  boom.scale.set(0.25,0.25,0.25)
+  boom.scale.set(1,1,1)
   //boom.material.opacity.set(0)
   boom.position.y = controls.userHeight;
   boom.position.z = -1.2;
@@ -663,17 +663,19 @@ function animate(timestamp) {
   manager.render(scene, camera, timestamp);
   effect.render(scene, camera);
   //准星随视角移动
-  if(pointer1Loaded){
-    pointer1.position.copy( camera.position );// 复制位置
-    pointer1.rotation.copy( camera.rotation );// 复制视角偏移角度
-    //pointer1.translateY( 0.3 );
-    pointer1.translateZ( - 1.5 );
-  }
+  //if(shootCount%3==0){
+    if(pointer1Loaded){
+      pointer1.position.copy( camera.position );// 复制位置
+      pointer1.rotation.copy( camera.rotation );// 复制视角偏移角度
+      //pointer1.translateY( 0.3 );
+      pointer1.translateZ( - 1.5 );
+    }
+  //}
   if(boomLoaded){
     boom1.position.copy( camera.position );// 复制位置
     boom1.rotation.copy( camera.rotation );// 复制视角偏移角度
     //boom1.updateMatrix();
-    boom1.translateX( 1 );
+    boom1.translateX( 0 );
     boom1.translateZ( - 1 );
     //console.log(boom1.material)
     //console.log(boom1)
@@ -706,22 +708,23 @@ function animate(timestamp) {
     keyboard3.position.copy( camera.position );
     keyboard3.rotation.copy( camera.rotation );
     //keyboard3.updateMatrix();
-    keyboard3.translateY( - 0.2 );
-    keyboard3.translateZ( - 0.4 );
-    changeKeyboard(keyboard3,keyboard2,30)
+    keyboard3.translateY( -0.25 );
+    keyboard3.translateZ( - 1 );
+    //changeKeyboard(keyboard3,keyboard2,30)
   }
   if(shoot1Loaded){
     shoot1.position.copy( camera.position );
     shoot1.rotation.copy( camera.rotation );
     shoot1.translateY( - 0.27 );//-0.2~0
     shoot1.translateZ( - 0.5);
+    var endPostion=new THREE.Vector3(0,1.6,-16)
+    var endPostion2=new THREE.Vector3(1,1.6,-16)
     if(shootCount==0){
       shootStartPos=shoot1.position;
-      shootBigger(shoot1,2,2,2);
+      shootBigger(boom1,shootStartPos,endPostion2,shootFlag,shootCount);
     }
-
-    var endPostion=new THREE.Vector3(0,1.6,-6)
     shootFly(shoot1,shootStartPos,endPostion,shootFlag,shootCount)
+    boomFly(boom1,shootStartPos,endPostion,shootFlag,shootCount)
     //shootFly(boom1,shootStartPos,endPostion,shootFlag,shootCount)
     shootCount=(shootCount+1)%shootFlag;
   }
@@ -793,15 +796,25 @@ function changeKeyboard(key1,key2,flag){//初始键盘对象,最终键盘对象,
     key2.material.opacity=1;
   }
 }
-
-function shootBigger(shoot,width,height,deep){//子弹对象
-  //shoot.scale.set(width,height,deep)
-  //changeKeyboard(keyboard3,keyboard2,60)
+//大招
+function shootBigger(shoot,startPos,endPos,flag,count){//子弹对象
+  shoot.material.opacity=1;
+  boomFly(shoot,startPos,endPos,flag,count);
 }
-
+function showBoomTip(shoot,flag,count){//子弹对象
+  shoot.material.opacity=1;
+}
 function shootFly(shoot,startPos,endPos,flag,count){//子弹对象,初始位置,目标点位置,过渡帧数,计时器
   var position=new THREE.Vector3(startPos.x+(endPos.x-startPos.x)*count/flag,startPos.y+(endPos.y-startPos.y)*count/flag,startPos.z+(endPos.z-startPos.z)*count/flag);
   shoot.position.copy( position );
   shoot.rotation.copy( camera.rotation );
+  shoot.translateY( -0.27+ 0.27*count/flag );//-0.2~0
+}
+
+function boomFly(shoot,startPos,endPos,flag,count){//子弹对象,初始位置,目标点位置,过渡帧数,计时器
+  var position=new THREE.Vector3(startPos.x+(endPos.x-startPos.x)*count/flag,startPos.y+(endPos.y-startPos.y)*count/flag,startPos.z+(endPos.z-startPos.z)*count/flag);
+  shoot.position.copy( position );
+  shoot.rotation.copy( camera.rotation );
+  shoot.rotateX(-1*Math.PI*count/flag );
   shoot.translateY( -0.27+ 0.27*count/flag );//-0.2~0
 }
