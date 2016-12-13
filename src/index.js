@@ -669,7 +669,7 @@ function createPoints() {
   var geometry = new THREE.Geometry();
   var texture = new THREE.TextureLoader().load( "img/point1.png" );
   var material = new THREE.PointsMaterial({
-    size: 0.5,
+    size: 0.3,
     map: texture,
     // blending: THREE.AdditiveBlending,
     depthTest: false,
@@ -735,6 +735,56 @@ function createPoints() {
 * */
 var pointsSystem = createPoints();
 
+//游戏结束逻辑
+function createGameOver() {
+  //正前方视野方向
+  var resetPose = [0, 0, 0, 1];
+  //正下方视野方向
+  var endPose = [-0.7071067690849304, 0, 0, 0.7071067690849304];
+
+  var overTween = new TWEEN.Tween(resetPose)
+    .to(endPose, 2000)
+    .easing(TWEEN.Easing.Exponential.Out)
+    .onUpdate(function(interpolation) {
+      controls.update(this);
+
+      if (controls.userHeight < GAME_OVER_USER_HEIGHT) {
+        controls.userHeight += 0.2;
+      }
+    })
+    .onComplete(function () {
+
+    });
+
+  return {
+    over: function () {
+      scene.add(GAME_END_LOGO);
+      GAME_OVER_FLAG = !GAME_OVER_FLAG;
+
+      // var pose = controls.getPose();
+      // if (pose && pose.orientation) {
+      //   var resetPoseTween = new TWEEN.Tween(pose.orientation)
+      //     .to(resetPose, 2000)
+      //     // .easing(TWEEN.Easing.Exponential.In)
+      //     .onUpdate(function(interpolation) {
+      //       controls.update(this);
+      //     })
+      //     .chain(overTween)
+      //     .start();
+      // } else {
+        overTween.start();
+      // }
+    }
+  }
+}
+
+/*
+* 游戏结束控制器
+* 方法:
+*   over: 无参数，开始结束流程。视野强制回到正前方并开始结束流程
+* */
+var gameOver = createGameOver();
+
 //
 var GUIControl = {
   start: function () {
@@ -755,9 +805,11 @@ var GUIControl = {
   remove: function () {
     removeMonster();
   },
+  logVRPose: function () {
+    console.log()
+  },
   gameover: function () {
-    scene.add(GAME_END_LOGO);
-    GAME_OVER_FLAG = !GAME_OVER_FLAG;
+    gameOver.over();
   },
   pointsBoom: function () {
     pointsSystem.boom();
@@ -922,11 +974,11 @@ function animate(timestamp) {
   }
 
   if (GAME_OVER_FLAG) {
-    camera.lookAt(new THREE.Vector3(0, 0, 0));
-    if (controls.userHeight < GAME_OVER_USER_HEIGHT) {
-      controls.userHeight += 1;
-    }
-    controls.update(new Float32Array([-0.7071030139923096, 0.0023139973636716604, 0.0023139973636716604, 0.7071030139923096]));
+    // controls.resetPose();
+
+    // camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+    // controls.update(new Float32Array([-0.7071030139923096, 0.0023139973636716604, 0.0023139973636716604, 0.7071030139923096]));
   } else {
     controls.update();
   }
