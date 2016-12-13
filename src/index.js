@@ -81,6 +81,10 @@ var MAX_MONSTER_NUMBER_STORAGE = 200;
 var MONSTER_APPEAR_PER_SECOND = 0.5;
 var LOCK_TIME = 1000;
 
+//分数
+var SCORE = 0;
+var SCORE_PER_MONSTER = 1;
+
 var isMonsterSpawn = false;
 var monsterDisplayGroup = new THREE.Object3D();
 scene.add(monsterDisplayGroup);
@@ -106,6 +110,25 @@ createMonsterGroup();
 
 // 显示开始画面
 showStartPage();
+
+var monsterDanceSteps = [];
+var addMonster = function () {
+  if (isMonsterSpawn && monsterGroup.length > 0 && monsterDisplayGroup.children.length < MAX_MONSTER_NUMBER) {
+    var monster = monsterGroup.pop();
+    if (monster.position.y < 1) {
+      monster.position.y = 1;
+    }
+    monsterDanceSteps.push([monster.position.y, true]);
+    monsterDisplayGroup.add(monster);
+  }
+};
+
+var removeMonster = function (monster) {
+  pointsSystem.particles.position.copy(monster.position);
+  pointsSystem.boom();
+  monster.visible = false;
+  SCORE += SCORE_PER_MONSTER;
+};
 
 // erfan
 var bgMusic;
@@ -388,25 +411,6 @@ ObjLoader.load('asset_src/boom.obj', function (boom) {//爆炸特效
   boomLoaded = true;
   scene.add(boom);
 }, onProgress, onError);
-
-var monsterDanceSteps = [];
-var addMonster = function () {
-  if (isMonsterSpawn && monsterGroup.length > 0 && monsterDisplayGroup.children.length < MAX_MONSTER_NUMBER) {
-    var monster = monsterGroup.pop();
-    if (monster.position.y < 1) {
-      monster.position.y = 1;
-    }
-    monsterDanceSteps.push([monster.position.y, true]);
-    monsterDisplayGroup.add(monster);
-  }
-};
-
-var removeMonster = function (monster) {
-  pointsSystem.particles.position.copy(monster.position);
-  pointsSystem.boom();
-  monster.visible = false;
-  // monsterDisplayGroup.children.pop();
-};
 
 
 //----------------------Monster---------------------------
