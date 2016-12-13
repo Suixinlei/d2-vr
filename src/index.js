@@ -667,12 +667,6 @@ function animate(timestamp) {
   lastRender = timestamp;
 
   //准星随视角移动
-  if(pointer1Loaded){
-    // pointer1.position.copy( camera.position );// 复制位置
-    // pointer1.rotation.copy( camera.rotation );// 复制视角偏移角度
-    // //pointer1.translateY( 0.3 );
-    // pointer1.translateZ( - 1.5 );
-  }
   //if(shootCount%3==0){
     if(pointer1Loaded){
       pointer1.position.copy( camera.position );// 复制位置
@@ -704,17 +698,8 @@ function animate(timestamp) {
   }
 
   if(shoot1Loaded){
-    //shoot1.position.copy( camera.position );
-    //shoot1.rotation.copy( camera.rotation );
     shoot1.translateY( - 0.27 );//-0.2~0
     shoot1.translateZ( - 0.5);
-    //if(shootCount==0){
-      //shootStartPos=shoot1.position;
-      //endPostion=new THREE.Vector3(0,1.6,-16)
-    //}
-
-    //shootFly(shoot1,shootStartPos,endPostion,shootFlag,shootCount)
-    //shootCount=(shootCount+1)%shootFlag;
   }
 
   if (GAME_OVER_FLAG) {
@@ -856,7 +841,7 @@ function createBoom(startPos,endPos) {//初始键盘对象,最终键盘对象
       boom1.position.copy( position );
       boom1.rotateX(-1*Math.PI*count);
       boom1.translateY( -0.27+ 0.27*count );//-0.2~0
-      boom1.material.opacity = 1;
+      //boom1.material.opacity = 1;
     })
     .onComplete(function () {
       boom1.position.copy( endPos );
@@ -880,7 +865,11 @@ function createBoom(startPos,endPos) {//初始键盘对象,最终键盘对象
     shoot: function (callback) {
       shoot1.material.opacity = 1;
       shoot1.rotation.copy( camera.rotation );
-      shootFlyTween.onComplete(callback).start();
+      if(callback){
+        shootFlyTween.onComplete(callback).start();
+      }else{
+        shootFlyTween.start();
+      }
     }
   }
 }
