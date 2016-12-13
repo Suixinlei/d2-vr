@@ -131,3 +131,47 @@ function addHUD() {
   hud = new THREE.Mesh(geometry, material);
   scene.add(hud);
 }
+
+
+function addAisLogo() {
+  var aisTexture = new THREE.TextureLoader().load('img/ais.png');
+  var geometry = new THREE.PlaneGeometry(GAME_END_LOGO_SIZE, GAME_END_LOGO_SIZE);
+  var material = new THREE.MeshBasicMaterial({
+    map: aisTexture,
+    transparent: true,
+    depthWrite: false,
+    side: THREE.DoubleSide
+  });
+
+  GAME_END_LOGO = new THREE.Mesh(geometry, material);
+  GAME_END_LOGO.position.y = 1;
+  GAME_END_LOGO.position.x = 0;
+  GAME_END_LOGO.position.z = 0;
+  GAME_END_LOGO.rotation.x = Math.PI / 2;
+  GAME_END_LOGO.rotation.y = Math.PI;
+  GAME_END_LOGO.rotation.z = Math.PI;
+}
+
+function createMonsterGroup() {
+  var RealMonsterTexture = [new THREE.TextureLoader().load('img/monster1.png'), new THREE.TextureLoader().load('img/monster2.png'), new THREE.TextureLoader().load('img/monster3.png'), new THREE.TextureLoader().load('img/monster4.png')];
+
+  for (var i=0; i<MAX_MONSTER_NUMBER; i++) {
+    var RandomNumber = Helper.getRandomInt(0, Monster_Spawn_Points.length -1);
+    var RandomSpawnPoint = Monster_Spawn_Points[RandomNumber];
+    Monster_Spawn_Points.splice(RandomNumber, 1);
+    var RealMonsterHitBoxGeometry = new THREE.PlaneGeometry(0.3, 0.3);
+    var RealMonsterHitBoxMaterial = new THREE.MeshBasicMaterial({
+      map: RealMonsterTexture[i % 4],
+      transparent: true,
+      depthWrite: false
+    });
+
+    var RealMonsterHitBox = new THREE.Mesh(RealMonsterHitBoxGeometry, RealMonsterHitBoxMaterial);
+    RealMonsterHitBox.position.x = RandomSpawnPoint.x;
+    RealMonsterHitBox.position.y = RandomSpawnPoint.y + 1.6;
+    RealMonsterHitBox.position.z = RandomSpawnPoint.z;
+
+    RealMonsterHitBox.lookAt(camera.position);
+    monsterGroup.push(RealMonsterHitBox);
+  }
+}

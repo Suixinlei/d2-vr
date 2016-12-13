@@ -47,8 +47,12 @@ var mouse = new THREE.Vector2();
 var boxSize = 100;
 var hud;
 var skybox;
+var monsterGroup = [];
+// GAME_OVER_DISPLAY_LOGO
+var GAME_END_LOGO = null;
+
 var hudSize = 0.4;
-var loader = new THREE.TextureLoader();
+var GAME_END_LOGO_SIZE = 50;
 
 // Create a VR manager helper to enter and exit VR mode.
 var params = {
@@ -61,36 +65,18 @@ var manager = new WebVRManager(renderer, effect, params);
 var GAME_OVER_USER_HEIGHT = 40;
 var GAME_OVER_FLAG = false;
 
+var INITIAL_MONSTER_NUMBER = 10;
+var MAX_MONSTER_NUMBER = 50;
+var MONSTER_APPEAR_PER_SECOND = 0.5;
+
 addSkybox();
 addCabinet();
 addHUD();
-
-//----------------------Model---------------------------
-
-// GAME_OVER_DISPLAY_LOGO
-var GAME_END_LOGO = null;
-var GAME_END_LOGO_SIZE = 50;
-loader.load('img/ais.png', function (texture) {
-  var geometry = new THREE.PlaneGeometry(GAME_END_LOGO_SIZE, GAME_END_LOGO_SIZE);
-  var material = new THREE.MeshBasicMaterial({
-    map: texture,
-    transparent: true,
-    depthWrite: false,
-    side: THREE.DoubleSide
-  });
-
-  GAME_END_LOGO = new THREE.Mesh(geometry, material);
-  GAME_END_LOGO.position.y = 1;
-  GAME_END_LOGO.position.x = 0;
-  GAME_END_LOGO.position.z = 0;
-  GAME_END_LOGO.rotation.x = Math.PI / 2;
-  GAME_END_LOGO.rotation.y = Math.PI;
-  GAME_END_LOGO.rotation.z = Math.PI;
-});
+addAisLogo();
+createMonsterGroup();
 
 
 
-//----------------------Model---------------------------
 // erfan
 var bgMusic;
 var startPageTimeOut;
@@ -181,8 +167,6 @@ function showEndPage(score) {
     scene.add( gameOverPageText );
     console.log(gameOverPageText)
   } );
-
-
 }
 
 function pureRemoveMesh(mesh) {
@@ -253,7 +237,7 @@ var Monster_Spawn_Points = [];
   MonsterGeoMetry.rotateX(Math.PI / 2);
   for (var n = 1; n <= 19; n++) {
     var spawnPoint = MonsterGeoMetry.vertices[n];
-    spawnPoint.y = radius / 4;
+    spawnPoint.y += radius / 3;
     Monster_Spawn_Points.push(spawnPoint);
   }
 });
@@ -377,139 +361,6 @@ ObjLoader.load('asset_src/boom.obj', function (boom) {//爆炸特效
   scene.add(boom);
 }, onProgress, onError);
 
-var monsterGroup = [];
-var Monster_Spawn_Number = 10;
-ObjLoader.load('asset_src/a.obj', function (monster) {
-  monster.rotateX(Math.PI);
-  for (var i = 0; i < Monster_Spawn_Number; i ++) {
-    var RealMonster = monster.children[0].clone();
-    var Monster_Material1 = new THREE.MeshBasicMaterial({
-      color: 0xf4c60b,
-      // emissive: 0x0587fa,
-      // emissiveIntensity: 0.5,
-      shading: THREE.FlatShading,
-    });
-    RealMonster.material = Monster_Material1;
-    var RandomNumber = Helper.getRandomInt(0, Monster_Spawn_Points.length -1);
-    var RandomSpawnPoint = Monster_Spawn_Points[RandomNumber];
-    Monster_Spawn_Points.splice(RandomNumber, 1);
-    RealMonster.position.x = RandomSpawnPoint.x;
-    RealMonster.position.y = RandomSpawnPoint.y;
-    RealMonster.position.z = RandomSpawnPoint.z;
-
-    var RealMonsterHitBoxGeometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
-    var RealMonsterHitBoxMaterial = new THREE.MeshBasicMaterial({
-      transparent: true,
-      opacity: 0,
-      depthWrite: false
-    });
-
-    var RealMonsterHitBox = new THREE.Mesh(RealMonsterHitBoxGeometry, RealMonsterHitBoxMaterial);
-    RealMonsterHitBox.position.x = RandomSpawnPoint.x;
-    RealMonsterHitBox.position.y = RandomSpawnPoint.y + 1.6;
-    RealMonsterHitBox.position.z = RandomSpawnPoint.z;
-
-    RealMonster.lookAt(camera.position);
-    RealMonsterHitBox.add(RealMonster);
-    monsterGroup.push(RealMonsterHitBox);
-  }
-}, onProgress, onError);
-ObjLoader.load('asset_src/b.obj', function (monster) {
-  for (var i = 0; i < Monster_Spawn_Number; i ++) {
-    var RealMonster = monster.children[0].clone();
-    var Monster_Material2 = new THREE.MeshBasicMaterial({
-      color: 0xea6c00,
-      shading: THREE.FlatShading,
-    });
-    RealMonster.material = Monster_Material2;
-    var RandomNumber = Helper.getRandomInt(0, Monster_Spawn_Points.length -1);
-    var RandomSpawnPoint = Monster_Spawn_Points[RandomNumber];
-    Monster_Spawn_Points.splice(RandomNumber, 1);
-    RealMonster.position.x = RandomSpawnPoint.x;
-    RealMonster.position.y = RandomSpawnPoint.y;
-    RealMonster.position.z = RandomSpawnPoint.z;
-
-    var RealMonsterHitBoxGeometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
-    var RealMonsterHitBoxMaterial = new THREE.MeshBasicMaterial({
-      transparent: true,
-      opacity: 0,
-      depthWrite: false
-    });
-
-    var RealMonsterHitBox = new THREE.Mesh(RealMonsterHitBoxGeometry, RealMonsterHitBoxMaterial);
-    RealMonsterHitBox.position.x = RandomSpawnPoint.x;
-    RealMonsterHitBox.position.y = RandomSpawnPoint.y + 1.6;
-    RealMonsterHitBox.position.z = RandomSpawnPoint.z;
-
-    RealMonster.lookAt(camera.position);
-    RealMonsterHitBox.add(RealMonster);
-    monsterGroup.push(RealMonsterHitBox);
-  }
-}, onProgress, onError);
-ObjLoader.load('asset_src/c.obj', function (monster) {
-  for (var i = 0; i < Monster_Spawn_Number; i ++) {
-    var RealMonster = monster.children[0].clone();
-    var Monster_Material3 = new THREE.MeshBasicMaterial({
-      color: 0xa452cb,
-      shading: THREE.FlatShading,
-    });
-    RealMonster.material = Monster_Material3;
-    var RandomNumber = Helper.getRandomInt(0, Monster_Spawn_Points.length -1);
-    var RandomSpawnPoint = Monster_Spawn_Points[RandomNumber];
-    Monster_Spawn_Points.splice(RandomNumber, 1);
-    RealMonster.position.x = RandomSpawnPoint.x;
-    RealMonster.position.y = RandomSpawnPoint.y;
-    RealMonster.position.z = RandomSpawnPoint.z;
-
-    var RealMonsterHitBoxGeometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
-    var RealMonsterHitBoxMaterial = new THREE.MeshBasicMaterial({
-      transparent: true,
-      opacity: 0,
-      depthWrite: false
-    });
-
-    var RealMonsterHitBox = new THREE.Mesh(RealMonsterHitBoxGeometry, RealMonsterHitBoxMaterial);
-    RealMonsterHitBox.position.x = RandomSpawnPoint.x;
-    RealMonsterHitBox.position.y = RandomSpawnPoint.y + 1.6;
-    RealMonsterHitBox.position.z = RandomSpawnPoint.z;
-
-    RealMonster.lookAt(camera.position);
-    RealMonsterHitBox.add(RealMonster);
-    monsterGroup.push(RealMonsterHitBox);
-  }
-}, onProgress, onError);
-ObjLoader.load('asset_src/d.obj', function (monster) {
-  for (var i = 0; i < Monster_Spawn_Number; i ++) {
-    var RealMonster = monster.children[0].clone();
-    var Monster_Material4 = new THREE.MeshBasicMaterial({
-      color: 0x20cdab,
-      shading: THREE.FlatShading,
-    });
-    RealMonster.material = Monster_Material4;
-    var RandomNumber = Helper.getRandomInt(0, Monster_Spawn_Points.length -1);
-    var RandomSpawnPoint = Monster_Spawn_Points[RandomNumber];
-    Monster_Spawn_Points.splice(RandomNumber, 1);
-    RealMonster.position.x = RandomSpawnPoint.x;
-    RealMonster.position.y = RandomSpawnPoint.y;
-    RealMonster.position.z = RandomSpawnPoint.z;
-
-    var RealMonsterHitBoxGeometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
-    var RealMonsterHitBoxMaterial = new THREE.MeshBasicMaterial({
-      transparent: true,
-      opacity: 0,
-      depthWrite: false
-    });
-
-    var RealMonsterHitBox = new THREE.Mesh(RealMonsterHitBoxGeometry, RealMonsterHitBoxMaterial);
-    RealMonsterHitBox.position.x = RandomSpawnPoint.x;
-    RealMonsterHitBox.position.y = RandomSpawnPoint.y + 1.6;
-    RealMonsterHitBox.position.z = RandomSpawnPoint.z;
-
-    RealMonster.lookAt(camera.position);
-    RealMonsterHitBox.add(RealMonster);
-    monsterGroup.push(RealMonsterHitBox);
-  }
-}, onProgress, onError);
 
 var isMonsterSpawn = false;
 var monsterDisplayGroup = new THREE.Object3D();
