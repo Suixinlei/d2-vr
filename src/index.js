@@ -124,10 +124,12 @@ var addMonster = function () {
 };
 
 var removeMonster = function (monster) {
-  pointsSystem.particles.position.copy(monster.position);
-  pointsSystem.boom();
-  monster.visible = false;
-  SCORE += SCORE_PER_MONSTER;
+  createBoom(new THREE.Vector3(0,0,0), monster.position).shoot(function () {
+    pointsSystem.particles.position.copy(monster.position);
+    pointsSystem.boom();
+    monster.visible = false;
+    SCORE += SCORE_PER_MONSTER;
+  });
 };
 
 // erfan
@@ -351,8 +353,6 @@ var boomLoaded=false;//判断加载是否完成
 var boom2Loaded=false;//判断加载是否完成
 var pointer1Loaded=false;
 
-var monsterGroup = new THREE.Object3D();
-var Monster_Material = new THREE.MeshNormalMaterial();
 
 var pointer = THREE.ImageUtils.loadTexture("img/sight-bead-white.png",null,function(t) {
   var material = new THREE.MeshBasicMaterial({map:pointer});
@@ -632,7 +632,7 @@ function animate(timestamp) {
       if (!startPageTimeOut) {
         startPageTimeOut = setTimeout(function() {
           removeStartPage();
-        }, 3000)
+        }, 1000)
       }
       if (showstartHoverEffect) {
         playBtnHover.material.opacity -= step;
@@ -877,10 +877,10 @@ function createBoom(startPos,endPos) {//初始键盘对象,最终键盘对象
     tipShow:function(){
       showTween.start();
     },
-    shoot: function () {
+    shoot: function (callback) {
       shoot1.material.opacity = 1;
       shoot1.rotation.copy( camera.rotation );
-      shootFlyTween.start();
+      shootFlyTween.onComplete(callback).start();
     }
   }
 }
