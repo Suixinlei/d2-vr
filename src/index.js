@@ -175,18 +175,21 @@ function showEndPage(score) {
   });
 
   var loader = new THREE.FontLoader();
-  loader.load( 'fonts/iconfont_number.typeface.json', function ( font ) {
+  loader.load( 'fonts/gentilis_regular.typeface.json', function ( font ) {
     var textGeo = new THREE.TextGeometry( score, {
       font: font,
       size: 0.08,
       height: 0,
       curveSegments: 12,
     });
-
+    var xfix = -0.04;
+    if (score>99) {
+      xfix = -0.07
+    }
     var textMaterial = new THREE.MeshBasicMaterial( { color: 0xff00ff } );
     gameOverPageText = new THREE.Mesh( textGeo, textMaterial );
-    gameOverPageText.position.set(-0.07, controls.userHeight + 0.08, -0.48);
-    //gameOverPageText.lookAt(camera.position);
+    gameOverPageText.position.set(xfix, controls.userHeight + 0.08, -0.48);
+    gameOverPageText.lookAt(camera.position);
     scene.add( gameOverPageText );
     console.log(gameOverPageText)
   } );
@@ -438,7 +441,7 @@ var GUIControl = {
     showStartPage();
   },
   showEndPage: function () {
-    showEndPage(184);
+    showEndPage(111);
   },
   removeStartPage: function () {
     removeStartPage();

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>排行榜</title>
+        <link rel="stylesheet" href="./assets/iconfont.css">
+        <script src="./assets/jquery-3.1.1.min.js"></script>
+        <style>
+            html, body {
+                padding: 0;
+                margin: 0;
+                width: 100%;
+                height: 100%;
+                font-family: iconfont;
+                font-size: 50px;
+                letter-spacing: -20px;
+                color: white;
+                -webkit-font-smoothing: antialiased;
+                text-shadow: 0 1px 3px #666;
+            }
+            html {
+                overflow: hidden;
+            }
+            .wrap {
+                transform-origin: top left;
+            }
+            .main {
+                width: 1920px;
+                height: 1080px;
+                background: url(./img/rank.jpg);
+            }
+            ul.list {
+                position: absolute;
+                top: 338px;
+                width: 1630px;
+                left: 203px;
+                margin: 0;
+                padding: 0;
+            }
+            li.item {
+                height: 75px;
+                width: 757px;
+                float: left;
+                margin: 0;
+                list-style: none;
+                margin-right: 58px;
+                position: relative;
+            }
+            span.time {
+                width: 300px;
+                height: 30px;
+                display: inline-block;
+                margin-left: 222px;
+                margin-top: 23px;
+                font-size: 35px;
+                letter-spacing: -14px;
+            }
+            span.record {
+                position: absolute;
+                display: inline-block;
+                right: 31px;
+                width: 98px;
+                height: 40px;
+                margin-top: 15px;
+                text-align: center;
+            }
+            span.rank {
+                position: absolute;
+                display: inline-block;
+                width: 81px;
+                height: 36px;
+                margin-top: 20px;
+                margin-left: 25px;
+                letter-spacing: -22px;
+                font-size: 46px;
+                text-align: center;
+            }
+            ul.new-list {
+                position: absolute;
+                top: 864px;
+                margin: 0;
+                padding: 0;
+                left: 207px;
+            }
+        </style>
+
+    </head>
+    <body>
+        <div class="wrap" id="wrap">
+            <div class="main">
+                <ul class="list" id="list">
+                    <li class="item" id="item0"><span class="time">&#xe6a3;&#xe6a3;&#xe6a3;&#xe6a3;</span><span class="record">&#xe6a3;&#xe6a3;&#xe6a3;</span></li>
+                    <li class="item" id="item5"><span class="time">&#xe6a3;&#xe6a3;&#xe6a3;</span><span class="record">&#xe6a3;&#xe6a3;</span></li>
+                    <li class="item" id="item1"><span class="time"></span><span class="record"></span></li>
+                    <li class="item" id="item6"><span class="time"></span><span class="record"></span></li>
+                    <li class="item" id="item2"><span class="time"></span><span class="record"></span></li>
+                    <li class="item" id="item7"><span class="time"></span><span class="record"></span></li>
+                    <li class="item" id="item3"><span class="time"></span><span class="record"></span></li>
+                    <li class="item" id="item8"><span class="time"></span><span class="record"></span></li>
+                    <li class="item" id="item4"><span class="time"></span><span class="record"></span></li>
+                    <li class="item" id="item9"><span class="time"></span><span class="record"></span></li>
+                </ul>
+                <ul class="new-list">
+                    <li class="item" id="latest">
+                        <span class="rank">&#xe6a3;&#xe6a3;&#xe6a3;</span>
+                        <span class="time">&#xe6a3;&#xe6a3;&#xe6a3;</span>
+                        <span class="record">&#xe6a3;&#xe6a3;&#xe6a3;</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <script>
+            var wrap = document.getElementById('wrap');
+            var listEl = document.getElementById('list');
+            function resize() {
+                var width = document.documentElement.offsetWidth;
+                var ratio = width / 1920;
+                wrap.style.cssText = "transform: scale(" + ratio + ")";
+            }
+            resize();
+            window.onload = resize;
+
+            var char_map = {
+                '0': '&#xe6a3;',
+                '1': '&#xe69f;',
+                '2': '&#xe6a0;',
+                '3': '&#xe69e;',
+                '4': '&#xe69d;',
+                '5': '&#xe69b;',
+                '6': '&#xe69a;',
+                '7': '&#xe699;',
+                '8': '&#xe6a2;',
+                '9': '&#xe6a1;',
+                ':': '&#xe69c;'
+            };
+            function replace_str(str) {
+                var arr = str.split('');
+                arr = arr.map(function(char) {
+                    return char_map[char] || ' ';
+                });
+                return arr.join('');
+            }
+
+            function request() {
+                $.ajax({
+                    url: './api_rank',
+                    method: 'GET',
+                    success: function(data) {
+                        var list = JSON.parse(data);
+                        var records = [];
+                        var latest_time = "";
+                        var latest_record = "";
+                        Object.keys(list).map(function(key) {
+                            if(key > latest_time) {
+                                latest_time = key ;
+                                latest_record = list[key];
+                            }
+                            records.push({
+                                time: key,
+                                record: list[key]
+                            });
+                        });
+                        records.sort(function(a, b) {
+                            return parseInt(b.record) - parseInt(a.record);
+                        });
+                        for(var latest_index = 0; latest_index < records.length; latest_index++) {
+                            if (records[latest_index] === latest_record) return;
+                        }
+                        latest_index -= 1;
+                        var top_list = "";
+                        records.slice(0, 10).forEach(function(item, id) {
+                            var time = replace_str(item.time.split(' ')[1]);
+                            var record = replace_str(item.record);
+                            document.querySelector('#item' + id + ' .time').innerHTML = time;
+                            document.querySelector('#item' + id + ' .record').innerHTML = record;
+                        });
+                        document.querySelector('#latest .rank').innerHTML = replace_str(latest_index + "");
+                        document.querySelector('#latest .time').innerHTML = replace_str(latest_time.split(' ')[1]);
+                        document.querySelector('#latest .record').innerHTML = replace_str(latest_record);
+                    }
+                });
+            }
+            request();
+        </script>
+    </body>
+
+</html>
