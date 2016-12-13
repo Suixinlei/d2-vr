@@ -133,6 +133,7 @@ function onHUDLoaded(texture) {
 }
 
 //----------------------Model---------------------------
+// erfan
 var startPage;
 var startPageHover;
 var playBtn;
@@ -179,7 +180,7 @@ function showStartPage() {
       transparent: true
     } );
     playBtnHover = new THREE.Mesh( geometry, material );
-    playBtnHover.position.set(0, controls.userHeight-0.25, -0.46)
+    playBtnHover.position.set(0, controls.userHeight-0.25, -0.48)
     scene.add( playBtnHover );
   });
 }
@@ -215,10 +216,28 @@ document.addEventListener("touchstart",function(e){
     if (intersects.length) {
       console.log('game start!')
       removeStartPage()
+      var bgMusic = palyBackGroundMusic();
     }
   }
-  console.log(e)
+  var audio = document.getElementById('myaudio');
+  audio.play();
+  //au.play();
+  //
+  //console.log(e)
 }, false);
+
+//document.body.addEventListener("click",function(e){
+//  console.log(e)
+//  console.log(palyBackGroundMusic)
+//  //var bgMusic = palyBackGroundMusic();
+//  document.getElementById('audio').play();
+//  //var au = document.createElement('audio');
+//  //au.preload = 'auto';
+//  //au.src = './asset_src/test-music.m4a';
+//  //
+//  //au.loop = 'loop';
+//  //au.play();
+//}, false);
 
 
 
@@ -645,6 +664,77 @@ function addCabinet() {
 
 //----------------------Cabinet---------------------------
 
+// 粒子系统
+function createPoints() {
+  var geometry = new THREE.Geometry();
+  var texture = new THREE.TextureLoader().load( "img/point1.png" );
+  var material = new THREE.PointsMaterial({
+    size: 0.5,
+    map: texture,
+    // blending: THREE.AdditiveBlending,
+    depthTest: false,
+    transparent : true,
+    opacity: 1
+  });
+
+  for (var i = 0; i < 100; i++) {
+    var vertex = new THREE.Vector3();
+    vertex.x = Math.random() * 0.5 - 0.25;
+    vertex.y = Math.random() * 0.5 - 0.25;
+    vertex.z = Math.random() * 0.5 - 0.25;
+    geometry.vertices.push( vertex );
+  }
+
+  var particles = new THREE.Points( geometry, material );
+
+  particles.position.z = -10;
+  scene.add(particles);
+
+  var pointsTween = new TWEEN.Tween({ r: 1 })
+    .to({ r: 1.065 }, 800)
+    .easing(TWEEN.Easing.Exponential.Out)
+    .onUpdate(function(interpolation) {
+      var r = interpolation * 0.065 + 1;
+      geometry.vertices.forEach(function (vertex) {
+        vertex.multiplyScalar(r);
+      });
+      geometry.verticesNeedUpdate = true;
+    })
+    .onComplete(function () {
+      geometry.vertices.forEach(function (vertex) {
+        vertex.set(Math.random() * 0.5 - 0.25, Math.random() * 0.5 - 0.25, Math.random() * 0.5 - 0.25);
+      });
+      geometry.verticesNeedUpdate = true;
+    });
+
+  var pointsOpacityTween = new TWEEN.Tween({ opacity: 1 })
+    .to({ opacity: 0 }, 800)
+    .easing(TWEEN.Easing.Exponential.In)
+    .onUpdate(function(interpolation) {
+      material.opacity = 1 - interpolation;
+    })
+    .onComplete(function () {
+      material.opacity = 1;
+    });
+
+  return {
+    boom: function () {
+      pointsTween.start();
+      pointsOpacityTween.start();
+    },
+    particles: particles
+  }
+}
+/*
+* 粒子系统
+* 属性：
+*   particles：粒子系统的引用对象
+* 方法：
+*   boom: 无参数，开始爆炸效果
+*
+* */
+var pointsSystem = createPoints();
+
 //
 var GUIControl = {
   start: function () {
@@ -656,6 +746,11 @@ var GUIControl = {
   removeStartPage: function () {
     removeStartPage();
   },
+  playMusic: function () {
+    var audio = document.getElementById('myaudio')
+    console.log(audio)
+    audio.play();
+  },
   add: function () {
     addMonster();
   },
@@ -665,6 +760,9 @@ var GUIControl = {
   gameover: function () {
     scene.add(GAME_END_LOGO);
     GAME_OVER_FLAG = !GAME_OVER_FLAG;
+  },
+  pointsBoom: function () {
+    pointsSystem.boom();
   }
 };
 
@@ -672,8 +770,10 @@ var gui = new dat.GUI();
 gui.add(GUIControl, 'start');
 gui.add(GUIControl, 'showStartPage');
 gui.add(GUIControl, 'removeStartPage');
+gui.add(GUIControl, 'playMusic');
 gui.add(GUIControl, 'add');
 gui.add(GUIControl, 'remove');
+gui.add(GUIControl, 'pointsBoom');
 gui.add(GUIControl, 'gameover');
 
 var stats = new Stats();
@@ -691,7 +791,7 @@ var shootFlag=75;//子弹帧数
 var shootStartPos=null;
 function animate(timestamp) {
   stats.update();
-  tween.update(timestamp);
+  TWEEN.update(timestamp);
 
   var direction = camera.getWorldDirection();
 
