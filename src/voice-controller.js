@@ -50,7 +50,7 @@ function playMusic(kind) {
   return au;
 }
 
-var bgMusic = playMusic('background');
+//var bgMusic = playMusic('background');
 
 //setTimeout(function() {
 //  bgMusic.pause();

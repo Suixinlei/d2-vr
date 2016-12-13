@@ -110,8 +110,11 @@ function onHUDLoaded(texture) {
 
 //----------------------Model---------------------------
 // erfan
+var bgMusic;
+var startPageTimeOut;
 var startPage;
-var startPageHover;
+var gameOverPage;
+var gameOverPageText;
 var playBtn;
 var playBtnHover;
 var showstartHoverEffect = true;
@@ -161,6 +164,45 @@ function showStartPage() {
   });
 }
 
+function showEndPage(score) {
+  var direction = camera.getWorldDirection();
+  var loader = new THREE.TextureLoader();
+  loader.load('img/game-over.png', function(texture){
+    var geometry = new THREE.PlaneGeometry( 1.344, 0.75, 32 );
+    var material = new THREE.MeshBasicMaterial( {
+      map: texture,
+      //color: 0xffff00,
+      side: THREE.DoubleSide,
+      //opacity:0.6,
+      transparent: true
+    } );
+    gameOverPage = new THREE.Mesh( geometry, material );
+    var len = 0.5;
+    gameOverPage.position.set(direction.x * len, controls.userHeight +  len* direction.y, len * direction.z);
+    gameOverPage.lookAt(camera.position);
+    scene.add( gameOverPage );
+  });
+
+  var loader = new THREE.FontLoader();
+  loader.load( 'fonts/iconfont_number.typeface.json', function ( font ) {
+    var textGeo = new THREE.TextGeometry( score, {
+      font: font,
+      size: 0.08,
+      height: 0,
+      curveSegments: 12,
+    });
+
+    var textMaterial = new THREE.MeshBasicMaterial( { color: 0xff00ff } );
+    gameOverPageText = new THREE.Mesh( textGeo, textMaterial );
+    gameOverPageText.position.set(-0.07, controls.userHeight + 0.08, -0.48);
+    //gameOverPageText.lookAt(camera.position);
+    scene.add( gameOverPageText );
+    console.log(gameOverPageText)
+  } );
+
+
+}
+
 function pureRemoveMesh(mesh) {
   if (!mesh) {
     return;
@@ -185,22 +227,24 @@ function removeStartPage() {
   playBtnHover = null;
 }
 
+function removeEndPage() {
+  pureRemoveMesh(gameOverPage);
+  gameOverPage = null;
+}
 
-//document.addEventListener("touchstart",function(e){
-//  if (playBtn && playBtnHover) {
-//    var intersects = raycaster.intersectObject( playBtn );
-//    if (intersects.length) {
-//      console.log('game start!')
-//      removeStartPage()
-//      var bgMusic = palyBackGroundMusic();
-//    }
-//  }
-//  var audio = document.getElementById('myaudio');
-//  audio.play();
-//  //au.play();
-//  //
-//  //console.log(e)
-//}, false);
+
+document.addEventListener("touchstart",function(e){
+  if (playBtn && playBtnHover) {
+    var intersects = raycaster.intersectObject( playBtn );
+    if (intersects.length) {
+      console.log('game start!')
+      removeStartPage();
+      if (!bgMusic) {
+        bgMusic = playMusic('background');
+      }
+    }
+  }
+}, false);
 
 //document.body.addEventListener("click",function(e){
 //  console.log(e)
@@ -476,8 +520,14 @@ var GUIControl = {
   showStartPage: function () {
     showStartPage();
   },
+  showEndPage: function () {
+    showEndPage(184);
+  },
   removeStartPage: function () {
     removeStartPage();
+  },
+  removeEndPage: function () {
+    removeEndPage();
   },
   playMusic: function () {
     playMusic('success');
@@ -494,6 +544,8 @@ var gui = new dat.GUI();
 gui.add(GUIControl, 'start');
 gui.add(GUIControl, 'showStartPage');
 gui.add(GUIControl, 'removeStartPage');
+gui.add(GUIControl, 'showEndPage');
+gui.add(GUIControl, 'removeEndPage');
 gui.add(GUIControl, 'playMusic');
 gui.add(GUIControl, 'add');
 gui.add(GUIControl, 'remove');
@@ -539,8 +591,13 @@ function animate(timestamp) {
 
   if (playBtn&&playBtnHover) {
     var intersects = raycaster.intersectObject( playBtn );
-    var step = 0.02;
+    var step = 0.04;
     if (intersects.length) {
+      if (!startPageTimeOut) {
+        startPageTimeOut = setTimeout(function() {
+          removeStartPage();
+        }, 3000)
+      }
       if (showstartHoverEffect) {
         playBtnHover.material.opacity -= step;
         if (playBtnHover.material.opacity<=0) {
@@ -553,8 +610,19 @@ function animate(timestamp) {
         }
       }
     } else if (playBtnHover) {
+      clearTimeout(startPageTimeOut);
+      startPageTimeOut = null;
       playBtnHover.material.opacity = 0;
     }
+  } else {
+    clearTimeout(startPageTimeOut);
+    startPageTimeOut = null;
+  }
+
+  if (gameOverPage) {
+    var len = 0.5;
+    gameOverPage.position.set(direction.x * len, controls.userHeight +  len* direction.y, len * direction.z);
+    gameOverPage.lookAt(camera.position);
   }
 
 
