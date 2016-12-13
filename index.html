@@ -2,23 +2,24 @@
 
 <html lang="en">
 <head>
-<title>Web VR boilerplate</title>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0, shrink-to-fit=no">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<style>
-body {
-  width: 100%;
-  height: 100%;
-  background-color: #000;
-  color: #fff;
-  margin: 0px;
-  padding: 0;
-  overflow: hidden;
-}
-</style>
+    <title>Web VR boilerplate</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0, shrink-to-fit=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <style>
+    body {
+      width: 100%;
+      height: 100%;
+      background-color: #000;
+      color: #fff;
+      margin: 0px;
+      padding: 0;
+      overflow: hidden;
+    }
+    </style>
+    <audio id="myaudio" src="asset_src/test-music.m4a"></audio>
 </head>
 
 <body>
@@ -103,7 +104,8 @@ WebVRConfig = {
 <script src="node_modules/stats.js/build/stats.min.js"></script>
 
 <script src="src/helper.js"></script>
-<audio id="myaudio" src="asset_src/test-music.m4a"></audio>
+<script src="src/cabinet.js"></script>
+
 <script src="src/julius/julius.js"></script>
 <script src="src/voice-controller.js"></script>
 <script src="src/index.js"></script>

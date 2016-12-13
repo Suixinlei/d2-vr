@@ -50,7 +50,7 @@ function playMusic(kind) {
   return au;
 }
 
-var bgMusic = playMusic('background');
+//var bgMusic = playMusic('background');
 
 //setTimeout(function() {
 //  bgMusic.pause();
@@ -77,7 +77,7 @@ function palyKeyBoardMusic() {
  */
 
 function doLisenVoiceInput(callback) {
-  var julius = new Julius('./voxforge/sample.dfa', './voxforge/sample.dict', {
+  var julius = new Julius('src/julius/voxforge/sample.dfa', 'src/julius/voxforge/sample.dict', {
     //verbose: true,
     //transfer:true
   });

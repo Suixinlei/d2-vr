@@ -27,6 +27,13 @@ var ambient = new THREE.AmbientLight( 0x101030 );
 ambient.position.y = camera.position.y + 30;
 scene.add( ambient );
 
+var hemiLight;
+hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 1 );
+hemiLight.color.setHSL( 0.6, 1, 0.6 );
+hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+hemiLight.position.set( 0, 500, 0 );
+scene.add( hemiLight );
+
 // Apply VR stereo rendering to renderer.
 var effect = new THREE.VREffect(renderer);
 effect.setSize(window.innerWidth, window.innerHeight);
@@ -38,35 +45,14 @@ var mouse = new THREE.Vector2();
 
 // Add a repeating grid as a skybox.
 var boxSize = 100;
+var hud;
+var skybox;
+var monsterGroup = [];
+// GAME_OVER_DISPLAY_LOGO
+var GAME_END_LOGO = null;
+
 var hudSize = 0.4;
-var loader = new THREE.TextureLoader();
-loader.load('img/box.png', onTextureLoaded);
-
-function onTextureLoaded(texture) {
-  texture.wrapS = THREE.RepeatWrapping;
-  texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set(boxSize, boxSize);
-
-  // var geometry = new THREE.BoxGeometry(boxSize, boxSize/4, boxSize);
-  var geometry = new THREE.PlaneGeometry(boxSize, boxSize);
-  geometry.rotateX(Math.PI/2);
-
-  var material = new THREE.MeshBasicMaterial({
-    map: texture,
-    color: 0x0587fa,
-    side: THREE.DoubleSide,
-    // wireframe: true
-  });
-
-  // Align the skybox to the floor (which is at y=0).
-  skybox = new THREE.Mesh(geometry, material);
-  // skybox.position.y = boxSize/8;
-  scene.add(skybox);
-
-  // For high end VR devices like Vive and Oculus, take into account the stage
-  // parameters provided.
-  setupStage();
-}
+var GAME_END_LOGO_SIZE = 50;
 
 // Create a VR manager helper to enter and exit VR mode.
 var params = {
@@ -79,63 +65,24 @@ var manager = new WebVRManager(renderer, effect, params);
 var GAME_OVER_USER_HEIGHT = 40;
 var GAME_OVER_FLAG = false;
 
-//----------------------Model---------------------------
+var INITIAL_MONSTER_NUMBER = 10;
+var MAX_MONSTER_NUMBER = 50;
+var MONSTER_APPEAR_PER_SECOND = 0.5;
 
-// GAME_OVER_DISPLAY_LOGO
-var GAME_END_LOGO = null;
-var GAME_END_LOGO_SIZE = 50;
-loader.load('img/ais.png', function (texture) {
-  var geometry = new THREE.PlaneGeometry(GAME_END_LOGO_SIZE, GAME_END_LOGO_SIZE);
-  var material = new THREE.MeshBasicMaterial({
-    map: texture,
-    transparent: true,
-    depthWrite: false,
-    side: THREE.DoubleSide
-  });
+addSkybox();
+addCabinet();
+addHUD();
+addAisLogo();
+createMonsterGroup();
 
-  GAME_END_LOGO = new THREE.Mesh(geometry, material);
-  GAME_END_LOGO.position.y = 1;
-  GAME_END_LOGO.position.x = 0;
-  GAME_END_LOGO.position.z = 0;
-  GAME_END_LOGO.rotation.x = Math.PI / 2;
-  GAME_END_LOGO.rotation.y = Math.PI;
-  GAME_END_LOGO.rotation.z = Math.PI;
-});
 
-// Create Gun Object
-// var Gun_Geometry = new THREE.BoxGeometry(0.5, 0.5, 2);
-// var Gun_Material = new THREE.MeshNormalMaterial();
-// var gun = new THREE.Mesh(Gun_Geometry, Gun_Material);
 
-// Create Laser Object
-// var Laser_Geometry = new THREE.CylinderGeometry( 1, 1, 20, 32 );
-// var Laser_Material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
-// var cylinder = new THREE.Mesh( Laser_Geometry, Laser_Material );
-// scene.add( cylinder );
-
-//
-// gun.position.set(-0.5, controls.userHeight - 0.5, 0);
-
-//scene.add(gun);
-loader.load('img/hover.png', onHUDLoaded);
-function onHUDLoaded(texture) {
-  var geometry = new THREE.PlaneGeometry(hudSize, hudSize, hudSize);
-  var material = new THREE.MeshBasicMaterial({
-    map: texture,
-    transparent: true,
-    depthWrite: false,
-    // color: 0x01BE00,
-    side: THREE.DoubleSide
-  });
-
-  hud = new THREE.Mesh(geometry, material);
-  scene.add(hud);
-}
-
-//----------------------Model---------------------------
 // erfan
+var bgMusic;
+var startPageTimeOut;
 var startPage;
-var startPageHover;
+var gameOverPage;
+var gameOverPageText;
 var playBtn;
 var playBtnHover;
 var showstartHoverEffect = true;
@@ -185,6 +132,46 @@ function showStartPage() {
   });
 }
 
+function showEndPage(score) {
+  var direction = camera.getWorldDirection();
+  var loader = new THREE.TextureLoader();
+  loader.load('img/game-over.png', function(texture){
+    var geometry = new THREE.PlaneGeometry( 1.344, 0.75, 32 );
+    var material = new THREE.MeshBasicMaterial( {
+      map: texture,
+      //color: 0xffff00,
+      side: THREE.DoubleSide,
+      //opacity:0.6,
+      transparent: true
+    } );
+    gameOverPage = new THREE.Mesh( geometry, material );
+    var len = 0.5;
+    gameOverPage.position.set(direction.x * len, controls.userHeight +  len* direction.y, len * direction.z);
+    gameOverPage.lookAt(camera.position);
+    scene.add( gameOverPage );
+  });
+
+  var loader = new THREE.FontLoader();
+  loader.load( 'fonts/gentilis_regular.typeface.json', function ( font ) {
+    var textGeo = new THREE.TextGeometry( score, {
+      font: font,
+      size: 0.08,
+      height: 0,
+      curveSegments: 12,
+    });
+    var xfix = -0.04;
+    if (score>99) {
+      xfix = -0.07
+    }
+    var textMaterial = new THREE.MeshBasicMaterial( { color: 0xff00ff } );
+    gameOverPageText = new THREE.Mesh( textGeo, textMaterial );
+    gameOverPageText.position.set(xfix, controls.userHeight + 0.08, -0.48);
+    gameOverPageText.lookAt(camera.position);
+    scene.add( gameOverPageText );
+    console.log(gameOverPageText)
+  } );
+}
+
 function pureRemoveMesh(mesh) {
   if (!mesh) {
     return;
@@ -209,22 +196,24 @@ function removeStartPage() {
   playBtnHover = null;
 }
 
+function removeEndPage() {
+  pureRemoveMesh(gameOverPage);
+  gameOverPage = null;
+}
 
-//document.addEventListener("touchstart",function(e){
-//  if (playBtn && playBtnHover) {
-//    var intersects = raycaster.intersectObject( playBtn );
-//    if (intersects.length) {
-//      console.log('game start!')
-//      removeStartPage()
-//      var bgMusic = palyBackGroundMusic();
-//    }
-//  }
-//  var audio = document.getElementById('myaudio');
-//  audio.play();
-//  //au.play();
-//  //
-//  //console.log(e)
-//}, false);
+
+document.addEventListener("touchstart",function(e){
+  if (playBtn && playBtnHover) {
+    var intersects = raycaster.intersectObject( playBtn );
+    if (intersects.length) {
+      console.log('game start!')
+      removeStartPage();
+      if (!bgMusic) {
+        bgMusic = playMusic('background');
+      }
+    }
+  }
+}, false);
 
 //document.body.addEventListener("click",function(e){
 //  console.log(e)
@@ -246,13 +235,15 @@ function removeStartPage() {
 // monster spawn point
 // 怪物生成点
 var Monster_Spawn_Points = [];
-[2, 3, 5, 6].forEach(function (var_radius) {
-  var MonsterGeoMetry = new THREE.SphereGeometry(var_radius, 25, 5);
-  for (var n = 52; n <= 77; n++) {
-    Monster_Spawn_Points.push(MonsterGeoMetry.vertices[n]);
+[1, 1.4, 2, 1.7].forEach(function (radius) {
+  var MonsterGeoMetry = new THREE.CircleGeometry(radius, 20);
+  MonsterGeoMetry.rotateX(Math.PI / 2);
+  for (var n = 1; n <= 19; n++) {
+    var spawnPoint = MonsterGeoMetry.vertices[n];
+    spawnPoint.y += radius / 3;
+    Monster_Spawn_Points.push(spawnPoint);
   }
 });
-console.log(Monster_Spawn_Points);
 
 var onProgress = function ( xhr ) {
   // if ( xhr.lengthComputable ) {
@@ -262,7 +253,7 @@ var onProgress = function ( xhr ) {
 };
 
 var onError = function (xhr) {
-
+  console.log(xhr);
 };
 
 var ObjLoader = new THREE.OBJLoader();
@@ -279,10 +270,6 @@ var boom1 = null;//大招
 var boom2 = null;//大招提示
 var pointer1=null;//准星
 
-var Monster1_is_loaded = false;
-var Monster2_is_loaded = false;
-var Monster3_is_loaded = false;
-var Monster4_is_loaded = false;
 var keyboardloaded=false;//判断加载是否完成
 var keyboardloaded2=false;//判断加载是否完成
 var keyboardloaded3=false;//判断加载是否完成
@@ -377,139 +364,6 @@ ObjLoader.load('asset_src/boom.obj', function (boom) {//爆炸特效
   scene.add(boom);
 }, onProgress, onError);
 
-var monsterGroup = [];
-var Monster_Spawn_Number = 10;
-ObjLoader.load('asset_src/a.obj', function (monster) {
-  monster.rotateX(Math.PI);
-  for (var i = 0; i < Monster_Spawn_Number; i ++) {
-    var RealMonster = monster.children[0].clone();
-    var Monster_Material1 = new THREE.MeshBasicMaterial({
-      color: 0xf4c60b,
-      // emissive: 0x0587fa,
-      // emissiveIntensity: 0.5,
-      shading: THREE.FlatShading,
-    });
-    RealMonster.material = Monster_Material1;
-    var RandomNumber = Helper.getRandomInt(0, Monster_Spawn_Points.length -1);
-    var RandomSpawnPoint = Monster_Spawn_Points[RandomNumber];
-    Monster_Spawn_Points.splice(RandomNumber, 1);
-    RealMonster.position.x = RandomSpawnPoint.x;
-    RealMonster.position.y = RandomSpawnPoint.y;
-    RealMonster.position.z = RandomSpawnPoint.z;
-
-    var RealMonsterHitBoxGeometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
-    var RealMonsterHitBoxMaterial = new THREE.MeshBasicMaterial({
-      transparent: true,
-      opacity: 0,
-      depthWrite: false
-    });
-
-    var RealMonsterHitBox = new THREE.Mesh(RealMonsterHitBoxGeometry, RealMonsterHitBoxMaterial);
-    RealMonsterHitBox.position.x = RandomSpawnPoint.x;
-    RealMonsterHitBox.position.y = RandomSpawnPoint.y + 1.6;
-    RealMonsterHitBox.position.z = RandomSpawnPoint.z;
-
-    RealMonster.lookAt(camera.position);
-    RealMonsterHitBox.add(RealMonster);
-    monsterGroup.push(RealMonsterHitBox);
-  }
-}, onProgress, onError);
-ObjLoader.load('asset_src/b.obj', function (monster) {
-  for (var i = 0; i < Monster_Spawn_Number; i ++) {
-    var RealMonster = monster.children[0].clone();
-    var Monster_Material2 = new THREE.MeshBasicMaterial({
-      color: 0xea6c00,
-      shading: THREE.FlatShading,
-    });
-    RealMonster.material = Monster_Material2;
-    var RandomNumber = Helper.getRandomInt(0, Monster_Spawn_Points.length -1);
-    var RandomSpawnPoint = Monster_Spawn_Points[RandomNumber];
-    Monster_Spawn_Points.splice(RandomNumber, 1);
-    RealMonster.position.x = RandomSpawnPoint.x;
-    RealMonster.position.y = RandomSpawnPoint.y;
-    RealMonster.position.z = RandomSpawnPoint.z;
-
-    var RealMonsterHitBoxGeometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
-    var RealMonsterHitBoxMaterial = new THREE.MeshBasicMaterial({
-      transparent: true,
-      opacity: 0,
-      depthWrite: false
-    });
-
-    var RealMonsterHitBox = new THREE.Mesh(RealMonsterHitBoxGeometry, RealMonsterHitBoxMaterial);
-    RealMonsterHitBox.position.x = RandomSpawnPoint.x;
-    RealMonsterHitBox.position.y = RandomSpawnPoint.y + 1.6;
-    RealMonsterHitBox.position.z = RandomSpawnPoint.z;
-
-    RealMonster.lookAt(camera.position);
-    RealMonsterHitBox.add(RealMonster);
-    monsterGroup.push(RealMonsterHitBox);
-  }
-}, onProgress, onError);
-ObjLoader.load('asset_src/c.obj', function (monster) {
-  for (var i = 0; i < Monster_Spawn_Number; i ++) {
-    var RealMonster = monster.children[0].clone();
-    var Monster_Material3 = new THREE.MeshBasicMaterial({
-      color: 0xa452cb,
-      shading: THREE.FlatShading,
-    });
-    RealMonster.material = Monster_Material3;
-    var RandomNumber = Helper.getRandomInt(0, Monster_Spawn_Points.length -1);
-    var RandomSpawnPoint = Monster_Spawn_Points[RandomNumber];
-    Monster_Spawn_Points.splice(RandomNumber, 1);
-    RealMonster.position.x = RandomSpawnPoint.x;
-    RealMonster.position.y = RandomSpawnPoint.y;
-    RealMonster.position.z = RandomSpawnPoint.z;
-
-    var RealMonsterHitBoxGeometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
-    var RealMonsterHitBoxMaterial = new THREE.MeshBasicMaterial({
-      transparent: true,
-      opacity: 0,
-      depthWrite: false
-    });
-
-    var RealMonsterHitBox = new THREE.Mesh(RealMonsterHitBoxGeometry, RealMonsterHitBoxMaterial);
-    RealMonsterHitBox.position.x = RandomSpawnPoint.x;
-    RealMonsterHitBox.position.y = RandomSpawnPoint.y + 1.6;
-    RealMonsterHitBox.position.z = RandomSpawnPoint.z;
-
-    RealMonster.lookAt(camera.position);
-    RealMonsterHitBox.add(RealMonster);
-    monsterGroup.push(RealMonsterHitBox);
-  }
-}, onProgress, onError);
-ObjLoader.load('asset_src/d.obj', function (monster) {
-  for (var i = 0; i < Monster_Spawn_Number; i ++) {
-    var RealMonster = monster.children[0].clone();
-    var Monster_Material4 = new THREE.MeshBasicMaterial({
-      color: 0x20cdab,
-      shading: THREE.FlatShading,
-    });
-    RealMonster.material = Monster_Material4;
-    var RandomNumber = Helper.getRandomInt(0, Monster_Spawn_Points.length -1);
-    var RandomSpawnPoint = Monster_Spawn_Points[RandomNumber];
-    Monster_Spawn_Points.splice(RandomNumber, 1);
-    RealMonster.position.x = RandomSpawnPoint.x;
-    RealMonster.position.y = RandomSpawnPoint.y;
-    RealMonster.position.z = RandomSpawnPoint.z;
-
-    var RealMonsterHitBoxGeometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
-    var RealMonsterHitBoxMaterial = new THREE.MeshBasicMaterial({
-      transparent: true,
-      opacity: 0,
-      depthWrite: false
-    });
-
-    var RealMonsterHitBox = new THREE.Mesh(RealMonsterHitBoxGeometry, RealMonsterHitBoxMaterial);
-    RealMonsterHitBox.position.x = RandomSpawnPoint.x;
-    RealMonsterHitBox.position.y = RandomSpawnPoint.y + 1.6;
-    RealMonsterHitBox.position.z = RandomSpawnPoint.z;
-
-    RealMonster.lookAt(camera.position);
-    RealMonsterHitBox.add(RealMonster);
-    monsterGroup.push(RealMonsterHitBox);
-  }
-}, onProgress, onError);
 
 var isMonsterSpawn = false;
 var monsterDisplayGroup = new THREE.Object3D();
@@ -563,106 +417,6 @@ var tween = new TWEEN.Tween(monsterShock)
     });
   })
   .start();
-
-//----------------------Cabinet---------------------------
-var hemiLight;
-hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 1 );
-hemiLight.color.setHSL( 0.6, 1, 0.6 );
-hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
-hemiLight.position.set( 0, 500, 0 );
-scene.add( hemiLight );
-
-// ObjLoader.load('asset_src/box(2).obj', function (cabinet) {
-//   cabinet.material = new THREE.MeshLambertMaterial({
-//     color: new THREE.Color(6, 135, 250)
-//   });
-//
-//   //阵列的长宽个数
-//   var matrixW = 10;
-//   var matrixH = 10;
-//
-//   //阵列中心空缺的长宽个数
-//   var vacancyW = 3;
-//   var vacancyH = 3;
-//
-//   //辅助运算的变量
-//   var outsideLeft = (matrixW - vacancyW)/2;
-//   var outsideRight = matrixW - outsideLeft;
-//   var outsideTop = (matrixH - vacancyH)/2;
-//   var outsideBottom = matrixH - outsideTop;
-//
-//   //循环生成阵列
-//   for (var i = 0; i < matrixW; i++) {
-//     for (var j = 0; j < matrixH; j++) {
-//       if (i >= outsideLeft && i <= outsideRight && j >= outsideTop && j <= outsideBottom) {
-//         continue;
-//       }
-//       var newPbj = cabinet.clone();
-//       newPbj.position.x = -boxSize/2 + (i + 0.5) * boxSize/matrixW;
-//       newPbj.position.z = -boxSize/2 + (j + 0.5) * boxSize/matrixH;
-//       newPbj.rotateX(- Math.PI/2);
-//
-//       scene.add(newPbj);
-//     }
-//   }
-// }, onProgress, onError);
-
-function addCabinet() {
-  var cabinetGroup = new THREE.Object3D();
-  var geometry = new THREE.BoxGeometry(4,12,4);
-
-  var texture = new THREE.TextureLoader().load( "img/cabinet-bg.png" );
-  texture.wrapS = THREE.RepeatWrapping;
-  texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set( 1, 3 );
-
-  var material = new THREE.MeshPhongMaterial({
-    map: texture,
-    color: 0xffffff,
-    // transparent: true,
-    // opacity: 1,
-    // wireframe: true
-  });
-  var mesh = new THREE.Mesh( geometry, material );
-  mesh.position.y = 5;
-
-  //阵列的长宽个数
-  var matrixW = 10;
-  var matrixH = 10;
-
-  //阵列中心空缺的长宽个数
-  var vacancyW = 4;
-  var vacancyH = 4;
-
-  //辅助运算的变量
-  var outsideLeft = (matrixW - vacancyW)/2;
-  var outsideRight = matrixW - outsideLeft;
-  var outsideTop = (matrixH - vacancyH)/2;
-  var outsideBottom = matrixH - outsideTop;
-
-  //循环生成阵列
-  for (var i = 0; i < matrixW; i++) {
-    for (var j = 0; j < matrixH; j++) {
-      if (i >= outsideLeft && i < outsideRight && j >= outsideTop && j < outsideBottom) {
-        continue;
-      }
-      var newPbj = mesh.clone();
-      newPbj.position.x = -boxSize/2 + (i + 0.5) * boxSize/matrixW;
-      newPbj.position.z = -boxSize/2 + (j + 0.5) * boxSize/matrixH;
-      // newPbj.rotateX(- Math.PI/2);
-
-      cabinetGroup.add(newPbj);
-    }
-  }
-
-  // mesh.position.z = -6;
-  // cabinetGroup.add(mesh);
-
-  scene.add(cabinetGroup);
-}
-
-
-//----------------------Cabinet---------------------------
 
 // 粒子系统
 function createPoints() {
@@ -731,8 +485,7 @@ function createPoints() {
 *   particles：粒子系统的引用对象
 * 方法：
 *   boom: 无参数，开始爆炸效果
-*
-* */
+**/
 var pointsSystem = createPoints();
 
 //
@@ -743,8 +496,14 @@ var GUIControl = {
   showStartPage: function () {
     showStartPage();
   },
+  showEndPage: function () {
+    showEndPage(111);
+  },
   removeStartPage: function () {
     removeStartPage();
+  },
+  removeEndPage: function () {
+    removeEndPage();
   },
   playMusic: function () {
     playMusic('success');
@@ -768,6 +527,8 @@ var gui = new dat.GUI();
 gui.add(GUIControl, 'start');
 gui.add(GUIControl, 'showStartPage');
 gui.add(GUIControl, 'removeStartPage');
+gui.add(GUIControl, 'showEndPage');
+gui.add(GUIControl, 'removeEndPage');
 gui.add(GUIControl, 'playMusic');
 gui.add(GUIControl, 'add');
 gui.add(GUIControl, 'remove');
@@ -817,8 +578,13 @@ function animate(timestamp) {
 
   if (playBtn&&playBtnHover) {
     var intersects = raycaster.intersectObject( playBtn );
-    var step = 0.02;
+    var step = 0.04;
     if (intersects.length) {
+      if (!startPageTimeOut) {
+        startPageTimeOut = setTimeout(function() {
+          removeStartPage();
+        }, 3000)
+      }
       if (showstartHoverEffect) {
         playBtnHover.material.opacity -= step;
         if (playBtnHover.material.opacity<=0) {
@@ -831,16 +597,20 @@ function animate(timestamp) {
         }
       }
     } else if (playBtnHover) {
+      clearTimeout(startPageTimeOut);
+      startPageTimeOut = null;
       playBtnHover.material.opacity = 0;
     }
+  } else {
+    clearTimeout(startPageTimeOut);
+    startPageTimeOut = null;
   }
 
-
-
-  // monsterDisplayGroup.children.map(function (monster) {
-  //   monster.rotation.y += 0.01;
-  //   return monster;
-  // });
+  if (gameOverPage) {
+    var len = 0.5;
+    gameOverPage.position.set(direction.x * len, controls.userHeight +  len* direction.y, len * direction.z);
+    gameOverPage.lookAt(camera.position);
+  }
 
   hud.lookAt(camera.position);
 
@@ -964,7 +734,6 @@ var vrDisplay;
 // Get the HMD, and if we're dealing with something that specifies
 // stageParameters, rearrange the scene.
 function setupStage() {
-  addCabinet();
   navigator.getVRDisplays().then(function(displays) {
     if (displays.length > 0) {
       vrDisplay = displays[0];
