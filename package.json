@@ -9,6 +9,9 @@
   "dependencies": {
     "dat.gui": "^0.6.1",
     "es6-promise": "^4.0.5",
+    "koa": "^1.2.4",
+    "koa-sslify": "^1.1.0",
+    "koa-static": "^2.0.0",
     "stats.js": "^0.17.0",
     "three": "^0.82.1",
     "tween.js": "^16.3.5",
@@ -17,6 +20,12 @@
   "devDependencies": {
     "browserify": "latest",
     "derequire": "latest",
+    "eslint": "^3.12.1",
+    "eslint-config-airbnb": "^13.0.0",
+    "eslint-config-ali": "^1.0.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^3.0.1",
+    "eslint-plugin-react": "^6.8.0",
     "watchify": "latest"
   },
   "scripts": {
