@@ -106,6 +106,7 @@ THREE.VRControls = function ( object, onError ) {
         if (orientation) {
           object.quaternion.fromArray( orientation );
         } else {
+          console.log(pose.orientation);
           object.quaternion.fromArray( pose.orientation );
         }
 
@@ -142,6 +143,25 @@ THREE.VRControls = function ( object, onError ) {
 
     }
 
+  };
+
+  this.getPose = function () {
+    var pose;
+    if ( vrDisplay ) {
+
+      if (vrDisplay.getFrameData) {
+
+        vrDisplay.getFrameData(frameData);
+        pose = frameData.pose;
+
+      } else if (vrDisplay.getPose) {
+
+        pose = vrDisplay.getPose();
+
+      }
+    }
+
+    return pose;
   };
 
   this.resetPose = function () {

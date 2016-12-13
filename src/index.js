@@ -444,6 +444,227 @@ var tween = new TWEEN.Tween(monsterShock)
   })
   .start();
 
+//----------------------Cabinet---------------------------
+var hemiLight;
+hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 1 );
+hemiLight.color.setHSL( 0.6, 1, 0.6 );
+hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+hemiLight.position.set( 0, 500, 0 );
+scene.add( hemiLight );
+
+// ObjLoader.load('asset_src/box(2).obj', function (cabinet) {
+//   cabinet.material = new THREE.MeshLambertMaterial({
+//     color: new THREE.Color(6, 135, 250)
+//   });
+//
+//   //阵列的长宽个数
+//   var matrixW = 10;
+//   var matrixH = 10;
+//
+//   //阵列中心空缺的长宽个数
+//   var vacancyW = 3;
+//   var vacancyH = 3;
+//
+//   //辅助运算的变量
+//   var outsideLeft = (matrixW - vacancyW)/2;
+//   var outsideRight = matrixW - outsideLeft;
+//   var outsideTop = (matrixH - vacancyH)/2;
+//   var outsideBottom = matrixH - outsideTop;
+//
+//   //循环生成阵列
+//   for (var i = 0; i < matrixW; i++) {
+//     for (var j = 0; j < matrixH; j++) {
+//       if (i >= outsideLeft && i <= outsideRight && j >= outsideTop && j <= outsideBottom) {
+//         continue;
+//       }
+//       var newPbj = cabinet.clone();
+//       newPbj.position.x = -boxSize/2 + (i + 0.5) * boxSize/matrixW;
+//       newPbj.position.z = -boxSize/2 + (j + 0.5) * boxSize/matrixH;
+//       newPbj.rotateX(- Math.PI/2);
+//
+//       scene.add(newPbj);
+//     }
+//   }
+// }, onProgress, onError);
+
+function addCabinet() {
+  var cabinetGroup = new THREE.Object3D();
+  var geometry = new THREE.BoxGeometry(4,12,4);
+
+  var texture = new THREE.TextureLoader().load( "img/cabinet-bg.png" );
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set( 1, 3 );
+
+  var material = new THREE.MeshPhongMaterial({
+    map: texture,
+    color: 0xffffff,
+    // transparent: true,
+    // opacity: 1,
+    // wireframe: true
+  });
+  var mesh = new THREE.Mesh( geometry, material );
+  mesh.position.y = 5;
+
+  //阵列的长宽个数
+  var matrixW = 10;
+  var matrixH = 10;
+
+  //阵列中心空缺的长宽个数
+  var vacancyW = 4;
+  var vacancyH = 4;
+
+  //辅助运算的变量
+  var outsideLeft = (matrixW - vacancyW)/2;
+  var outsideRight = matrixW - outsideLeft;
+  var outsideTop = (matrixH - vacancyH)/2;
+  var outsideBottom = matrixH - outsideTop;
+
+  //循环生成阵列
+  for (var i = 0; i < matrixW; i++) {
+    for (var j = 0; j < matrixH; j++) {
+      if (i >= outsideLeft && i < outsideRight && j >= outsideTop && j < outsideBottom) {
+        continue;
+      }
+      var newPbj = mesh.clone();
+      newPbj.position.x = -boxSize/2 + (i + 0.5) * boxSize/matrixW;
+      newPbj.position.z = -boxSize/2 + (j + 0.5) * boxSize/matrixH;
+      // newPbj.rotateX(- Math.PI/2);
+
+      cabinetGroup.add(newPbj);
+    }
+  }
+
+  // mesh.position.z = -6;
+  // cabinetGroup.add(mesh);
+
+  scene.add(cabinetGroup);
+}
+
+
+//----------------------Cabinet---------------------------
+
+// 粒子系统
+function createPoints() {
+  var geometry = new THREE.Geometry();
+  var texture = new THREE.TextureLoader().load( "img/point1.png" );
+  var material = new THREE.PointsMaterial({
+    size: 0.3,
+    map: texture,
+    // blending: THREE.AdditiveBlending,
+    depthTest: false,
+    transparent : true,
+    opacity: 1
+  });
+
+  for (var i = 0; i < 100; i++) {
+    var vertex = new THREE.Vector3();
+    vertex.x = Math.random() * 0.5 - 0.25;
+    vertex.y = Math.random() * 0.5 - 0.25;
+    vertex.z = Math.random() * 0.5 - 0.25;
+    geometry.vertices.push( vertex );
+  }
+
+  var particles = new THREE.Points( geometry, material );
+
+  particles.position.z = -10;
+  scene.add(particles);
+
+  var pointsTween = new TWEEN.Tween({ r: 1 })
+    .to({ r: 1.065 }, 800)
+    .easing(TWEEN.Easing.Exponential.Out)
+    .onUpdate(function(interpolation) {
+      var r = interpolation * 0.065 + 1;
+      geometry.vertices.forEach(function (vertex) {
+        vertex.multiplyScalar(r);
+      });
+      geometry.verticesNeedUpdate = true;
+    })
+    .onComplete(function () {
+      geometry.vertices.forEach(function (vertex) {
+        vertex.set(Math.random() * 0.5 - 0.25, Math.random() * 0.5 - 0.25, Math.random() * 0.5 - 0.25);
+      });
+      geometry.verticesNeedUpdate = true;
+    });
+
+  var pointsOpacityTween = new TWEEN.Tween({ opacity: 1 })
+    .to({ opacity: 0 }, 800)
+    .easing(TWEEN.Easing.Exponential.In)
+    .onUpdate(function(interpolation) {
+      material.opacity = 1 - interpolation;
+    })
+    .onComplete(function () {
+      material.opacity = 1;
+    });
+
+  return {
+    boom: function () {
+      pointsTween.start();
+      pointsOpacityTween.start();
+    },
+    particles: particles
+  }
+}
+/*
+* 粒子系统
+* 属性：
+*   particles：粒子系统的引用对象
+* 方法：
+*   boom: 无参数，开始爆炸效果
+*
+* */
+var pointsSystem = createPoints();
+
+//游戏结束逻辑
+function createGameOver() {
+  //正前方视野方向
+  var resetPose = [0, 0, 0, 1];
+  //正下方视野方向
+  var endPose = [-0.7071067690849304, 0, 0, 0.7071067690849304];
+
+  var height = controls.userHeight;
+  var deltaH = GAME_OVER_USER_HEIGHT - height;
+
+  var overTween = new TWEEN.Tween(resetPose)
+    .to(endPose, 2000)
+    .easing(TWEEN.Easing.Quintic.Out)
+    .onUpdate(function(interpolation) {
+      controls.update(this);
+      controls.userHeight = height + interpolation * deltaH;
+    })
+    .onComplete(function () {
+
+    });
+
+  return {
+    over: function () {
+      scene.add(GAME_END_LOGO);
+      GAME_OVER_FLAG = !GAME_OVER_FLAG;
+
+      // var pose = controls.getPose();
+      // if (pose && pose.orientation) {
+      //   var resetPoseTween = new TWEEN.Tween(pose.orientation)
+      //     .to(resetPose, 2000)
+      //     // .easing(TWEEN.Easing.Exponential.In)
+      //     .onUpdate(function(interpolation) {
+      //       controls.update(this);
+      //     })
+      //     .chain(overTween)
+      //     .start();
+      // } else {
+        overTween.start();
+      // }
+    }
+  }
+}
+
+/*
+* 游戏结束控制器
+* 方法:
+*   over: 无参数，开始结束流程。视野强制回到正前方并开始结束流程
+* */
+var gameOver = createGameOver();
+
 //
 var GUIControl = {
   showStartPage: function () {
@@ -467,9 +688,11 @@ var GUIControl = {
   remove: function () {
     removeMonster();
   },
+  logVRPose: function () {
+    console.log()
+  },
   gameover: function () {
-    scene.add(GAME_END_LOGO);
-    GAME_OVER_FLAG = !GAME_OVER_FLAG;
+    gameOver.over();
   },
   pointsBoom: function () {
     pointsSystem.boom();
@@ -660,11 +883,11 @@ function animate(timestamp) {
   }
 
   if (GAME_OVER_FLAG) {
-    camera.lookAt(new THREE.Vector3(0, 0, 0));
-    if (controls.userHeight < GAME_OVER_USER_HEIGHT) {
-      controls.userHeight += 1;
-    }
-    controls.update(new Float32Array([-0.7071030139923096, 0.0023139973636716604, 0.0023139973636716604, 0.7071030139923096]));
+    // controls.resetPose();
+
+    // camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+    // controls.update(new Float32Array([-0.7071030139923096, 0.0023139973636716604, 0.0023139973636716604, 0.7071030139923096]));
   } else {
     controls.update();
   }
