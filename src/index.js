@@ -109,6 +109,7 @@ function onHUDLoaded(texture) {
 }
 
 //----------------------Model---------------------------
+// erfan
 var startPage;
 var startPageHover;
 var playBtn;
@@ -141,7 +142,7 @@ function showStartPage() {
       transparent: true
     } );
     playBtn = new THREE.Mesh( geometry, material );
-    playBtn.position.set(0, controls.userHeight-0.25, -0.48)
+    playBtn.position.set(0, controls.userHeight-0.15, -0.48)
     scene.add( playBtn );
   });
   var loader = new THREE.TextureLoader();
@@ -155,7 +156,7 @@ function showStartPage() {
       transparent: true
     } );
     playBtnHover = new THREE.Mesh( geometry, material );
-    playBtnHover.position.set(0, controls.userHeight-0.25, -0.46)
+    playBtnHover.position.set(0, controls.userHeight-0.15, -0.48)
     scene.add( playBtnHover );
   });
 }
@@ -185,16 +186,34 @@ function removeStartPage() {
 }
 
 
-document.addEventListener("touchstart",function(e){
-  if (playBtn && playBtnHover) {
-    var intersects = raycaster.intersectObject( playBtn );
-    if (intersects.length) {
-      console.log('game start!')
-      removeStartPage()
-    }
-  }
-  console.log(e)
-}, false);
+//document.addEventListener("touchstart",function(e){
+//  if (playBtn && playBtnHover) {
+//    var intersects = raycaster.intersectObject( playBtn );
+//    if (intersects.length) {
+//      console.log('game start!')
+//      removeStartPage()
+//      var bgMusic = palyBackGroundMusic();
+//    }
+//  }
+//  var audio = document.getElementById('myaudio');
+//  audio.play();
+//  //au.play();
+//  //
+//  //console.log(e)
+//}, false);
+
+//document.body.addEventListener("click",function(e){
+//  console.log(e)
+//  console.log(palyBackGroundMusic)
+//  //var bgMusic = palyBackGroundMusic();
+//  document.getElementById('audio').play();
+//  //var au = document.createElement('audio');
+//  //au.preload = 'auto';
+//  //au.src = './asset_src/test-music.m4a';
+//  //
+//  //au.loop = 'loop';
+//  //au.play();
+//}, false);
 
 
 
@@ -569,6 +588,9 @@ var GUIControl = {
   removeStartPage: function () {
     removeStartPage();
   },
+  playMusic: function () {
+    playMusic('success');
+  },
   add: function () {
     addMonster();
   },
@@ -581,6 +603,7 @@ var gui = new dat.GUI();
 gui.add(GUIControl, 'start');
 gui.add(GUIControl, 'showStartPage');
 gui.add(GUIControl, 'removeStartPage');
+gui.add(GUIControl, 'playMusic');
 gui.add(GUIControl, 'add');
 gui.add(GUIControl, 'remove');
 

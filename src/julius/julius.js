@@ -26,9 +26,9 @@
     var bootstrap = function(pathToDfa, pathToDict, options) {
       var audio = this.audio;
       var recognizer = this.recognizer;
-      var terminate = this.terminate;
-      
-      navigator.webkitGetUserMedia(
+      var terminate = this.terminate;var that =this;
+
+      navigator.mediaDevices.getUserMedia(
         { audio: true },
         function(stream) {
           audio.source = audio.context.createMediaStreamSource(stream);
@@ -43,8 +43,8 @@
             options: options
           });
         },
-        function(err) {
-          terminate();
+        function(err) {console.log(err)
+          terminate.call(that);
           console.error('JuliusJS failed: could not capture microphone input.');
         }
       );
