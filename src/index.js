@@ -208,7 +208,7 @@ function showEndPage(score) {
     } );
     gameOverPage = new THREE.Mesh( geometry, material );
     var len = 0.5;
-    gameOverPage.position.set(direction.x * len, controls.userHeight +  len* direction.y, len * direction.z);
+    gameOverPage.position.set(direction.x * len, controls.userHeight -  len* direction.y, len * direction.z);
     gameOverPage.lookAt(camera.position);
     scene.add( gameOverPage );
 
@@ -541,7 +541,9 @@ var GUIControl = {
     console.log()
   },
   gameover: function () {
-    gameOver.over();
+    gameOver.over(function() {
+      showEndPage(123);
+    });
   },
   pointsBoom: function () {
     pointsSystem.boom();
