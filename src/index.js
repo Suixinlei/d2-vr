@@ -206,27 +206,32 @@ function showEndPage(score) {
     gameOverPage.position.set(direction.x * len, controls.userHeight +  len* direction.y, len * direction.z);
     gameOverPage.lookAt(camera.position);
     scene.add( gameOverPage );
+
+    var loader = new THREE.FontLoader();
+    loader.load( 'fonts/iconfont_number.typeface.json', function ( font ) {
+    //loader.load( 'fonts/gentilis_regular.typeface.json', function ( font ) {
+      console.log(font)
+      score = parseInt(score);
+      var textGeo = new THREE.TextGeometry( score, {
+        font: font,
+        size: 0.06,
+        height: 0,
+        curveSegments: 12,
+      });
+      var xfix = -0.057;
+      if (score>99) {
+        xfix = -0.08
+      }
+      var textMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+      gameOverPageText = new THREE.Mesh( textGeo, textMaterial );
+      gameOverPageText.position.set(xfix+gameOverPage.position.x, gameOverPage.position.y + 0.02, +gameOverPage.position.z-0.08);
+      gameOverPageText.rotateX(-Math.PI/2);
+      //gameOverPageText.lookAt(camera.position);
+      scene.add( gameOverPageText );
+    } );
   });
 
-  var loader = new THREE.FontLoader();
-  loader.load( 'fonts/gentilis_regular.typeface.json', function ( font ) {
-    var textGeo = new THREE.TextGeometry( score, {
-      font: font,
-      size: 0.08,
-      height: 0,
-      curveSegments: 12,
-    });
-    var xfix = -0.04;
-    if (score>99) {
-      xfix = -0.07
-    }
-    var textMaterial = new THREE.MeshBasicMaterial( { color: 0xff00ff } );
-    gameOverPageText = new THREE.Mesh( textGeo, textMaterial );
-    gameOverPageText.position.set(xfix, controls.userHeight + 0.08, -0.48);
-    gameOverPageText.lookAt(camera.position);
-    scene.add( gameOverPageText );
-    console.log(gameOverPageText)
-  } );
+
 }
 
 function pureRemoveMesh(mesh) {
@@ -265,6 +270,8 @@ function gameplay() {
 function removeEndPage() {
   pureRemoveMesh(gameOverPage);
   gameOverPage = null;
+  pureRemoveMesh(gameOverPageText);
+  gameOverPageText = null;
 }
 
 document.addEventListener("touchstart",function(e){
@@ -504,7 +511,7 @@ var GUIControl = {
     showStartPage();
   },
   showEndPage: function () {
-    showEndPage(111);
+    showEndPage(186);
   },
   removeStartPage: function () {
     removeStartPage();
