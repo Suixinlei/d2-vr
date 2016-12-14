@@ -119,7 +119,7 @@
                 wrap.style.cssText = "transform: scale(" + ratio + ")";
             }
             resize();
-            window.onload = resize;
+            window.onresize = resize;
 
             var char_map = {
                 '0': '&#xe6a3;',
@@ -165,9 +165,9 @@
                             return parseInt(b.record) - parseInt(a.record);
                         });
                         for(var latest_index = 0; latest_index < records.length; latest_index++) {
-                            if (records[latest_index] === latest_record) return;
+                            if (records[latest_index].record === latest_record) break;
                         }
-                        latest_index -= 1;
+                        latest_index += 1;
                         var top_list = "";
                         records.slice(0, 10).forEach(function(item, id) {
                             var time = replace_str(moment(item.time).format('HH:mm:ss'));
@@ -176,7 +176,7 @@
                             document.querySelector('#item' + id + ' .record').innerHTML = record;
                         });
                         document.querySelector('#latest .rank').innerHTML = replace_str(latest_index + "");
-                        document.querySelector('#latest .time').innerHTML = replace_str(moment(item.time).format('HH:mm:ss'));
+                        document.querySelector('#latest .time').innerHTML = replace_str(moment(latest_time).format('HH:mm:ss'));
                         document.querySelector('#latest .record').innerHTML = replace_str(latest_record);
                     }
                 });
