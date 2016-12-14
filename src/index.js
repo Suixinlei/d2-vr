@@ -226,6 +226,8 @@ function showEndPage(score) {
       var xfix = -0.057;
       if (score>99) {
         xfix = -0.08
+      } else if (score < 10) {
+        xfix = -0.03;
       }
       var textMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff } );
       gameOverPageText = new THREE.Mesh( textGeo, textMaterial );
@@ -233,9 +235,9 @@ function showEndPage(score) {
       gameOverPageText.rotateX(-Math.PI/2);
       //gameOverPageText.lookAt(camera.position);
       scene.add( gameOverPageText );
+      playMusic('success');
     } );
   });
-
 
 }
 
