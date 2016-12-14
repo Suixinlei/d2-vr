@@ -66,7 +66,7 @@ master.onmessage = (function() {
           true : e.data.options.stripSilence;
 
       if (typeof e.data.pathToDfa === 'string' &&
-          typeof e.data.pathToDict === 'string') {
+        typeof e.data.pathToDict === 'string') {
         FS.createLazyFile('/', 'julius.dfa', e.data.pathToDfa, true, false);
         FS.createLazyFile('/', 'julius.dict', e.data.pathToDict, true, false);
       } else {
