@@ -134,11 +134,13 @@ var addMonster = function () {
 var removeMonster = function (monster) {
   if (MONSTER_ARE_DEAD[monster.uuid] === 1) {
     MONSTER_ARE_DEAD[monster.uuid] = 0;
+    keyBoardSystem(3,2).boom();
     createBoom(startPostion, monster.position).shoot(function () {
       pointsSystem.particles.position.copy(monster.position);
       pointsSystem.boom();
       monster.visible = false;
       SCORE += SCORE_PER_MONSTER;
+      keyBoardSystem(2,3).boom();
       monster.parent.children.forEach((childMonster, index) => {
         var uuid = monster.uuid;
         if (childMonster.uuid === uuid) {
@@ -150,6 +152,7 @@ var removeMonster = function (monster) {
 };
 
 var uniqueSkill = function () {
+  keyBoardSystem(3,1).boom();
   for (var i= 0; i < UNIQUE_SKILL_KILL_NUMBER; i++) {
     var monster = monsterDisplayGroup.children[i];
     if (monster) {
@@ -159,6 +162,7 @@ var uniqueSkill = function () {
       });
     }
   }
+  keyBoardSystem(1,3).boom();
 };
 
 
