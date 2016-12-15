@@ -86,6 +86,8 @@ var MONSTER_APPEAR_PER_SECOND = 0.5;
 var LOCK_TIME = 500;
 // 游戏结束后的延时
 var GAME_OVER_RELOAD_DELAY = 10000;
+// 大招一次性杀死的怪物数
+var UNIQUE_SKILL_KILL_NUMBER = 10;
 
 //分数
 var SCORE = 0;
@@ -132,14 +134,33 @@ var addMonster = function () {
 var removeMonster = function (monster) {
   if (MONSTER_ARE_DEAD[monster.uuid] === 1) {
     MONSTER_ARE_DEAD[monster.uuid] = 0;
-    createBoom(new THREE.Vector3(0,0,0), monster.position).shoot(function () {
+    createBoom(startPostion, monster.position).shoot(function () {
       pointsSystem.particles.position.copy(monster.position);
       pointsSystem.boom();
       monster.visible = false;
       SCORE += SCORE_PER_MONSTER;
+      monster.parent.children.forEach((childMonster, index) => {
+        var uuid = monster.uuid;
+        if (childMonster.uuid === uuid) {
+          monster.parent.children.splice(index, 1);
+        }
+      })
     });
   }
 };
+
+var uniqueSkill = function () {
+  for (var i= 0; i < UNIQUE_SKILL_KILL_NUMBER; i++) {
+    var monster = monsterDisplayGroup.children[i];
+    if (monster) {
+      boomFly(new THREE.Vector3(startPostion, monster.position)).boom(function () {
+        monster.visible = false;
+        monsterDisplayGroup.children.splice(i, 1);
+      });
+    }
+  }
+};
+
 
 // erfan
 var bgMusic;
@@ -583,7 +604,10 @@ var GUIControl = {
   },
   shootFly: function () {
     boomFly(startPostion,endPostion).shoot();
-},
+  },
+  uniqueSkill: function () {
+    uniqueSkill();
+  }
 };
 
 var gui = new dat.GUI();
@@ -603,6 +627,7 @@ gui.add(GUIControl, 'showTip');
 gui.add(GUIControl, 'hideTip');
 gui.add(GUIControl, 'shootFly');
 gui.add(GUIControl, 'gameover');
+gui.add(GUIControl, 'uniqueSkill');
 
 var stats = new Stats();
 document.body.appendChild( stats.dom );
@@ -630,7 +655,7 @@ function animate(timestamp) {
   // calculate objects intersecting the picking ray
   if (isMonsterSpawn) {
     var intersects = raycaster.intersectObjects( monsterDisplayGroup.children );
-    intersects.length > 0 ? console.log(intersects) : ''; // 鼠标指向
+    // intersects.length > 0 ? console.log(intersects) : ''; // 鼠标指向
 
     if (intersects.length == 0) {
       cursorOnMonster[0] = null;
