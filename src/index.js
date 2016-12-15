@@ -82,7 +82,12 @@ var INITIAL_MONSTER_NUMBER = 10;
 var MAX_MONSTER_NUMBER = 50;
 var MAX_MONSTER_NUMBER_STORAGE = 200;
 var MONSTER_APPEAR_PER_SECOND = 0.5;
+// 锁定时间
 var LOCK_TIME = 500;
+// 游戏结束后的延时
+var GAME_OVER_RELOAD_DELAY = 10000;
+// 大招一次性杀死的怪物数
+var UNIQUE_SKILL_KILL_NUMBER = 10;
 
 //分数
 var SCORE = 0;
@@ -92,6 +97,8 @@ var isMonsterSpawn = false;
 var monsterDisplayGroup = new THREE.Object3D();
 scene.add(monsterDisplayGroup);
 
+var startPostion=new THREE.Vector3(0,1.6, 0);
+var endPostion=new THREE.Vector3(0,1.6,-16);
 // monster spawn point
 // 怪物生成点
 var Monster_Spawn_Points = [];
@@ -129,14 +136,37 @@ var addMonster = function () {
 var removeMonster = function (monster) {
   if (MONSTER_ARE_DEAD[monster.uuid] === 1) {
     MONSTER_ARE_DEAD[monster.uuid] = 0;
-    createBoom( monster.position).shoot(function () {
+    keyBoardSystem(3,2).boom();
+    createBoom(monster.position).shoot(function () {
       pointsSystem.particles.position.copy(monster.position);
       pointsSystem.boom();
       monster.visible = false;
       SCORE += SCORE_PER_MONSTER;
+      keyBoardSystem(2,3).boom();
+      monster.parent.children.forEach((childMonster, index) => {
+        var uuid = monster.uuid;
+        if (childMonster.uuid === uuid) {
+          monster.parent.children.splice(index, 1);
+        }
+      })
     });
   }
 };
+
+var uniqueSkill = function () {
+  keyBoardSystem(3,1).boom();
+  for (var i= 0; i < UNIQUE_SKILL_KILL_NUMBER; i++) {
+    var monster = monsterDisplayGroup.children[i];
+    if (monster) {
+      boomFly(new THREE.Vector3( monster.position)).boom(function () {
+        monster.visible = false;
+        monsterDisplayGroup.children.splice(i, 1);
+      });
+    }
+  }
+  keyBoardSystem(1,3).boom();
+};
+
 
 // erfan
 var bgMusic;
@@ -219,7 +249,7 @@ function showEndPage(score) {
     scene.add( gameOverPage );
 
     var loader = new THREE.FontLoader();
-    loader.load( 'fonts/iconfont_number.typeface.json', function ( font ) {
+    loader.load('fonts/iconfont_number.typeface.json', function ( font ) {
     //loader.load( 'fonts/gentilis_regular.typeface.json', function ( font ) {
       console.log(font)
       score = parseInt(score);
@@ -242,7 +272,11 @@ function showEndPage(score) {
       //gameOverPageText.lookAt(camera.position);
       scene.add( gameOverPageText );
       playMusic('success');
-    } );
+    });
+
+    setTimeout(function () {
+      location.reload();
+    }, GAME_OVER_RELOAD_DELAY)
   });
 
 }
@@ -523,8 +557,6 @@ var gameOver = createGameOver();
 
 var keyBoardSystem = createKeyboard;
 
-var startPostion=new THREE.Vector3(0,1.6, -1);
-var endPostion=new THREE.Vector3(0,1.6,-16);
 var boomFly=createBoom;
 
 var GUIControl = {
@@ -580,7 +612,10 @@ var GUIControl = {
   },
   shootFly: function () {
     boomFly(endPostion).shoot();
-},
+  },
+  uniqueSkill: function () {
+    uniqueSkill();
+  }
 };
 
 var gui = new dat.GUI();
@@ -600,6 +635,7 @@ gui.add(GUIControl, 'showTip');
 gui.add(GUIControl, 'hideTip');
 gui.add(GUIControl, 'shootFly');
 gui.add(GUIControl, 'gameover');
+gui.add(GUIControl, 'uniqueSkill');
 
 var stats = new Stats();
 document.body.appendChild( stats.dom );
@@ -627,7 +663,7 @@ function animate(timestamp) {
   // calculate objects intersecting the picking ray
   if (isMonsterSpawn) {
     var intersects = raycaster.intersectObjects( monsterDisplayGroup.children );
-    intersects.length > 0 ? console.log(intersects) : ''; // 鼠标指向
+    // intersects.length > 0 ? console.log(intersects) : ''; // 鼠标指向
 
     if (intersects.length == 0) {
       cursorOnMonster[0] = null;
@@ -854,7 +890,7 @@ function createBoom(endPos,boomPos) {//子弹最终对象1个,炸弹最终目标
     });
 
   var shootFlyTween = new TWEEN.Tween({ count: 0 })//子弹
-    .to({ count: 1 }, 400)
+    .to({ count: 1 }, 800)
     //.easing(TWEEN.Easing.Exponential.In)
     .onUpdate(function(count) {
       var position=new THREE.Vector3(startPos.x+(endPos.x-startPos.x)*count,startPos.y+(endPos.y-startPos.y)*count,startPos.z+(endPos.z-startPos.z)*count);
@@ -870,11 +906,16 @@ function createBoom(endPos,boomPos) {//子弹最终对象1个,炸弹最终目标
       shoot1.material.opacity = 0;
     });
   var boomFlyTween = new TWEEN.Tween({ count: 0 })//大招
-    .to({ count: 1 }, 400)
+    .to({ count: 1 }, 800)
     //.easing(TWEEN.Easing.Exponential.In)
     .onUpdate(function(count) {
       for(var i=0;i<boom1Length;i++){
-        var end=boomPos[i]||new THREE.Vector3(startPos.x,startPos.y,startPos.z);
+        var end;
+        if(boomPos&&boomPos[i]){
+          end=boomPos[i];
+        }else{
+          end=new THREE.Vector3(startPos.x,startPos.y,startPos.z);
+        }
         var position=new THREE.Vector3(startPos.x+(end.x-startPos.x)*count,startPos.y+(end.y-startPos.y)*count,startPos.z+(end.z-startPos.z)*count);
         boom1[i].rotation.copy( camera.rotation );
         boom1[i].position.copy( position );
