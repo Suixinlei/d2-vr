@@ -129,7 +129,7 @@ var addMonster = function () {
 var removeMonster = function (monster) {
   if (MONSTER_ARE_DEAD[monster.uuid] === 1) {
     MONSTER_ARE_DEAD[monster.uuid] = 0;
-    createBoom(new THREE.Vector3(0,0,0), monster.position).shoot(function () {
+    createBoom( monster.position).shoot(function () {
       pointsSystem.particles.position.copy(monster.position);
       pointsSystem.boom();
       monster.visible = false;
@@ -371,12 +371,13 @@ var texture3 = THREE.ImageUtils.loadTexture("img/keyboard3.png",null,function(t)
   keyboardloaded[2]=true;
 });
 var shoot1 = null;//子弹
-var boom1 = null;//大招
+var boom1 = [];//大招
+var boom1Length=10;
 var boom2 = null;//大招提示
 var pointer1=null;//准星
 
 var shoot1Loaded=false;//判断加载是否完成
-var boomLoaded=false;//判断加载是否完成
+var boomLoaded=[];//判断加载是否完成
 var boom2Loaded=false;//判断加载是否完成
 var pointer1Loaded=false;
 
@@ -416,24 +417,27 @@ var boomTip = THREE.ImageUtils.loadTexture("img/boom.png",null,function(t) {
   boom2Loaded=true;
 });
 
+for(var i=0;i<boom1Length;i++){
 ObjLoader.load('asset_src/boom.obj', function (boom) {//爆炸特效
-  boom = boom.children[0];
-  boom.material = new THREE.MeshLambertMaterial({
-    color: 0xFF3399,
-    transparent:true,
-    opacity:0
-    //shading: THREE.FlatShading,
-  });
-  //boom.position.x = -1;
-  //console.log(boom)
-  boom.scale.set(1,1,1)
-  //boom.material.opacity.set(0)
-  boom.position.y = controls.userHeight;
-  boom.position.z = -1.2;
-  boom1 = boom;
-  boomLoaded = true;
-  scene.add(boom);
+    boom = boom.children[0];
+    boom.material = new THREE.MeshLambertMaterial({
+      color: 0xFF3399,
+      transparent:true,
+      opacity:0
+      //shading: THREE.FlatShading,
+    });
+    //boom.position.x = -1;
+    //console.log(boom)
+    boom.scale.set(1,1,1)
+    //boom.material.opacity.set(0)
+    boom.position.y = controls.userHeight;
+    boom.position.z = -1.2;
+    var len=boom1.length;
+    boom1[len] = boom;
+    boomLoaded[len] = true;
+    scene.add(boom);
 }, onProgress, onError);
+}
 
 
 //----------------------Monster---------------------------
@@ -566,16 +570,16 @@ var GUIControl = {
     keyBoardSystem(1,3).boom();
   },
   bigBoom: function () {
-    boomFly(startPostion,endPostion).boom();
+    boomFly(endPostion).boom();
   },
   hideTip:function(){
-    boomFly(startPostion,endPostion).tipHide();
+    boomFly(endPostion).tipHide();
   },
   showTip:function(){
-    boomFly(startPostion,endPostion).tipShow();
+    boomFly(endPostion).tipShow();
   },
   shootFly: function () {
-    boomFly(startPostion,endPostion).shoot();
+    boomFly(endPostion).shoot();
 },
 };
 
@@ -705,10 +709,12 @@ function animate(timestamp) {
       pointer1.translateZ( - 1.5 );
     }
   //}
-  if(boomLoaded){
+  if(boomLoaded.length==10){
     //boom1.rotation.copy( camera.rotation );
-    boom1.translateX( 0 );
-    boom1.translateZ( - 1 );
+    for(var j=0;j<boom1Length;j++){
+      boom1[j].translateX( 0 );
+      boom1[j].translateZ( - 1 );
+    }
   }
   if(boom2Loaded){
     boom2.position.copy( camera.position );// 复制位置
@@ -826,7 +832,8 @@ function createKeyboard(key1,key2) {//初始键盘对象,最终键盘对象
 }
 
 // 子弹系统
-function createBoom(startPos,endPos) {//初始键盘对象,最终键盘对象
+function createBoom(endPos,boomPos) {//子弹最终对象1个,炸弹最终目标10个
+  var startPos=startPostion;
   var hideTween = new TWEEN.Tween({ opacity: 0 })//提示hide
     .to({ opacity: 1 }, 800)
     .easing(TWEEN.Easing.Exponential.In)
@@ -847,7 +854,7 @@ function createBoom(startPos,endPos) {//初始键盘对象,最终键盘对象
     });
 
   var shootFlyTween = new TWEEN.Tween({ count: 0 })//子弹
-    .to({ count: 1 }, 800)
+    .to({ count: 1 }, 400)
     //.easing(TWEEN.Easing.Exponential.In)
     .onUpdate(function(count) {
       var position=new THREE.Vector3(startPos.x+(endPos.x-startPos.x)*count,startPos.y+(endPos.y-startPos.y)*count,startPos.z+(endPos.z-startPos.z)*count);
@@ -863,27 +870,38 @@ function createBoom(startPos,endPos) {//初始键盘对象,最终键盘对象
       shoot1.material.opacity = 0;
     });
   var boomFlyTween = new TWEEN.Tween({ count: 0 })//大招
-    .to({ count: 1 }, 800)
+    .to({ count: 1 }, 400)
     //.easing(TWEEN.Easing.Exponential.In)
     .onUpdate(function(count) {
-      var position=new THREE.Vector3(startPos.x+(endPos.x-startPos.x)*count,startPos.y+(endPos.y-startPos.y)*count,startPos.z+(endPos.z-startPos.z)*count);
-      boom1.rotation.copy( camera.rotation );
-      boom1.position.copy( position );
-      boom1.rotateX(-1*Math.PI*count);
-      boom1.translateY( -0.27+ 0.27*count );//-0.2~0
-      //boom1.material.opacity = 1;
+      for(var i=0;i<boom1Length;i++){
+        var end=boomPos[i]||new THREE.Vector3(startPos.x,startPos.y,startPos.z);
+        var position=new THREE.Vector3(startPos.x+(end.x-startPos.x)*count,startPos.y+(end.y-startPos.y)*count,startPos.z+(end.z-startPos.z)*count);
+        boom1[i].rotation.copy( camera.rotation );
+        boom1[i].position.copy( position );
+        boom1[i].rotateX(-1*Math.PI*count);
+        boom1[i].translateY( -0.27+ 0.27*count );//-0.2~0
+      }
     })
-    .onComplete(function () {
-      boom1.position.copy( endPos );
-      boom1.rotation.copy( camera.rotation );
-      boom1.rotateX(-1*Math.PI);
-      boom1.translateY( 0 );
-      boom1.material.opacity = 0;
+    .onComplete(function (callback) {
+      for(var i=0;i<boom1Length;i++){
+        boom1[i].position.copy( endPos );
+        boom1[i].rotation.copy( camera.rotation );
+        boom1[i].rotateX(-1*Math.PI);
+        boom1[i].translateY( 0 );
+        boom1[i].material.opacity = 0;
+      }
+      if(callback){
+        boomFlyTween.onComplete(callback).start();
+      }else{
+        boomFlyTween.start();
+      }
     });
   return {
     boom: function () {
-      boom1.material.opacity = 1;
-      boom1.rotation.copy( camera.rotation );
+      for(var i=0;i<boom1Length;i++) {
+        boom1[i].material.opacity = 1;
+        boom1[i].rotation.copy(camera.rotation);
+      }
       boomFlyTween.start();
     },
     tipHide:function(){
