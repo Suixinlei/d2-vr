@@ -52,6 +52,9 @@ var monsterGroup = [];
 // GAME_OVER_DISPLAY_LOGO
 var GAME_END_LOGO = null;
 
+// 已经死亡的怪物
+var MONSTER_ARE_DEAD = {};
+
 /*
  * 粒子系统
  * 属性：
@@ -79,7 +82,7 @@ var INITIAL_MONSTER_NUMBER = 10;
 var MAX_MONSTER_NUMBER = 50;
 var MAX_MONSTER_NUMBER_STORAGE = 200;
 var MONSTER_APPEAR_PER_SECOND = 0.5;
-var LOCK_TIME = 1000;
+var LOCK_TIME = 500;
 
 //分数
 var SCORE = 0;
@@ -124,16 +127,20 @@ var addMonster = function () {
 };
 
 var removeMonster = function (monster) {
-  createBoom(new THREE.Vector3(0,0,0), monster.position).shoot(function () {
-    pointsSystem.particles.position.copy(monster.position);
-    pointsSystem.boom();
-    monster.visible = false;
-    SCORE += SCORE_PER_MONSTER;
-  });
+  if (MONSTER_ARE_DEAD[monster.uuid] === 1) {
+    MONSTER_ARE_DEAD[monster.uuid] = 0;
+    createBoom(new THREE.Vector3(0,0,0), monster.position).shoot(function () {
+      pointsSystem.particles.position.copy(monster.position);
+      pointsSystem.boom();
+      monster.visible = false;
+      SCORE += SCORE_PER_MONSTER;
+    });
+  }
 };
 
 // erfan
 var bgMusic;
+var startPageGroup;
 var startPageTimeOut;
 var startPage;
 var gameOverPage;
@@ -143,6 +150,9 @@ var playBtnHover;
 var showstartHoverEffect = true;
 
 function showStartPage() {
+  startPageGroup = new THREE.Object3D();
+  scene.add(startPageGroup);
+
   var loader = new THREE.TextureLoader();
   loader.load('img/start-page.png', function(texture){
     var geometry = new THREE.PlaneGeometry( 1.344, 0.75, 32 );
@@ -151,11 +161,12 @@ function showStartPage() {
       //color: 0xffff00,
       side: THREE.DoubleSide,
       //opacity:0.6,
-      transparent: true
+      transparent: true,
+      depthWrite: false
     } );
     startPage = new THREE.Mesh( geometry, material );
     startPage.position.set(0, controls.userHeight, -0.5)
-    scene.add( startPage );
+    startPageGroup.add( startPage );
   });
   var loader = new THREE.TextureLoader();
   loader.load('img/play-normal.png', function(texture){
@@ -165,11 +176,12 @@ function showStartPage() {
       //color: 0xffff00,
       side: THREE.DoubleSide,
       //opacity:0.6,
-      transparent: true
+      transparent: true,
+      depthWrite: false
     } );
     playBtn = new THREE.Mesh( geometry, material );
     playBtn.position.set(0, controls.userHeight-0.15, -0.48)
-    scene.add( playBtn );
+    startPageGroup.add( playBtn );
   });
   var loader = new THREE.TextureLoader();
   loader.load('img/play-hover.png', function(texture){
@@ -179,11 +191,12 @@ function showStartPage() {
       //color: 0xffff00,
       side: THREE.DoubleSide,
       opacity:0,
-      transparent: true
+      transparent: true,
+      depthWrite: false
     } );
     playBtnHover = new THREE.Mesh( geometry, material );
     playBtnHover.position.set(0, controls.userHeight-0.15, -0.48)
-    scene.add( playBtnHover );
+    startPageGroup.add( playBtnHover );
   });
 }
 
@@ -201,30 +214,37 @@ function showEndPage(score) {
     } );
     gameOverPage = new THREE.Mesh( geometry, material );
     var len = 0.5;
-    gameOverPage.position.set(direction.x * len, controls.userHeight +  len* direction.y, len * direction.z);
+    gameOverPage.position.set(direction.x * len, controls.userHeight -  len* direction.y, len * direction.z);
     gameOverPage.lookAt(camera.position);
     scene.add( gameOverPage );
+
+    var loader = new THREE.FontLoader();
+    loader.load( 'fonts/iconfont_number.typeface.json', function ( font ) {
+    //loader.load( 'fonts/gentilis_regular.typeface.json', function ( font ) {
+      console.log(font)
+      score = parseInt(score);
+      var textGeo = new THREE.TextGeometry( score, {
+        font: font,
+        size: 0.06,
+        height: 0,
+        curveSegments: 12,
+      });
+      var xfix = -0.057;
+      if (score>99) {
+        xfix = -0.08
+      } else if (score < 10) {
+        xfix = -0.03;
+      }
+      var textMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+      gameOverPageText = new THREE.Mesh( textGeo, textMaterial );
+      gameOverPageText.position.set(xfix+gameOverPage.position.x, gameOverPage.position.y + 0.02, +gameOverPage.position.z-0.08);
+      gameOverPageText.rotateX(-Math.PI/2);
+      //gameOverPageText.lookAt(camera.position);
+      scene.add( gameOverPageText );
+      playMusic('success');
+    } );
   });
 
-  var loader = new THREE.FontLoader();
-  loader.load( 'fonts/gentilis_regular.typeface.json', function ( font ) {
-    var textGeo = new THREE.TextGeometry( score, {
-      font: font,
-      size: 0.08,
-      height: 0,
-      curveSegments: 12,
-    });
-    var xfix = -0.04;
-    if (score>99) {
-      xfix = -0.07
-    }
-    var textMaterial = new THREE.MeshBasicMaterial( { color: 0xff00ff } );
-    gameOverPageText = new THREE.Mesh( textGeo, textMaterial );
-    gameOverPageText.position.set(xfix, controls.userHeight + 0.08, -0.48);
-    gameOverPageText.lookAt(camera.position);
-    scene.add( gameOverPageText );
-    console.log(gameOverPageText)
-  } );
 }
 
 function pureRemoveMesh(mesh) {
@@ -258,11 +278,18 @@ function gameplay() {
   setInterval(function () {
     addMonster();
   }, 500);
+  setTimeout(function () {
+    gameOver.over(function () {
+      showEndPage(SCORE);
+    });
+  }, 60000);
 }
 
 function removeEndPage() {
   pureRemoveMesh(gameOverPage);
   gameOverPage = null;
+  pureRemoveMesh(gameOverPageText);
+  gameOverPageText = null;
 }
 
 document.addEventListener("touchstart",function(e){
@@ -462,7 +489,7 @@ function createGameOver() {
     });
 
   return {
-    over: function () {
+    over: function (callback) {
       scene.add(GAME_END_LOGO);
       GAME_OVER_FLAG = !GAME_OVER_FLAG;
 
@@ -477,7 +504,7 @@ function createGameOver() {
       //     .chain(overTween)
       //     .start();
       // } else {
-        overTween.start();
+        overTween.onComplete(callback).start();
       // }
     }
   }
@@ -501,7 +528,7 @@ var GUIControl = {
     showStartPage();
   },
   showEndPage: function () {
-    showEndPage(111);
+    showEndPage(186);
   },
   removeStartPage: function () {
     removeStartPage();
@@ -522,7 +549,9 @@ var GUIControl = {
     console.log()
   },
   gameover: function () {
-    gameOver.over();
+    gameOver.over(function() {
+      showEndPage(123);
+    });
   },
   pointsBoom: function () {
     pointsSystem.boom();
@@ -613,10 +642,11 @@ function animate(timestamp) {
         if (cursorOnMonster[1] == 0) {
           cursorOnMonster[1] = timestamp;
         }
-        if (timestamp - cursorOnMonster[1] > LOCK_TIME) {
+        if (timestamp - cursorOnMonster[1] >= LOCK_TIME && !(intersects[0].object.uuid in MONSTER_ARE_DEAD)) {
+          MONSTER_ARE_DEAD[intersects[0].object.uuid] = 1;
+          removeMonster(intersects[0].object);
           cursorOnMonster[0] = null;
           cursorOnMonster[1] = 0;
-          removeMonster(intersects[0].object);
         }
       } else {
         cursorOnMonster[0] = intersects[0].object.uuid;
