@@ -82,7 +82,10 @@ var INITIAL_MONSTER_NUMBER = 10;
 var MAX_MONSTER_NUMBER = 50;
 var MAX_MONSTER_NUMBER_STORAGE = 200;
 var MONSTER_APPEAR_PER_SECOND = 0.5;
+// 锁定时间
 var LOCK_TIME = 500;
+// 游戏结束后的延时
+var GAME_OVER_RELOAD_DELAY = 10000;
 
 //分数
 var SCORE = 0;
@@ -219,7 +222,7 @@ function showEndPage(score) {
     scene.add( gameOverPage );
 
     var loader = new THREE.FontLoader();
-    loader.load( 'fonts/iconfont_number.typeface.json', function ( font ) {
+    loader.load('fonts/iconfont_number.typeface.json', function ( font ) {
     //loader.load( 'fonts/gentilis_regular.typeface.json', function ( font ) {
       console.log(font)
       score = parseInt(score);
@@ -242,7 +245,11 @@ function showEndPage(score) {
       //gameOverPageText.lookAt(camera.position);
       scene.add( gameOverPageText );
       playMusic('success');
-    } );
+    });
+
+    setTimeout(function () {
+      location.reload();
+    }, GAME_OVER_RELOAD_DELAY)
   });
 
 }
