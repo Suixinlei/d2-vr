@@ -615,6 +615,7 @@ var GUIControl = {
 };
 
 var gui = new dat.GUI();
+gui.close();
 gui.add(GUIControl, 'showStartPage');
 gui.add(GUIControl, 'removeStartPage');
 gui.add(GUIControl, 'showEndPage');
