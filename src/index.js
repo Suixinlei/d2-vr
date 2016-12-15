@@ -409,12 +409,27 @@ var boom1 = [];//大招
 var boom1Length=10;
 var boom2 = null;//大招提示
 var pointer1=null;//准星
-
+var center0=null;
 var shoot1Loaded=false;//判断加载是否完成
 var boomLoaded=[];//判断加载是否完成
 var boom2Loaded=false;//判断加载是否完成
 var pointer1Loaded=false;
 
+var centerControls =null;
+
+var center = THREE.ImageUtils.loadTexture("img/sight-bead-white.png",null,function(t) {
+  var material = new THREE.MeshBasicMaterial({map:center});
+  material.transparent=true;
+  material.opacity=1;
+  var pointerGeometry = new THREE.BoxGeometry(1, 1, 1);
+  var mesh = new THREE.Mesh( pointerGeometry,material );
+  center0 = mesh;
+  center0.position.z = -0.3;
+  //scene.add( mesh );
+  centerControls = new THREE.VRControls(mesh);
+  centerControls.standing = true;
+  centerControls.standing = true;
+});
 
 var pointer = THREE.ImageUtils.loadTexture("img/sight-bead-white.png",null,function(t) {
   var material = new THREE.MeshBasicMaterial({map:pointer});
@@ -424,7 +439,7 @@ var pointer = THREE.ImageUtils.loadTexture("img/sight-bead-white.png",null,funct
   var mesh = new THREE.Mesh( pointerGeometry,material );
   pointer1 = mesh;
   pointer1.position.z = -3;
-  scene.add( mesh );
+  //scene.add( mesh );
   pointer1Loaded=true;
 });
 
@@ -601,6 +616,9 @@ var GUIControl = {
   keyBoardAsToAis: function () {
     keyBoardSystem(1,3).boom();
   },
+  keyBoardHide:function (){
+    keyBoardSystem(1,3).hideKeyBoard();
+  },
   bigBoom: function () {
     boomFly(endPostion).boom();
   },
@@ -636,6 +654,7 @@ gui.add(GUIControl, 'showTip');
 gui.add(GUIControl, 'hideTip');
 gui.add(GUIControl, 'shootFly');
 gui.add(GUIControl, 'gameover');
+gui.add(GUIControl, 'keyBoardHide');
 gui.add(GUIControl, 'uniqueSkill');
 
 var stats = new Stats();
@@ -859,9 +878,25 @@ function createKeyboard(key1,key2) {//初始键盘对象,最终键盘对象
       keyboard[key1-1].material.opacity = 0;
       keyboard[key2-1].material.opacity = 1;
     });
+  var keyboardHideAllTween = new TWEEN.Tween({ opacity: 0 })
+    .to({ opacity: 1 }, 200)
+    .easing(TWEEN.Easing.Exponential.In)
+    .onUpdate(function(interpolation) {
+      keyboard[0].material.opacity = 1 - interpolation;
+      keyboard[1].material.opacity = 1 - interpolation;
+      keyboard[2].material.opacity = 1 - interpolation;
+    })
+    .onComplete(function () {
+      keyboard[0].material.opacity = 0;
+      keyboard[1].material.opacity = 0;
+      keyboard[2].material.opacity = 0;
+    });
   return {
     boom: function () {
       keyboardOpacityTween.start();
+    },
+    hideKeyBoard: function () {
+      keyboardHideAllTween.start();
     },
     particles: key1,
     particles2: key2
