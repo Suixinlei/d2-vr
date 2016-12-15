@@ -506,7 +506,7 @@ function createGameOver() {
   var deltaH = GAME_OVER_USER_HEIGHT - height;
 
   var overTween = new TWEEN.Tween(resetPose)
-    .to(endPose, 2000)
+    .to(endPose, 3000)
     .easing(TWEEN.Easing.Quintic.Out)
     .onUpdate(function(interpolation) {
       controls.update(this);
