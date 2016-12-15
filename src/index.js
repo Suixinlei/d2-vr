@@ -849,7 +849,7 @@ function setStageDimensions(stage) {
 // 键盘系统
 function createKeyboard(key1,key2) {//初始键盘对象,最终键盘对象
   var keyboardOpacityTween = new TWEEN.Tween({ opacity: 0 })
-    .to({ opacity: 1 }, 800)
+    .to({ opacity: 1 }, 200)
     .easing(TWEEN.Easing.Exponential.In)
     .onUpdate(function(interpolation) {
       keyboard[key1-1].material.opacity = 1 - interpolation;
