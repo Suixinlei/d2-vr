@@ -129,6 +129,9 @@ function addHUD() {
   });
 
   hud = new THREE.Mesh(geometry, material);
+  hud.position.x = 0;
+  hud.position.y = -10;
+  hud.position.z = 0;
   scene.add(hud);
 }
 

@@ -98,8 +98,8 @@ var SCORE = 0;
 var SCORE_PER_MONSTER = 1;
 
 function addMonsterSpawnPoints() {
-  var circleHeight = [5, 4, 5, 5, 5, 5, 5, 5, 5, 5];
-  [1.5, 1.4, 2, 1.7, 1.8, 2, 3, 4, 1.5, 4, 3.7].forEach(function (radius, index) {
+  var circleHeight = [6, 4, 3, 2.8, 3.5, 3, 2.5, 2, 1.5, 1];
+  [1.5, 1.4, 2, 1.7, 1.8, 2, 3, 4, 3.6, 4, 3.7].forEach(function (radius, index) {
     var MonsterGeoMetry = new THREE.CircleGeometry(radius, 20);
     MonsterGeoMetry.rotateX(Math.PI / 2);
     for (var n = 1; n <= 19; n++) {
@@ -111,13 +111,13 @@ function addMonsterSpawnPoints() {
 }
 addMonsterSpawnPoints();
 
-Monster_Spawn_Points.forEach((point) => {
-  var monster1_Geometry = new THREE.CircleGeometry(1, 20);
-  var circle = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.1), new THREE.MeshNormalMaterial({ color: 0xff0000}))
-  circle.position.copy(point);
-  circle.lookAt(camera.position);
-  scene.add(circle);
-});
+// Monster_Spawn_Points.forEach((point) => {
+//   var monster1_Geometry = new THREE.CircleGeometry(1, 20);
+//   var circle = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.1), new THREE.MeshNormalMaterial({ color: 0xff0000}))
+//   circle.position.copy(point);
+//   circle.lookAt(camera.position);
+//   scene.add(circle);
+// });
 
 var isMonsterSpawn = false;
 var monsterDisplayGroup = new THREE.Object3D();
@@ -131,6 +131,24 @@ createMonsterGroup();
 
 // 显示开始画面
 showStartPage();
+
+function addZuilanPic() {
+  var zuilanTexture = new THREE.TextureLoader().load('img/zuilan.png');
+  var geometry = new THREE.PlaneGeometry( 2.028, 2.068, 32 );
+  var material = new THREE.MeshBasicMaterial( {
+    map: zuilanTexture,
+    //color: 0xffff00,
+    side: THREE.DoubleSide,
+    //opacity:0.6,
+    transparent: true,
+    depthWrite: false
+  } );
+  startPage = new THREE.Mesh( geometry, material );
+  startPage.position.set(0, 10, 0);
+  startPage.lookAt(camera.position);
+  scene.add( startPage );
+}
+addZuilanPic();
 
 var monsterDanceSteps = [];
 var addMonster = function () {
@@ -679,7 +697,7 @@ function animate(timestamp) {
       cursorOnMonster[0] = null;
       cursorOnMonster[1] = 0;
       hud.position.x = 0;
-      hud.position.y = -1;
+      hud.position.y = -10;
       hud.position.z = 0;
     }
 
