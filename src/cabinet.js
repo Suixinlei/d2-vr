@@ -199,6 +199,7 @@ function createPoints() {
   }
 
   var particles = new THREE.Points( geometry, material );
+  particles.position.y = -1;
   scene.add(particles);
 
   var pointsTween = new TWEEN.Tween({ r: 1 })
