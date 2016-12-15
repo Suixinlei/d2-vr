@@ -52,6 +52,9 @@ var monsterGroup = [];
 // GAME_OVER_DISPLAY_LOGO
 var GAME_END_LOGO = null;
 
+// 已经死亡的怪物
+var MONSTER_ARE_DEAD = {};
+
 /*
  * 粒子系统
  * 属性：
@@ -79,7 +82,7 @@ var INITIAL_MONSTER_NUMBER = 10;
 var MAX_MONSTER_NUMBER = 50;
 var MAX_MONSTER_NUMBER_STORAGE = 200;
 var MONSTER_APPEAR_PER_SECOND = 0.5;
-var LOCK_TIME = 1000;
+var LOCK_TIME = 500;
 
 //分数
 var SCORE = 0;
@@ -124,12 +127,15 @@ var addMonster = function () {
 };
 
 var removeMonster = function (monster) {
-  createBoom(new THREE.Vector3(0,0,0), monster.position).shoot(function () {
-    pointsSystem.particles.position.copy(monster.position);
-    pointsSystem.boom();
-    monster.visible = false;
-    SCORE += SCORE_PER_MONSTER;
-  });
+  if (MONSTER_ARE_DEAD[monster.uuid] === 1) {
+    MONSTER_ARE_DEAD[monster.uuid] = 0;
+    createBoom(new THREE.Vector3(0,0,0), monster.position).shoot(function () {
+      pointsSystem.particles.position.copy(monster.position);
+      pointsSystem.boom();
+      monster.visible = false;
+      SCORE += SCORE_PER_MONSTER;
+    });
+  }
 };
 
 // erfan
@@ -636,10 +642,11 @@ function animate(timestamp) {
         if (cursorOnMonster[1] == 0) {
           cursorOnMonster[1] = timestamp;
         }
-        if (timestamp - cursorOnMonster[1] > LOCK_TIME) {
+        if (timestamp - cursorOnMonster[1] >= LOCK_TIME && !(intersects[0].object.uuid in MONSTER_ARE_DEAD)) {
+          MONSTER_ARE_DEAD[intersects[0].object.uuid] = 1;
+          removeMonster(intersects[0].object);
           cursorOnMonster[0] = null;
           cursorOnMonster[1] = 0;
-          removeMonster(intersects[0].object);
         }
       } else {
         cursorOnMonster[0] = intersects[0].object.uuid;
