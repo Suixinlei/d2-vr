@@ -202,7 +202,7 @@ var uniqueSkill = function () {
   for (var i= 0; i < UNIQUE_SKILL_KILL_NUMBER; i++) {
     var monster = monsterDisplayGroup.children[i];
     if (monster) {
-      boomFly(new THREE.Vector3( monster.position)).boom(function () {
+      boomFly(new THREE.Vector3(monster.position)).boom(function () {
         monster.visible = false;
         monsterDisplayGroup.children.splice(i, 1);
       });
@@ -366,6 +366,8 @@ function gameplay() {
   setTimeout(function () {
     keyBoardSystem(1,3).hideKeyBoard();
     gameOver.over(function () {
+      GAME_END_LOGO.material.opacity = 0;
+      scene.remove(GAME_END_LOGO);
       showEndPage(SCORE);
     });
   }, 60000);
@@ -655,6 +657,8 @@ var GUIControl = {
   gameover: function () {
     keyBoardSystem(1,3).hideKeyBoard();
     gameOver.over(function() {
+      GAME_END_LOGO.material.opacity = 0;
+      scene.remove(GAME_END_LOGO);
       showEndPage(123);
     });
   },
