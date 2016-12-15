@@ -191,7 +191,7 @@ function createPoints() {
     transparent : true,
     opacity: 1
   });
-  console.log(material)
+  console.log(material);
 
   for (var i = 0; i < 100; i++) {
     var vertex = new THREE.Vector3();
@@ -202,7 +202,7 @@ function createPoints() {
   }
 
   var particles = new THREE.Points( geometry, material );
-  particles.position.y = -1;
+  particles.position.y = -100;
   scene.add(particles);
 
   var pointsTween = new TWEEN.Tween({ r: 1 })

@@ -359,10 +359,12 @@ function removeStartPage() {
 
 function gameplay() {
   isMonsterSpawn = true;
+  keyBoardSystem(2,3).showKeyBoard();
   setInterval(function () {
     addMonster();
   }, 500);
   setTimeout(function () {
+    keyBoardSystem(1,3).hideKeyBoard();
     gameOver.over(function () {
       showEndPage(SCORE);
     });
@@ -447,7 +449,7 @@ var texture2 = THREE.ImageUtils.loadTexture("img/keyboard2.png",null,function(t)
 var texture3 = THREE.ImageUtils.loadTexture("img/keyboard3.png",null,function(t) {
   var material = new THREE.MeshBasicMaterial({map:texture3});
   material.transparent=true;
-  material.opacity=1;
+  material.opacity=0;
   var keyboardGeometry = new THREE.BoxGeometry(2, 0.6, 0);
   var mesh = new THREE.Mesh( keyboardGeometry,material );
   keyboard[2]  = mesh;
@@ -489,7 +491,7 @@ var pointer = THREE.ImageUtils.loadTexture("img/sight-bead-white.png",null,funct
   var mesh = new THREE.Mesh( pointerGeometry,material );
   pointer1 = mesh;
   pointer1.position.z = -3;
-  //scene.add( mesh );
+  scene.add( mesh );
   pointer1Loaded=true;
 });
 
@@ -651,6 +653,7 @@ var GUIControl = {
     console.log()
   },
   gameover: function () {
+    keyBoardSystem(1,3).hideKeyBoard();
     gameOver.over(function() {
       showEndPage(123);
     });
@@ -942,12 +945,24 @@ function createKeyboard(key1,key2) {//初始键盘对象,最终键盘对象
       keyboard[1].material.opacity = 0;
       keyboard[2].material.opacity = 0;
     });
+  var keyboardShowAllTween = new TWEEN.Tween({ opacity: 0 })
+    .to({ opacity: 1 }, 200)
+    .easing(TWEEN.Easing.Exponential.In)
+    .onUpdate(function(interpolation) {
+      keyboard[2].material.opacity =  interpolation;
+    })
+    .onComplete(function () {
+      keyboard[2].material.opacity = 1;
+    });
   return {
     boom: function () {
       keyboardOpacityTween.start();
     },
     hideKeyBoard: function () {
       keyboardHideAllTween.start();
+    },
+    showKeyBoard: function () {
+      keyboardShowAllTween.start();
     },
     particles: key1,
     particles2: key2
