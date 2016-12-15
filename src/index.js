@@ -398,6 +398,7 @@ var onError = function (xhr) {
 var ObjLoader = new THREE.OBJLoader();
 
 var keyboard = [];//键盘状态
+var keyboardOut = [new THREE.Object3D(),new THREE.Object3D(),new THREE.Object3D()];//键盘状态
 var keyboardloaded=[false,false,false];//判断加载是否完成
 var texture1 = THREE.ImageUtils.loadTexture("img/keyboard1.png",null,function(t) {
   var material = new THREE.MeshBasicMaterial({map:texture1});
@@ -405,9 +406,14 @@ var texture1 = THREE.ImageUtils.loadTexture("img/keyboard1.png",null,function(t)
   material.opacity=0;
   var keyboardGeometry = new THREE.BoxGeometry(2, 0.6, 0);
   var mesh = new THREE.Mesh( keyboardGeometry,material );
-  keyboard[0] = mesh;
-  //console.log(mesh)
-  scene.add( mesh );
+  keyboard[0]=mesh;
+  keyboardOut[0].add(mesh);
+  mesh.position.z = -0.7;
+  keyboardOut[0].position.x = 0;
+  keyboardOut[0].position.y = 1.6;
+  keyboardOut[0].position.z = 0;
+
+  scene.add( keyboardOut[0] );
   keyboardloaded[0]=true;
 });
 var texture2 = THREE.ImageUtils.loadTexture("img/keyboard2.png",null,function(t) {
@@ -416,8 +422,13 @@ var texture2 = THREE.ImageUtils.loadTexture("img/keyboard2.png",null,function(t)
   material.opacity=0;
   var keyboardGeometry = new THREE.BoxGeometry(2, 0.6, 0);
   var mesh = new THREE.Mesh( keyboardGeometry,material );
-  keyboard[1]  = mesh;
-  scene.add( mesh );
+  keyboard[1]=mesh;
+  keyboardOut[1].add(mesh);
+  mesh.position.z = -0.7;
+  keyboardOut[1].position.x = 0;
+  keyboardOut[1].position.y = 1.6;
+  keyboardOut[1].position.z = 0;
+  scene.add( keyboardOut[1] );
   keyboardloaded[1]=true;
 });
 var texture3 = THREE.ImageUtils.loadTexture("img/keyboard3.png",null,function(t) {
@@ -426,35 +437,38 @@ var texture3 = THREE.ImageUtils.loadTexture("img/keyboard3.png",null,function(t)
   material.opacity=1;
   var keyboardGeometry = new THREE.BoxGeometry(2, 0.6, 0);
   var mesh = new THREE.Mesh( keyboardGeometry,material );
-  keyboard[2]  = mesh;
-  scene.add( mesh );
+  keyboard[2]=mesh;
+  keyboardOut[2].add(mesh);
+  mesh.position.z = -0.7;
+  keyboardOut[2].position.x = 0;
+  keyboardOut[2].position.y = 1.6;
+  keyboardOut[2].position.z = 0;
+  scene.add( keyboardOut[2] );
   keyboardloaded[2]=true;
 });
 var shoot1 = null;//子弹
 var boom1 = [];//大招
 var boom1Length=10;
 var boom2 = null;//大招提示
-var pointer1=null;//准星
-var center0=null;
+var center0= new THREE.Object3D();//准星
 var shoot1Loaded=false;//判断加载是否完成
 var boomLoaded=[];//判断加载是否完成
 var boom2Loaded=false;//判断加载是否完成
 var pointer1Loaded=false;
 
-var centerControls =null;
 
 var center = THREE.ImageUtils.loadTexture("img/sight-bead-white.png",null,function(t) {
   var material = new THREE.MeshBasicMaterial({map:center});
   material.transparent=true;
   material.opacity=1;
-  var pointerGeometry = new THREE.BoxGeometry(1, 1, 1);
+  var pointerGeometry = new THREE.BoxGeometry(0.1, 0.1, 0);
   var mesh = new THREE.Mesh( pointerGeometry,material );
-  center0 = mesh;
-  center0.position.z = -0.3;
-  //scene.add( mesh );
-  centerControls = new THREE.VRControls(mesh);
-  centerControls.standing = true;
-  centerControls.standing = true;
+  center0.add(mesh);
+  mesh.position.z = -0.7;
+  center0.position.x = 0;
+  center0.position.y = 1.6;
+  center0.position.z = 0;
+  scene.add( center0 );
 });
 
 var pointer = THREE.ImageUtils.loadTexture("img/sight-bead-white.png",null,function(t) {
@@ -646,7 +660,7 @@ var GUIControl = {
     keyBoardSystem(1,3).hideKeyBoard();
   },
   bigBoom: function () {
-    boomFly(endPostion).boom();
+    boomFly(endPostion,boom1[1]).boom();
   },
   hideTip:function(){
     boomFly(endPostion).tipHide();
@@ -782,15 +796,6 @@ function animate(timestamp) {
   var delta = Math.min(timestamp - lastRender, 500);
   lastRender = timestamp;
 
-  //准星随视角移动
-  //if(shootCount%3==0){
-    if(pointer1Loaded){
-      pointer1.position.copy( camera.position );// 复制位置
-      pointer1.rotation.copy( camera.rotation );// 复制视角偏移角度
-      //pointer1.translateY( 0.3 );
-      pointer1.translateZ( - 1.5 );
-    }
-  //}
   if(boomLoaded.length==10){
     //boom1.rotation.copy( camera.rotation );
     for(var j=0;j<boom1Length;j++){
@@ -798,6 +803,7 @@ function animate(timestamp) {
       boom1[j].translateZ( - 1 );
     }
   }
+  var pose = controls.getPose();
   if(boom2Loaded){
     boom2.position.copy( camera.position );// 复制位置
     boom2.rotation.copy( camera.rotation );// 复制视角偏移角度
@@ -805,13 +811,25 @@ function animate(timestamp) {
     boom2.translateZ( -1.5 );
   }
 
+  if(center0){
+    if (pose.orientation) {
+      center0.quaternion.fromArray(pose.orientation);
+    }
+  }
   //键盘随视角移动
   for(var i=0;i<3;i++){
     if(keyboardloaded[i]){
-      keyboard[i].position.copy( camera.position );
-      keyboard[i].rotation.copy( camera.rotation );
-      keyboard[i].translateY( -0.25 );
-      keyboard[i].translateZ( - 1 );
+      //var pose = controls.getPose();
+      //if (pose.orientation) {
+      //  keyboard[i].quaternion.fromArray(pose.orientation);
+      //}
+      if (pose.orientation) {
+        keyboardOut[i].quaternion.fromArray(pose.orientation);
+      }
+      //keyboard[i].position.copy( camera.position );
+      //keyboard[i].rotation.copy( camera.rotation );
+      //keyboard[i].translateY( 1 );
+      //keyboard[i].translateZ( - 1 );
     }
   }
 
@@ -929,8 +947,9 @@ function createKeyboard(key1,key2) {//初始键盘对象,最终键盘对象
   }
 }
 
+var boomLength=0;
 // 子弹系统
-function createBoom(endPos,boomPos) {//子弹最终对象1个,炸弹最终目标10个
+function createBoom(endPos,boomObj) {//子弹最终对象1个,炸弹最终目标,炸弹obj
   var startPos=startPostion;
   var hideTween = new TWEEN.Tween({ opacity: 0 })//提示hide
     .to({ opacity: 1 }, 800)
@@ -952,7 +971,7 @@ function createBoom(endPos,boomPos) {//子弹最终对象1个,炸弹最终目标
     });
 
   var shootFlyTween = new TWEEN.Tween({ count: 0 })//子弹
-    .to({ count: 1 }, 800)
+    .to({ count: 1 }, 300)
     //.easing(TWEEN.Easing.Exponential.In)
     .onUpdate(function(count) {
       var position=new THREE.Vector3(startPos.x+(endPos.x-startPos.x)*count,startPos.y+(endPos.y-startPos.y)*count,startPos.z+(endPos.z-startPos.z)*count);
@@ -968,44 +987,33 @@ function createBoom(endPos,boomPos) {//子弹最终对象1个,炸弹最终目标
       shoot1.material.opacity = 0;
     });
   var boomFlyTween = new TWEEN.Tween({ count: 0 })//大招
-    .to({ count: 1 }, 800)
+    .to({ count: 1 }, 500)
     //.easing(TWEEN.Easing.Exponential.In)
     .onUpdate(function(count) {
-      for(var i=0;i<boom1Length;i++){
-        var end;
-        if(boomPos&&boomPos[i]){
-          end=boomPos[i];
-        }else{
-          end=new THREE.Vector3(startPos.x,startPos.y,startPos.z);
-        }
-        var position=new THREE.Vector3(startPos.x+(end.x-startPos.x)*count,startPos.y+(end.y-startPos.y)*count,startPos.z+(end.z-startPos.z)*count);
-        boom1[i].rotation.copy( camera.rotation );
-        boom1[i].position.copy( position );
-        boom1[i].rotateX(-1*Math.PI*count);
-        boom1[i].translateY( -0.27+ 0.27*count );//-0.2~0
-      }
+      var position=new THREE.Vector3(startPos.x+(endPos.x-startPos.x)*count,startPos.y+(endPos.y-startPos.y)*count,startPos.z+(endPos.z-startPos.z)*count);
+      boomObj.rotation.copy( camera.rotation );
+      boomObj.position.copy( position );
+      boomObj.rotateX(-1*Math.PI*count);
+      boomObj.translateY( -0.27+ 0.27*count );//-0.2~0
+      //console.log(position)
+      //console.log(endPos)
     })
-    .onComplete(function (callback) {
-      for(var i=0;i<boom1Length;i++){
-        boom1[i].position.copy( endPos );
-        boom1[i].rotation.copy( camera.rotation );
-        boom1[i].rotateX(-1*Math.PI);
-        boom1[i].translateY( 0 );
-        boom1[i].material.opacity = 0;
-      }
+    .onComplete(function () {
+        boomObj.position.copy( endPos );
+        boomObj.rotation.copy( camera.rotation );
+        boomObj.rotateX(-1*Math.PI);
+        boomObj.translateY( 0 );
+        boomObj.material.opacity = 0;
+    });
+  return {
+    boom: function (callback) {
+      boomObj.material.opacity = 1;
+      boomObj.rotation.copy(camera.rotation);
       if(callback){
         boomFlyTween.onComplete(callback).start();
       }else{
         boomFlyTween.start();
       }
-    });
-  return {
-    boom: function () {
-      for(var i=0;i<boom1Length;i++) {
-        boom1[i].material.opacity = 1;
-        boom1[i].rotation.copy(camera.rotation);
-      }
-      boomFlyTween.start();
     },
     tipHide:function(){
       hideTween.start();
