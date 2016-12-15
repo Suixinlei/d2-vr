@@ -55,6 +55,10 @@ var GAME_END_LOGO = null;
 // 已经死亡的怪物
 var MONSTER_ARE_DEAD = {};
 
+// monster spawn point
+// 怪物生成点
+var Monster_Spawn_Points = [];
+
 /*
  * 粒子系统
  * 属性：
@@ -93,22 +97,31 @@ var UNIQUE_SKILL_KILL_NUMBER = 10;
 var SCORE = 0;
 var SCORE_PER_MONSTER = 1;
 
+function addMonsterSpawnPoints() {
+  var circleHeight = [5, 4, 5, 5, 5, 5, 5, 5, 5, 5];
+  [1.5, 1.4, 2, 1.7, 1.8, 2, 3, 4, 1.5, 4, 3.7].forEach(function (radius, index) {
+    var MonsterGeoMetry = new THREE.CircleGeometry(radius, 20);
+    MonsterGeoMetry.rotateX(Math.PI / 2);
+    for (var n = 1; n <= 19; n++) {
+      var spawnPoint = MonsterGeoMetry.vertices[n];
+      spawnPoint.y += circleHeight[index];
+      Monster_Spawn_Points.push(spawnPoint);
+    }
+  });
+}
+addMonsterSpawnPoints();
+
+Monster_Spawn_Points.forEach((point) => {
+  var monster1_Geometry = new THREE.CircleGeometry(1, 20);
+  var circle = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.1), new THREE.MeshNormalMaterial({ color: 0xff0000}))
+  circle.position.copy(point);
+  circle.lookAt(camera.position);
+  scene.add(circle);
+});
+
 var isMonsterSpawn = false;
 var monsterDisplayGroup = new THREE.Object3D();
 scene.add(monsterDisplayGroup);
-
-// monster spawn point
-// 怪物生成点
-var Monster_Spawn_Points = [];
-[1, 1.4, 2, 1.7, 1.8, 2, 3, 4, 1.5, 4, 3.7].forEach(function (radius) {
-  var MonsterGeoMetry = new THREE.CircleGeometry(radius, 20);
-  MonsterGeoMetry.rotateX(Math.PI / 2);
-  for (var n = 1; n <= 19; n++) {
-    var spawnPoint = MonsterGeoMetry.vertices[n];
-    spawnPoint.y += 5 - radius;
-    Monster_Spawn_Points.push(spawnPoint);
-  }
-});
 
 addSkybox();
 addCabinet();
