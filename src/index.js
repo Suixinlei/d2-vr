@@ -366,6 +366,7 @@ function gameplay() {
   setTimeout(function () {
     keyBoardSystem(1,3).hideKeyBoard();
     gameOver.over(function () {
+      fetch('/new_record?record='+SCORE);
       GAME_END_LOGO.material.opacity = 0;
       scene.remove(GAME_END_LOGO);
       showEndPage(SCORE);
