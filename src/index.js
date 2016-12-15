@@ -52,6 +52,13 @@ var monsterGroup = [];
 // GAME_OVER_DISPLAY_LOGO
 var GAME_END_LOGO = null;
 
+// 已经死亡的怪物
+var MONSTER_ARE_DEAD = {};
+
+// monster spawn point
+// 怪物生成点
+var Monster_Spawn_Points = [];
+
 /*
  * 粒子系统
  * 属性：
@@ -79,28 +86,42 @@ var INITIAL_MONSTER_NUMBER = 10;
 var MAX_MONSTER_NUMBER = 50;
 var MAX_MONSTER_NUMBER_STORAGE = 200;
 var MONSTER_APPEAR_PER_SECOND = 0.5;
-var LOCK_TIME = 1000;
+// 锁定时间
+var LOCK_TIME = 500;
+// 游戏结束后的延时
+var GAME_OVER_RELOAD_DELAY = 10000;
+// 大招一次性杀死的怪物数
+var UNIQUE_SKILL_KILL_NUMBER = 10;
 
 //分数
 var SCORE = 0;
 var SCORE_PER_MONSTER = 1;
 
+function addMonsterSpawnPoints() {
+  var circleHeight = [5, 4, 5, 5, 5, 5, 5, 5, 5, 5];
+  [1.5, 1.4, 2, 1.7, 1.8, 2, 3, 4, 1.5, 4, 3.7].forEach(function (radius, index) {
+    var MonsterGeoMetry = new THREE.CircleGeometry(radius, 20);
+    MonsterGeoMetry.rotateX(Math.PI / 2);
+    for (var n = 1; n <= 19; n++) {
+      var spawnPoint = MonsterGeoMetry.vertices[n];
+      spawnPoint.y += circleHeight[index];
+      Monster_Spawn_Points.push(spawnPoint);
+    }
+  });
+}
+addMonsterSpawnPoints();
+
+Monster_Spawn_Points.forEach((point) => {
+  var monster1_Geometry = new THREE.CircleGeometry(1, 20);
+  var circle = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.1), new THREE.MeshNormalMaterial({ color: 0xff0000}))
+  circle.position.copy(point);
+  circle.lookAt(camera.position);
+  scene.add(circle);
+});
+
 var isMonsterSpawn = false;
 var monsterDisplayGroup = new THREE.Object3D();
 scene.add(monsterDisplayGroup);
-
-// monster spawn point
-// 怪物生成点
-var Monster_Spawn_Points = [];
-[1, 1.4, 2, 1.7, 1.8, 2, 3, 4, 1.5, 4, 3.7].forEach(function (radius) {
-  var MonsterGeoMetry = new THREE.CircleGeometry(radius, 20);
-  MonsterGeoMetry.rotateX(Math.PI / 2);
-  for (var n = 1; n <= 19; n++) {
-    var spawnPoint = MonsterGeoMetry.vertices[n];
-    spawnPoint.y += 5 - radius;
-    Monster_Spawn_Points.push(spawnPoint);
-  }
-});
 
 addSkybox();
 addCabinet();
@@ -124,13 +145,39 @@ var addMonster = function () {
 };
 
 var removeMonster = function (monster) {
-  createBoom(new THREE.Vector3(0,0,0), monster.position).shoot(function () {
-    pointsSystem.particles.position.copy(monster.position);
-    pointsSystem.boom();
-    monster.visible = false;
-    SCORE += SCORE_PER_MONSTER;
-  });
+  if (MONSTER_ARE_DEAD[monster.uuid] === 1) {
+    MONSTER_ARE_DEAD[monster.uuid] = 0;
+    keyBoardSystem(3,2).boom();
+    createBoom(startPostion, monster.position).shoot(function () {
+      pointsSystem.particles.position.copy(monster.position);
+      pointsSystem.boom();
+      monster.visible = false;
+      SCORE += SCORE_PER_MONSTER;
+      keyBoardSystem(2,3).boom();
+      monster.parent.children.forEach((childMonster, index) => {
+        var uuid = monster.uuid;
+        if (childMonster.uuid === uuid) {
+          monster.parent.children.splice(index, 1);
+        }
+      })
+    });
+  }
 };
+
+var uniqueSkill = function () {
+  keyBoardSystem(3,1).boom();
+  for (var i= 0; i < UNIQUE_SKILL_KILL_NUMBER; i++) {
+    var monster = monsterDisplayGroup.children[i];
+    if (monster) {
+      boomFly(new THREE.Vector3(startPostion, monster.position)).boom(function () {
+        monster.visible = false;
+        monsterDisplayGroup.children.splice(i, 1);
+      });
+    }
+  }
+  keyBoardSystem(1,3).boom();
+};
+
 
 // erfan
 var bgMusic;
@@ -215,7 +262,7 @@ function showEndPage(score) {
     scene.add( gameOverPage );
 
     var loader = new THREE.FontLoader();
-    loader.load( 'fonts/iconfont_number.typeface.json', function ( font ) {
+    loader.load('fonts/iconfont_number.typeface.json', function ( font ) {
     //loader.load( 'fonts/gentilis_regular.typeface.json', function ( font ) {
       score = parseInt(score);
       var textGeo = new THREE.TextGeometry( score, {
@@ -236,7 +283,11 @@ function showEndPage(score) {
       gameOverPageText.rotateX(-Math.PI/2);
       //gameOverPageText.lookAt(camera.position);
       scene.add( gameOverPageText );
-    } );
+    });
+
+    setTimeout(function () {
+      location.reload();
+    }, GAME_OVER_RELOAD_DELAY)
   });
   bgMusic&&bgMusic.pause();
   playMusic('score');
@@ -577,10 +628,14 @@ var GUIControl = {
   },
   shootFly: function () {
     boomFly(startPostion,endPostion).shoot();
-},
+  },
+  uniqueSkill: function () {
+    uniqueSkill();
+  }
 };
 
 var gui = new dat.GUI();
+gui.close();
 gui.add(GUIControl, 'showStartPage');
 gui.add(GUIControl, 'removeStartPage');
 gui.add(GUIControl, 'showEndPage');
@@ -597,6 +652,7 @@ gui.add(GUIControl, 'showTip');
 gui.add(GUIControl, 'hideTip');
 gui.add(GUIControl, 'shootFly');
 gui.add(GUIControl, 'gameover');
+gui.add(GUIControl, 'uniqueSkill');
 
 var stats = new Stats();
 document.body.appendChild( stats.dom );
@@ -624,7 +680,7 @@ function animate(timestamp) {
   // calculate objects intersecting the picking ray
   if (isMonsterSpawn) {
     var intersects = raycaster.intersectObjects( monsterDisplayGroup.children );
-    intersects.length > 0 ? console.log(intersects) : ''; // 鼠标指向
+    // intersects.length > 0 ? console.log(intersects) : ''; // 鼠标指向
 
     if (intersects.length == 0) {
       cursorOnMonster[0] = null;
@@ -643,10 +699,11 @@ function animate(timestamp) {
         if (cursorOnMonster[1] == 0) {
           cursorOnMonster[1] = timestamp;
         }
-        if (timestamp - cursorOnMonster[1] > LOCK_TIME) {
+        if (timestamp - cursorOnMonster[1] >= LOCK_TIME && !(intersects[0].object.uuid in MONSTER_ARE_DEAD)) {
+          MONSTER_ARE_DEAD[intersects[0].object.uuid] = 1;
+          removeMonster(intersects[0].object);
           cursorOnMonster[0] = null;
           cursorOnMonster[1] = 0;
-          removeMonster(intersects[0].object);
         }
       } else {
         cursorOnMonster[0] = intersects[0].object.uuid;
