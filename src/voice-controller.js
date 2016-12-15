@@ -17,29 +17,35 @@ function playMusic(kind) {
   var loop;
   switch (kind) {
     case 'background' :
-      src =  'background.mp3';
+      src = 'background.mp3';
       loop = true;
       break;
     case 'boom' :
-      src =  'boom.wav';
+      src = 'boom2.wav';
       break;
     case '321' :
-      src =  '321.wav';
+      src = '321.wav';
       break;
     case 'aoh' :
-      src =  'aoh.mp3';
+      src = 'aoh.mp3';
       break;
     case 'bi' :
-      src =  'bi.wav';
+      src = 'bi.wav';
       break;
     case 'shot' :
-      src =  'one-shot.wav';
+      src = 'one-shot.wav';
       break;
     case 'right' :
-      src =  'right.wav';
+      src = 'right.wav';
       break;
     case 'success' :
-      src =  'success.wav';
+      src = 'success.wav';
+      break;
+    case 'score' :
+      src = 'show-result.mp3';
+      break;
+    case 'gameover' :
+      src = 'gameover.wav';
       break;
   }
   if (!src) {
@@ -49,27 +55,6 @@ function playMusic(kind) {
   au.play();
   return au;
 }
-
-//var bgMusic = playMusic('background');
-
-//setTimeout(function() {
-//  bgMusic.pause();
-//}, 10000)
-//
-//setTimeout(function() {
-//  bgMusic.play();
-//}, 20000)
-
-
-function palyKeyBoardMusic() {
-  var au = createMusic('../asset_src/test-music2.m4a');
-  au.play();
-  return au;
-}
-
-//setTimeout(function() {
-//  var kbMusic = palyKeyBoardMusic();
-//},30000)
 
 
 /*
@@ -84,22 +69,23 @@ function doLisenVoiceInput(callback) {
   julius.onrecognition = function(sentence, score) {
     console.log(sentence, score);
     //if (/^[BC]ALL/.test(sentence)) {
-    if (/ALL/.test(sentence)) {
-      console.log('爆')
+    var dict = ['GET YOUNG', 'GET KEN']
+    if (dict.indexOf(sentence) >= 0) {
+      console.log('炸')
       callback && callback();
     } else {
       //document.getElementById('text').innerText = sentence
     }
   };
-  julius.onfail = function(){
+  julius.onfail = function() {
     console.log('fail....')
   }
   console.log('record start, please input...')
   return julius;
 }
 
-var voiceInput = doLisenVoiceInput(function(){
-  removeStartPage();
+var voiceInput = doLisenVoiceInput(function() {
+  playMusic('boom')
 });
 
 //artyom.on(['报', '包', '爆', '宝', '抱', '保', '饱', '暴', '薄']).then(function(i) {

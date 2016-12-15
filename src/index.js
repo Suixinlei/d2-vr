@@ -55,6 +55,10 @@ var GAME_END_LOGO = null;
 // 已经死亡的怪物
 var MONSTER_ARE_DEAD = {};
 
+// monster spawn point
+// 怪物生成点
+var Monster_Spawn_Points = [];
+
 /*
  * 粒子系统
  * 属性：
@@ -93,22 +97,31 @@ var UNIQUE_SKILL_KILL_NUMBER = 10;
 var SCORE = 0;
 var SCORE_PER_MONSTER = 1;
 
+function addMonsterSpawnPoints() {
+  var circleHeight = [5, 4, 5, 5, 5, 5, 5, 5, 5, 5];
+  [1.5, 1.4, 2, 1.7, 1.8, 2, 3, 4, 1.5, 4, 3.7].forEach(function (radius, index) {
+    var MonsterGeoMetry = new THREE.CircleGeometry(radius, 20);
+    MonsterGeoMetry.rotateX(Math.PI / 2);
+    for (var n = 1; n <= 19; n++) {
+      var spawnPoint = MonsterGeoMetry.vertices[n];
+      spawnPoint.y += circleHeight[index];
+      Monster_Spawn_Points.push(spawnPoint);
+    }
+  });
+}
+addMonsterSpawnPoints();
+
+Monster_Spawn_Points.forEach((point) => {
+  var monster1_Geometry = new THREE.CircleGeometry(1, 20);
+  var circle = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.1), new THREE.MeshNormalMaterial({ color: 0xff0000}))
+  circle.position.copy(point);
+  circle.lookAt(camera.position);
+  scene.add(circle);
+});
+
 var isMonsterSpawn = false;
 var monsterDisplayGroup = new THREE.Object3D();
 scene.add(monsterDisplayGroup);
-
-// monster spawn point
-// 怪物生成点
-var Monster_Spawn_Points = [];
-[1, 1.4, 2, 1.7, 1.8, 2, 3, 4, 1.5, 4, 3.7].forEach(function (radius) {
-  var MonsterGeoMetry = new THREE.CircleGeometry(radius, 20);
-  MonsterGeoMetry.rotateX(Math.PI / 2);
-  for (var n = 1; n <= 19; n++) {
-    var spawnPoint = MonsterGeoMetry.vertices[n];
-    spawnPoint.y += 5 - radius;
-    Monster_Spawn_Points.push(spawnPoint);
-  }
-});
 
 addSkybox();
 addCabinet();
@@ -134,11 +147,13 @@ var addMonster = function () {
 var removeMonster = function (monster) {
   if (MONSTER_ARE_DEAD[monster.uuid] === 1) {
     MONSTER_ARE_DEAD[monster.uuid] = 0;
+    keyBoardSystem(3,2).boom();
     createBoom(startPostion, monster.position).shoot(function () {
       pointsSystem.particles.position.copy(monster.position);
       pointsSystem.boom();
       monster.visible = false;
       SCORE += SCORE_PER_MONSTER;
+      keyBoardSystem(2,3).boom();
       monster.parent.children.forEach((childMonster, index) => {
         var uuid = monster.uuid;
         if (childMonster.uuid === uuid) {
@@ -150,6 +165,7 @@ var removeMonster = function (monster) {
 };
 
 var uniqueSkill = function () {
+  keyBoardSystem(3,1).boom();
   for (var i= 0; i < UNIQUE_SKILL_KILL_NUMBER; i++) {
     var monster = monsterDisplayGroup.children[i];
     if (monster) {
@@ -159,6 +175,7 @@ var uniqueSkill = function () {
       });
     }
   }
+  keyBoardSystem(1,3).boom();
 };
 
 
@@ -177,6 +194,8 @@ function showStartPage() {
   startPageGroup = new THREE.Object3D();
   scene.add(startPageGroup);
 
+  var distance = -0.9;
+
   var loader = new THREE.TextureLoader();
   loader.load('img/start-page.png', function(texture){
     var geometry = new THREE.PlaneGeometry( 1.344, 0.75, 32 );
@@ -189,7 +208,7 @@ function showStartPage() {
       depthWrite: false
     } );
     startPage = new THREE.Mesh( geometry, material );
-    startPage.position.set(0, controls.userHeight, -0.5)
+    startPage.position.set(0, controls.userHeight, distance)
     startPageGroup.add( startPage );
   });
   var loader = new THREE.TextureLoader();
@@ -204,7 +223,7 @@ function showStartPage() {
       depthWrite: false
     } );
     playBtn = new THREE.Mesh( geometry, material );
-    playBtn.position.set(0, controls.userHeight-0.15, -0.48)
+    playBtn.position.set(0, controls.userHeight-0.15, distance+0.02)
     startPageGroup.add( playBtn );
   });
   var loader = new THREE.TextureLoader();
@@ -219,7 +238,7 @@ function showStartPage() {
       depthWrite: false
     } );
     playBtnHover = new THREE.Mesh( geometry, material );
-    playBtnHover.position.set(0, controls.userHeight-0.15, -0.48)
+    playBtnHover.position.set(0, controls.userHeight-0.15, distance+0.02)
     startPageGroup.add( playBtnHover );
   });
 }
@@ -245,7 +264,6 @@ function showEndPage(score) {
     var loader = new THREE.FontLoader();
     loader.load('fonts/iconfont_number.typeface.json', function ( font ) {
     //loader.load( 'fonts/gentilis_regular.typeface.json', function ( font ) {
-      console.log(font)
       score = parseInt(score);
       var textGeo = new THREE.TextGeometry( score, {
         font: font,
@@ -265,14 +283,14 @@ function showEndPage(score) {
       gameOverPageText.rotateX(-Math.PI/2);
       //gameOverPageText.lookAt(camera.position);
       scene.add( gameOverPageText );
-      playMusic('success');
     });
 
     setTimeout(function () {
       location.reload();
     }, GAME_OVER_RELOAD_DELAY)
   });
-
+  bgMusic&&bgMusic.pause();
+  playMusic('score');
 }
 
 function pureRemoveMesh(mesh) {
@@ -298,6 +316,11 @@ function removeStartPage() {
   pureRemoveMesh(playBtnHover);
   playBtnHover = null;
 
+  if (!bgMusic) {
+    bgMusic = playMusic('background');
+  } else {
+    bgMusic.play();
+  }
   gameplay();
 }
 
@@ -320,18 +343,18 @@ function removeEndPage() {
   gameOverPageText = null;
 }
 
-document.addEventListener("touchstart",function(e){
-  if (playBtn && playBtnHover) {
-    var intersects = raycaster.intersectObject( playBtn );
-    if (intersects.length) {
-      console.log('game start!')
-      removeStartPage();
-      if (!bgMusic) {
-        bgMusic = playMusic('background');
-      }
-    }
-  }
-}, false);
+//document.addEventListener("touchstart",function(e){
+//  if (playBtn && playBtnHover) {
+//    var intersects = raycaster.intersectObject( playBtn );
+//    if (intersects.length) {
+//      console.log('game start!')
+//      removeStartPage();
+//      if (!bgMusic) {
+//        bgMusic = playMusic('background');
+//      }
+//    }
+//  }
+//}, false);
 
 //document.body.addEventListener("click",function(e){
 //  console.log(e)
@@ -520,6 +543,7 @@ function createGameOver() {
     over: function (callback) {
       scene.add(GAME_END_LOGO);
       GAME_OVER_FLAG = !GAME_OVER_FLAG;
+      playMusic('gameover');
 
       // var pose = controls.getPose();
       // if (pose && pose.orientation) {
@@ -611,6 +635,7 @@ var GUIControl = {
 };
 
 var gui = new dat.GUI();
+gui.close();
 gui.add(GUIControl, 'showStartPage');
 gui.add(GUIControl, 'removeStartPage');
 gui.add(GUIControl, 'showEndPage');
