@@ -184,30 +184,32 @@ function createPoints() {
   var geometry = new THREE.Geometry();
   var texture = new THREE.TextureLoader().load( "img/point1.png" );
   var material = new THREE.PointsMaterial({
-    size: 0.5,
+    size: 0.15,
     map: texture,
     // blending: THREE.AdditiveBlending,
     depthTest: false,
     transparent : true,
     opacity: 1
   });
+  console.log(material)
 
   for (var i = 0; i < 100; i++) {
     var vertex = new THREE.Vector3();
-    vertex.x = Math.random() * 0.5 - 0.25;
-    vertex.y = Math.random() * 0.5 - 0.25;
-    vertex.z = Math.random() * 0.5 - 0.25;
+    vertex.x = Math.random() * 0.3 - 0.15;
+    vertex.y = Math.random() * 0.3 - 0.15;
+    vertex.z = Math.random() * 0.3 - 0.15;
     geometry.vertices.push( vertex );
   }
 
   var particles = new THREE.Points( geometry, material );
+  particles.position.y = -1;
   scene.add(particles);
 
   var pointsTween = new TWEEN.Tween({ r: 1 })
-    .to({ r: 1.065 }, 800)
+    .to({ r: 1.055 }, 600)
     .easing(TWEEN.Easing.Exponential.Out)
     .onUpdate(function(interpolation) {
-      var r = interpolation * 0.065 + 1;
+      var r = interpolation * 0.055 + 1;
       geometry.vertices.forEach(function (vertex) {
         vertex.multiplyScalar(r);
       });
@@ -215,16 +217,17 @@ function createPoints() {
     })
     .onComplete(function () {
       geometry.vertices.forEach(function (vertex) {
-        vertex.set(Math.random() * 0.5 - 0.25, Math.random() * 0.5 - 0.25, Math.random() * 0.5 - 0.25);
+        vertex.set(Math.random() * 0.3 - 0.15, Math.random() * 0.3 - 0.15, Math.random() * 0.3 - 0.15);
       });
       geometry.verticesNeedUpdate = true;
     });
 
   var pointsOpacityTween = new TWEEN.Tween({ opacity: 1 })
-    .to({ opacity: 0 }, 800)
+    .to({ opacity: 0 }, 600)
     .easing(TWEEN.Easing.Exponential.In)
     .onUpdate(function(interpolation) {
-      material.opacity = 1 - interpolation;
+      material.opacity = (1 - interpolation) * 0.6;
+      material.size = (1 - interpolation) * 0.2 + 0.1;
     })
     .onComplete(function () {
       // material.opacity = 1;
