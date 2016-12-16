@@ -62,15 +62,15 @@ function playMusic(kind) {
  */
 
 function doLisenVoiceInput(callback) {
-  var julius = new Julius('./voxforge/sample.dfa', './voxforge/sample.dict', {
+  //var julius = new Julius('./voxforge/sample.dfa', './voxforge/sample.dict', {
+  var julius = new Julius('./voxforge/boom.dfa', './voxforge/boom.dict', {
     //verbose: true,
     //transfer:true
   });
   julius.onrecognition = function(sentence, score) {
     console.log(sentence, score);
     //if (/^[BC]ALL/.test(sentence)) {
-    var dict = ['GET YOUNG', 'GET KEN']
-    if (dict.indexOf(sentence) >= 0) {
+    if (/ZHA/.test(sentence)) {
       console.log('炸')
       callback && callback();
     } else {
@@ -85,7 +85,7 @@ function doLisenVoiceInput(callback) {
 }
 
 var voiceInput = doLisenVoiceInput(function() {
-  playMusic('boom')
+  playMusic('boom');
 });
 
 //artyom.on(['报', '包', '爆', '宝', '抱', '保', '饱', '暴', '薄']).then(function(i) {

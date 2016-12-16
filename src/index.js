@@ -290,8 +290,9 @@ function showEndPage(score) {
     } );
     gameOverPage = new THREE.Mesh( geometry, material );
     var len = 0.5;
-    gameOverPage.position.set(direction.x * len, controls.userHeight -  len* direction.y, len * direction.z);
+    //gameOverPage.position.set(direction.x * len, controls.userHeight +  len* direction.y, 0);
     gameOverPage.lookAt(camera.position);
+    gameOverPage.position.set(-0.01, controls.userHeight +  len* direction.y, 0);
     scene.add( gameOverPage );
 
     var loader = new THREE.FontLoader();
@@ -306,9 +307,9 @@ function showEndPage(score) {
       });
       var xfix = -0.057;
       if (score>99) {
-        xfix = -0.08
+        xfix = -0.085
       } else if (score < 10) {
-        xfix = -0.03;
+        xfix = -0.035;
       }
       var textMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff } );
       gameOverPageText = new THREE.Mesh( textGeo, textMaterial );
@@ -818,11 +819,11 @@ function animate(timestamp) {
     startPageTimeOut = null;
   }
 
-  if (gameOverPage) {
-    var len = 0.5;
-    gameOverPage.position.set(direction.x * len, controls.userHeight +  len* direction.y, len * direction.z);
-    gameOverPage.lookAt(camera.position);
-  }
+  //if (gameOverPage) {
+  //  var len = 0.5;
+  //  gameOverPage.position.set(direction.x * len, controls.userHeight +  len* direction.y, len * direction.z);
+  //  gameOverPage.lookAt(camera.position);
+  //}
 
   hud.lookAt(camera.position);
 
