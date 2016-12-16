@@ -473,7 +473,6 @@ var shoot = new THREE.TextureLoader().load("img/shoot.png");
   material.transparent=true;
   //material.opacity=0;
   var shootGeometry = new THREE.BoxGeometry( 0.3, 0.3,0);
-  //console.log(shootGeometry)
   var mesh = new THREE.Mesh( shootGeometry,material );
   shoot1 = mesh;
   scene.add(mesh);
@@ -661,7 +660,6 @@ function animate(timestamp) {
 
   if (isMonsterSpawn) {
     var intersects = raycaster.intersectObjects(monsterDisplayGroup.children);
-    // intersects.length > 0 ? console.log(intersects) : ''; // 鼠标指向
     if (intersects.length == 0) {
       cursorOnMonster[0] = null;
       cursorOnMonster[1] = 0;
@@ -895,7 +893,6 @@ function createBoom(endPos, boomObj) {//子弹最终对象1个,炸弹最终目�
     shoot: function (callback) {
       shoot1.material.opacity = 1;
       shoot1.rotation.copy(camera.rotation);
-      console.log(boom1[0].position)
       playMusic('shot');
       if (callback) {
         shootFlyTween.onComplete(callback).start();

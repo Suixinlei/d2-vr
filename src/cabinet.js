@@ -153,7 +153,6 @@ function createPoints() {
     transparent : true,
     opacity: 1
   });
-  console.log(material);
 
   for (var i = 0; i < 100; i++) {
     var vertex = new THREE.Vector3();
