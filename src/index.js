@@ -236,9 +236,6 @@ var uniqueSkill = function () {
         var monster = monsterDisplayGroup.children[killMonsterNo];
         if (monster) {
           boomFly(monster.position, boom1[killMonsterNo]).boom((function (killMonsterNo) {
-            boom1[killMonsterNo].material.opacity = 0;
-            //boom1[killMonsterNo].position = startPostion;
-            boom1[killMonsterNo].position.set(new THREE.Vector3(0, -1.6, -110));
             monsterDisplayGroup.children.splice(0, 10);
             boomFly(endPostion).tipHide();
           })(killMonsterNo));
@@ -506,7 +503,7 @@ for (var i = 0; i < boom1Length; i++) {
       transparent: true,
       opacity: 0
     });
-    boom.scale.set(1, 1, 1);
+    //boom.scale.set(1, 1, 1);
     boom.position.y = controls.userHeight;
     boom.position.z = -2.2;
     var len = boom1.length;
@@ -859,7 +856,6 @@ function createBoom(endPos, boomObj) {//子弹最终对象1个,炸弹最终目�
     });
   var boomFlyTween = new TWEEN.Tween({count: 0})//大招
     .to({count: 1}, 500)
-    //.easing(TWEEN.Easing.Exponential.In)
     .onUpdate(function (count) {
       var position = new THREE.Vector3(startPos.x + (endPos.x - startPos.x) * count, startPos.y + (endPos.y - startPos.y) * count, startPos.z + (endPos.z - startPos.z) * count);
       boomObj.rotation.copy(camera.rotation);
@@ -872,7 +868,11 @@ function createBoom(endPos, boomObj) {//子弹最终对象1个,炸弹最终目�
       boomObj.rotation.copy(camera.rotation);
       boomObj.rotateX(-1 * Math.PI);
       boomObj.translateY(0);
-      boomObj.material.opacity = 0;
+      //boomObj.material.opacity = 0;
+      for(var i=0;i<10;i++){
+        //boom1[i].material.opacity = 0;
+        boom1[i].position.copy(new THREE.Vector3(0,-11,0));
+      }
     });
   return {
     boom: function (callback) {
@@ -893,6 +893,7 @@ function createBoom(endPos, boomObj) {//子弹最终对象1个,炸弹最终目�
     shoot: function (callback) {
       shoot1.material.opacity = 1;
       shoot1.rotation.copy(camera.rotation);
+      console.log(boom1[0].position)
       playMusic('shot');
       if (callback) {
         shootFlyTween.onComplete(callback).start();
