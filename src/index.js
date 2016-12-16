@@ -368,6 +368,9 @@ function gameplay() {
     UNIQUE_SKILL_USE = true;
     uniqueSkill();
   }, WAIT_FOR_UNIQUE_SKILL);
+
+  //显示倒计时和得分
+  countShow.start();
 }
 
 function removeEndPage() {
@@ -727,11 +730,10 @@ function animate(timestamp) {
   //  boom2Out.quaternion.fromArray(pose.orientation);
   //}
 
-  if (center0) {
-    if (pose.orientation) {
-      center0.quaternion.fromArray(pose.orientation);
-    }
+  if (pose.orientation) {
+    center0.quaternion.fromArray(pose.orientation);
   }
+
   //键盘随视角移动
   //for(var i=0;i<3;i++){
   //  if(keyboardloaded[i]){
@@ -938,4 +940,82 @@ function setStageDimensions(stage) {
   // cube.position.set(0, controls.userHeight, 0);
 }
 
+// 倒计时
+function countDown() {
+  // var img = document.getElementById('top-bg');
+  var canvas = document.getElementById('canvas');
+  var ctx = canvas.getContext('2d');
+  // ctx.drawImage(img, 0, 0);
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '24px 黑体';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
 
+
+  ctx.fillText('60s | 得分：0', 128, 36);
+
+  var textureCanvas = new THREE.Texture(canvas);
+  textureCanvas.needsUpdate = true;
+
+  var geometry = new THREE.PlaneGeometry( 0.5, 0.125 );
+  var material = new THREE.MeshBasicMaterial({
+    map: textureCanvas,
+    transparent: true,
+    depthWrite: false,
+    opacity: 0
+    // color: 0xffff00,
+    // side: THREE.DoubleSide
+  });
+  var plane = new THREE.Mesh( geometry, material );
+  plane.position.z = -0.74;
+  plane.position.y = 0.5;
+
+  center0.add( plane );
+
+
+  //底图
+  var texture1 = new THREE.TextureLoader().load('img/top-bg.png');
+  var geometry1 = new THREE.PlaneGeometry( 0.5, 0.125 );
+  var material1 = new THREE.MeshBasicMaterial({
+    map: texture1,
+    transparent: true,
+    depthWrite: false,
+    opacity: 0
+    // color: 0xffff00,
+    // side: THREE.DoubleSide
+  });
+  var plane1 = new THREE.Mesh( geometry1, material1 );
+  plane1.position.z = -0.75;
+  plane1.position.y = 0.5;
+
+  center0.add( plane1 );
+  
+  return {
+    start: function () {
+      material.opacity = 1;
+      material1.opacity = 1;
+
+      var startTime = Date.now();
+      var seconds = GAME_TIME / 1000;
+      var timer = null;
+
+      var fn = function () {
+        var now = Date.now();
+        var count = Math.round((now - startTime) / 1000);
+        if (count < seconds) {
+          ctx.clearRect(0, 0, 256, 64);
+          ctx.fillText( (seconds - count) + 's | 得分：' + SCORE, 128, 36);
+          textureCanvas.needsUpdate = true;
+        } else {
+          clearInterval(timer);
+        }
+
+      };
+
+      timer = setInterval(fn, 100);
+    }
+  }
+}
+
+var countShow = countDown();
+// countShow.start();
