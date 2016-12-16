@@ -395,34 +395,6 @@ function removeEndPage() {
   gameOverPageText = null;
 }
 
-//document.addEventListener("touchstart",function(e){
-//  if (playBtn && playBtnHover) {
-//    var intersects = raycaster.intersectObject( playBtn );
-//    if (intersects.length) {
-//      console.log('game start!')
-//      removeStartPage();
-//      if (!bgMusic) {
-//        bgMusic = playMusic('background');
-//      }
-//    }
-//  }
-//}, false);
-
-//document.body.addEventListener("click",function(e){
-//  console.log(e)
-//  console.log(palyBackGroundMusic)
-//  //var bgMusic = palyBackGroundMusic();
-//  document.getElementById('audio').play();
-//  //var au = document.createElement('audio');
-//  //au.preload = 'auto';
-//  //au.src = './asset_src/test-music.m4a';
-//  //
-//  //au.loop = 'loop';
-//  //au.play();
-//}, false);
-
-
-
 //----------------------Monster---------------------------
 
 
@@ -497,7 +469,7 @@ var boom1 = [];//大招
 var boom1Length=10;
 var boom2 = null;//大招提示
 var boom2Out=new THREE.Object3D();
-var center0= new THREE.Object3D();//准星
+var center0= new THREE.Group();//准星
 var shoot1Loaded=false;//判断加载是否完成
 var boomLoaded=[];//判断加载是否完成
 var boom2Loaded=false;//判断加载是否完成
@@ -512,7 +484,7 @@ var pointer1Loaded=false;
     side: THREE.DoubleSide
   });
 
-  var pointerGeometry = new THREE.BoxGeometry(0.07, 0.07, 0);
+  var pointerGeometry = new THREE.PlaneGeometry(0.07, 0.07);
   var mesh = new THREE.Mesh( pointerGeometry,material );
   center0.add(mesh);
   mesh.position.z = -0.8;
@@ -520,6 +492,7 @@ var pointer1Loaded=false;
   center0.position.y = 1.6;
   center0.position.z = 0;
   scene.add( center0 );
+
 
 var shoot = THREE.ImageUtils.loadTexture("img/shoot.png",null,function(t) {
   var material = new THREE.MeshBasicMaterial({map:shoot});
