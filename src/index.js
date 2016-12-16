@@ -241,6 +241,7 @@ var uniqueSkill = function () {
           })(killMonsterNo));
         }
       }
+      SCORE += 10;
       keyBoardSystem(1, 3).boom();
       setTimeout(function () {
         UNIQUE_SKILL_USE = true;
