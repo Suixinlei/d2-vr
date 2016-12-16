@@ -367,61 +367,6 @@ function removeEndPage() {
 
 var ObjLoader = new THREE.OBJLoader();
 
-var keyboard = [];//键盘状态
-var keyboardOut = [new THREE.Object3D(), new THREE.Object3D(), new THREE.Object3D()];//键盘状态
-var keyboardloaded = [false, false, false];//判断加载是否完成
-var texture1 = THREE.ImageUtils.loadTexture("img/keyboard1.png", null, function (t) {
-  var material = new THREE.MeshBasicMaterial({map: texture1});
-  material.transparent = true;
-  material.opacity = 0;
-  var keyboardGeometry = new THREE.BoxGeometry(2, 0.6, 0);
-  var mesh = new THREE.Mesh(keyboardGeometry, material);
-  keyboard[0] = mesh;
-  keyboardOut[0].add(mesh);
-  mesh.position.z = -0.7;
-  mesh.position.y = -0.08;
-  keyboardOut[0].add(mesh);
-  keyboardOut[0].position.x = 0;
-  keyboardOut[0].position.y = 1.6;
-  keyboardOut[0].position.z = 0;
-
-  scene.add(keyboardOut[0]);
-  keyboardloaded[0] = true;
-});
-var texture2 = THREE.ImageUtils.loadTexture("img/keyboard2.png", null, function (t) {
-  var material = new THREE.MeshBasicMaterial({map: texture2});
-  material.transparent = true;
-  material.opacity = 0;
-  var keyboardGeometry = new THREE.BoxGeometry(2, 0.6, 0);
-  var mesh = new THREE.Mesh( keyboardGeometry,material );
-  keyboard[1]=mesh;
-  keyboardOut[1].add(mesh);
-  mesh.position.z = -0.7;
-  mesh.position.y = -0.08;
-  keyboardOut[1].add(mesh);
-  keyboardOut[1].position.x = 0;
-  keyboardOut[1].position.y = 1.6;
-  keyboardOut[1].position.z = 0;
-  scene.add(keyboardOut[1]);
-  keyboardloaded[1] = true;
-});
-var texture3 = THREE.ImageUtils.loadTexture("img/keyboard3.png", null, function (t) {
-  var material = new THREE.MeshBasicMaterial({map: texture3});
-  material.transparent = true;
-  material.opacity = 0;
-  var keyboardGeometry = new THREE.BoxGeometry(2, 0.6, 0);
-  var mesh = new THREE.Mesh(keyboardGeometry, material);
-  keyboard[2] = mesh;
-  keyboardOut[2].add(mesh);
-  mesh.position.z = -0.7;
-  mesh.position.y = -0.08;
-  keyboardOut[2].add(mesh);
-  keyboardOut[2].position.x = 0;
-  keyboardOut[2].position.y = 1.6;
-  keyboardOut[2].position.z = 0;
-  scene.add(keyboardOut[2]);
-  keyboardloaded[2] = true;
-});
 var shoot1 = null;//子弹
 var boom1 = [];//大招
 var boom1Length = 10;
@@ -449,6 +394,61 @@ center0.position.y = 1.6;
 center0.position.z = 0;
 scene.add( center0 );
 
+var keyboard = [];//键盘状态
+var keyboardOut = [new THREE.Object3D(), new THREE.Object3D(), new THREE.Object3D()];//键盘状态
+var keyboardloaded = [false, false, false];//判断加载是否完成
+var texture1 = THREE.ImageUtils.loadTexture("img/keyboard1.png", null, function (t) {
+  var material = new THREE.MeshBasicMaterial({map: texture1});
+  material.transparent = true;
+  material.opacity = 0;
+  var keyboardGeometry = new THREE.BoxGeometry(1.6, 0.5, 0);
+  var mesh = new THREE.Mesh(keyboardGeometry, material);
+  keyboard[0] = mesh;
+  center0.add(mesh);
+  mesh.position.z = -0.7;
+  mesh.position.y = -0.25;
+  center0.add(mesh);
+  //keyboardOut[0].position.x = 0;
+  //keyboardOut[0].position.y = 1.6;
+  //keyboardOut[0].position.z = 0;
+  //
+  //scene.add(keyboardOut[0]);
+  keyboardloaded[0] = true;
+});
+var texture2 = THREE.ImageUtils.loadTexture("img/keyboard2.png", null, function (t) {
+  var material = new THREE.MeshBasicMaterial({map: texture2});
+  material.transparent = true;
+  material.opacity = 0;
+  var keyboardGeometry = new THREE.BoxGeometry(1.6, 0.5, 0);
+  var mesh = new THREE.Mesh( keyboardGeometry,material );
+  keyboard[1]=mesh;
+  center0.add(mesh);
+  mesh.position.z = -0.7;
+  mesh.position.y = -0.25;
+  center0.add(mesh);
+  //keyboardOut[1].position.x = 0;
+  //keyboardOut[1].position.y = 1.6;
+  //keyboardOut[1].position.z = 0;
+  //scene.add(keyboardOut[1]);
+  keyboardloaded[1] = true;
+});
+var texture3 = THREE.ImageUtils.loadTexture("img/keyboard3.png", null, function (t) {
+  var material = new THREE.MeshBasicMaterial({map: texture3});
+  material.transparent = true;
+  material.opacity = 0;
+  var keyboardGeometry = new THREE.BoxGeometry(1.6, 0.5, 0);
+  var mesh = new THREE.Mesh(keyboardGeometry, material);
+  keyboard[2] = mesh;
+  center0.add(mesh);
+  mesh.position.z = -0.7;
+  mesh.position.y = -0.25;
+  center0.add(mesh);
+  //keyboardOut[2].position.x = 0;
+  //keyboardOut[2].position.y = 1.6;
+  //keyboardOut[2].position.z = 0;
+  //scene.add(keyboardOut[2]);
+  keyboardloaded[2] = true;
+});
 
 var shoot = THREE.ImageUtils.loadTexture("img/shoot.png",null,function(t) {
   var material = new THREE.MeshBasicMaterial({map:shoot});
@@ -471,11 +471,11 @@ var boomTip = THREE.ImageUtils.loadTexture("img/boom.png",null,function(t) {
   boom2 = mesh;
   mesh.position.z = -0.7;
   mesh.position.y = -0.15;
-  boom2Out.add(mesh);
-  boom2Out.position.x = 0;
-  boom2Out.position.y = 1.6;
-  boom2Out.position.z = 0;
-  scene.add( boom2Out );
+  center0.add(mesh);
+  //boom2Out.position.x = 0;
+  //boom2Out.position.y = 1.6;
+  //boom2Out.position.z = 0;
+  //scene.add( boom2Out );
   boom2Loaded=true;
 });
 
@@ -726,9 +726,9 @@ function animate(timestamp) {
   //  }
   //}
   var pose = controls.getPose();
-  if(boom2Loaded){
-    boom2Out.quaternion.fromArray(pose.orientation);
-  }
+  //if(boom2Loaded){
+  //  boom2Out.quaternion.fromArray(pose.orientation);
+  //}
 
   if (center0) {
     if (pose.orientation) {
@@ -736,13 +736,13 @@ function animate(timestamp) {
     }
   }
   //键盘随视角移动
-  for(var i=0;i<3;i++){
-    if(keyboardloaded[i]){
-      if (pose.orientation) {
-        keyboardOut[i].quaternion.fromArray(pose.orientation);
-      }
-    }
-  }
+  //for(var i=0;i<3;i++){
+  //  if(keyboardloaded[i]){
+  //    if (pose.orientation) {
+  //      keyboardOut[i].quaternion.fromArray(pose.orientation);
+  //    }
+  //  }
+  //}
 
   //if (shoot1Loaded) {
   //  shoot1.translateY(-0.27);//-0.2~0
