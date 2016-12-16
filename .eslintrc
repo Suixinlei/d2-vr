@@ -1,0 +1,20 @@
+{
+  "extends": "eslint-config-ais/es5",
+  "env": {
+    "browser": true
+  },
+  "globals": {
+    "it": true,
+    "describe": true,
+    "require": true,
+    "process": true,
+    "before": true,
+    "after": true,
+    "beforeEach": true,
+    "afterEach": true,
+  },
+  "rules": {
+    "prefer-const": "off",
+    "no-var": "off"
+  }
+}

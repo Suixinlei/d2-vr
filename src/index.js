@@ -96,6 +96,8 @@ var UNIQUE_SKILL_KILL_NUMBER = 10;
 var WAIT_FOR_UNIQUE_SKILL = 10000;
 // 游戏时间
 var GAME_TIME = 60000;
+// 是否显示游戏开始画面
+var DISPLAY_START_PAGE = false;
 
 //分数
 var SCORE = 0;
@@ -221,12 +223,42 @@ var uniqueSkill = function () {
   });
 };
 
+//游戏结束逻辑
+function createGameOver() {
+  //正前方视野方向
+  var resetPose = [0, 0, 0, 1];
+  //正下方视野方向
+  var endPose = [-0.7071067690849304, 0, 0, 0.7071067690849304];
+
+  var height = controls.userHeight;
+  var deltaH = GAME_OVER_USER_HEIGHT - height;
+
+  var overTween = new TWEEN.Tween(resetPose)
+    .to(endPose, 3000)
+    .easing(TWEEN.Easing.Quintic.Out)
+    .onUpdate(function(interpolation) {
+      controls.update(this);
+      controls.userHeight = height + interpolation * deltaH;
+    })
+    .onComplete(function () {
+
+    });
+
+  return {
+    over: function (callback) {
+      scene.add(GAME_END_LOGO);
+      GAME_OVER_FLAG = !GAME_OVER_FLAG;
+      playMusic('gameover');
+      overTween.onComplete(callback).start();
+    }
+  }
+}
+
 
 // erfan
 var bgMusic;
 var startPageGroup;
 var startPageTimeOut;
-var startPage;
 var gameOverPage;
 var gameOverPageText;
 var playBtn;
@@ -234,56 +266,46 @@ var playBtnHover;
 var showstartHoverEffect = true;
 
 function showStartPage() {
-  startPageGroup = new THREE.Object3D();
+  DISPLAY_START_PAGE = true;
+  startPageGroup = new THREE.Group();
   scene.add(startPageGroup);
-
   var distance = -0.9;
-
-  var loader = new THREE.TextureLoader();
-  loader.load('img/start-page.png', function(texture){
-    var geometry = new THREE.PlaneGeometry( 1.344, 0.75, 32 );
-    var material = new THREE.MeshBasicMaterial( {
-      map: texture,
-      //color: 0xffff00,
-      side: THREE.DoubleSide,
-      //opacity:0.6,
-      transparent: true,
-      depthWrite: false
-    } );
-    startPage = new THREE.Mesh( geometry, material );
-    startPage.position.set(0, controls.userHeight, distance)
-    startPageGroup.add( startPage );
+  var startPageTexture = new new THREE.TextureLoader().load('img/start-page.png');
+  var startPageGeometry = new THREE.PlaneGeometry( 1.344, 0.75, 32 );
+  var startPageMaterial = new THREE.MeshBasicMaterial({
+    map: startPageTexture,
+    side: THREE.DoubleSide,
+    transparent: true,
+    depthWrite: false
   });
-  var loader = new THREE.TextureLoader();
-  loader.load('img/play-normal.png', function(texture){
-    var geometry = new THREE.PlaneGeometry( 0.212, 0.056, 32 );
-    var material = new THREE.MeshBasicMaterial( {
-      map: texture,
-      //color: 0xffff00,
-      side: THREE.DoubleSide,
-      //opacity:0.6,
-      transparent: true,
-      depthWrite: false
-    } );
-    playBtn = new THREE.Mesh( geometry, material );
-    playBtn.position.set(0, controls.userHeight-0.15, distance+0.02)
-    startPageGroup.add( playBtn );
+  var startPage = new THREE.Mesh( startPageGeometry, startPageMaterial );
+  startPage.position.set(0, controls.userHeight, distance);
+  startPageGroup.add( startPage );
+  var playNormalTexture = new new THREE.TextureLoader().load('img/play-normal.png');
+  var playNormalGeometry = new THREE.PlaneGeometry( 0.212, 0.056, 32 );
+  var playNormalMaterial = new THREE.MeshBasicMaterial( {
+    map: playNormalTexture,
+    //color: 0xffff00,
+    side: THREE.DoubleSide,
+    //opacity:0.6,
+    transparent: true,
+    depthWrite: false
   });
-  var loader = new THREE.TextureLoader();
-  loader.load('img/play-hover.png', function(texture){
-    var geometry = new THREE.PlaneGeometry( 0.212, 0.056, 32 );
-    var material = new THREE.MeshBasicMaterial( {
-      map: texture,
-      //color: 0xffff00,
-      side: THREE.DoubleSide,
-      opacity:0,
-      transparent: true,
-      depthWrite: false
-    } );
-    playBtnHover = new THREE.Mesh( geometry, material );
-    playBtnHover.position.set(0, controls.userHeight-0.15, distance+0.02)
-    startPageGroup.add( playBtnHover );
-  });
+  playBtn = new THREE.Mesh( playNormalGeometry, playNormalMaterial );
+  playBtn.position.set(0, controls.userHeight-0.15, distance+0.02);
+  startPageGroup.add( playBtn );
+  var playHoverTexture = new new THREE.TextureLoader().load('img/play-hover.png');
+  var playHoverGeometry = new THREE.PlaneGeometry( 0.212, 0.056, 32 );
+  var playHoverMaterial = new THREE.MeshBasicMaterial( {
+    map: playHoverTexture,
+    side: THREE.DoubleSide,
+    opacity:0,
+    transparent: true,
+    depthWrite: false
+  } );
+  playBtnHover = new THREE.Mesh( playHoverGeometry, playHoverMaterial );
+  playBtnHover.position.set(0, controls.userHeight-0.15, distance+0.02);
+  startPageGroup.add( playBtnHover );
 }
 
 function showEndPage(score) {
@@ -469,7 +491,6 @@ var center0= new THREE.Group();//准星
 var shoot1Loaded=false;//判断加载是否完成
 var boomLoaded=[];//判断加载是否完成
 var boom2Loaded=false;//判断加载是否完成
-var pointer1Loaded=false;
 
 var pointerTexture = new THREE.TextureLoader().load('img/sight-bead-white.png');
 var material = new THREE.MeshBasicMaterial({
@@ -566,49 +587,7 @@ var tween = new TWEEN.Tween(monsterShock)
   })
   .start();
 
-//游戏结束逻辑
-function createGameOver() {
-  //正前方视野方向
-  var resetPose = [0, 0, 0, 1];
-  //正下方视野方向
-  var endPose = [-0.7071067690849304, 0, 0, 0.7071067690849304];
 
-  var height = controls.userHeight;
-  var deltaH = GAME_OVER_USER_HEIGHT - height;
-
-  var overTween = new TWEEN.Tween(resetPose)
-    .to(endPose, 3000)
-    .easing(TWEEN.Easing.Quintic.Out)
-    .onUpdate(function(interpolation) {
-      controls.update(this);
-      controls.userHeight = height + interpolation * deltaH;
-    })
-    .onComplete(function () {
-
-    });
-
-  return {
-    over: function (callback) {
-      scene.add(GAME_END_LOGO);
-      GAME_OVER_FLAG = !GAME_OVER_FLAG;
-      playMusic('gameover');
-
-      // var pose = controls.getPose();
-      // if (pose && pose.orientation) {
-      //   var resetPoseTween = new TWEEN.Tween(pose.orientation)
-      //     .to(resetPose, 2000)
-      //     // .easing(TWEEN.Easing.Exponential.In)
-      //     .onUpdate(function(interpolation) {
-      //       controls.update(this);
-      //     })
-      //     .chain(overTween)
-      //     .start();
-      // } else {
-        overTween.onComplete(callback).start();
-      // }
-    }
-  }
-}
 
 /*
 * 游戏结束控制器
@@ -622,9 +601,6 @@ var keyBoardSystem = createKeyboard;
 var boomFly=createBoom;
 
 var GUIControl = {
-  showStartPage: function () {
-    showStartPage();
-  },
   showEndPage: function () {
     showEndPage(186);
   },
@@ -688,7 +664,6 @@ var GUIControl = {
 
 var gui = new dat.GUI();
 gui.close();
-gui.add(GUIControl, 'showStartPage');
 gui.add(GUIControl, 'removeStartPage');
 gui.add(GUIControl, 'showEndPage');
 gui.add(GUIControl, 'removeEndPage');
@@ -765,7 +740,7 @@ function animate(timestamp) {
     }
   }
 
-  if (playBtn&&playBtnHover) {
+  if (DISPLAY_START_PAGE) {
     var intersects = raycaster.intersectObject( playBtn );
     var step = 0.04;
     if (intersects.length) {
