@@ -107,6 +107,8 @@ var WAIT_FOR_UNIQUE_SKILL = 10000;
 var GAME_TIME = 60000;
 // 是否显示游戏开始画面
 var DISPLAY_START_PAGE = false;
+// 大招是否可以使用
+var UNIQUE_SKILL_USE = false;
 
 var startPostion = new THREE.Vector3(0, 1.6, 0);
 var endPostion = new THREE.Vector3(0, 1.6, -16);
@@ -226,23 +228,28 @@ var removeMonster = function (monster) {
 var uniqueSkill = function () {
   boomFly(endPostion).tipShow();
   doLisenVoiceInput(function () {
-    playMusic('boom');
-    keyBoardSystem(3, 1).boom();
-    for (var killMonsterNo = 0; killMonsterNo < UNIQUE_SKILL_KILL_NUMBER; killMonsterNo++) {
-      var monster = monsterDisplayGroup.children[killMonsterNo];
-      if (monster) {
-        boomFly(monster.position, boom1[killMonsterNo]).boom((function (killMonsterNo) {
-          boom1[killMonsterNo].material.opacity = 0;
-          //boom1[killMonsterNo].position = startPostion;
-          boom1[killMonsterNo].position.set(new THREE.Vector3(0, -1.6, -110));
-          monsterDisplayGroup.children.splice(0, 10);
-          boomFly(endPostion).tipHide();
-        })(killMonsterNo));
+    if (UNIQUE_SKILL_USE) {
+      playMusic('boom');
+      keyBoardSystem(3, 1).boom();
+      UNIQUE_SKILL_USE = false;
+      for (var killMonsterNo = 0; killMonsterNo < UNIQUE_SKILL_KILL_NUMBER; killMonsterNo++) {
+        var monster = monsterDisplayGroup.children[killMonsterNo];
+        if (monster) {
+          boomFly(monster.position, boom1[killMonsterNo]).boom((function (killMonsterNo) {
+            boom1[killMonsterNo].material.opacity = 0;
+            //boom1[killMonsterNo].position = startPostion;
+            boom1[killMonsterNo].position.set(new THREE.Vector3(0, -1.6, -110));
+            monsterDisplayGroup.children.splice(0, 10);
+            boomFly(endPostion).tipHide();
+          })(killMonsterNo));
+        }
       }
+      keyBoardSystem(1, 3).boom();
+      setTimeout(function () {
+        UNIQUE_SKILL_USE = true;
+        uniqueSkill();
+      }, WAIT_FOR_UNIQUE_SKILL);
     }
-    keyBoardSystem(1, 3).boom();
-
-    setTimeout(uniqueSkill, WAIT_FOR_UNIQUE_SKILL);
   });
 };
 
@@ -361,6 +368,7 @@ function gameplay() {
   }, GAME_TIME);
   setTimeout(function () {
     // 调用声音输入
+    UNIQUE_SKILL_USE = true;
     uniqueSkill();
   }, WAIT_FOR_UNIQUE_SKILL);
 }
