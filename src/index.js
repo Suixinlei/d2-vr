@@ -503,7 +503,7 @@ for (var i = 0; i < boom1Length; i++) {
       transparent: true,
       opacity: 0
     });
-    //boom.scale.set(1, 1, 1);
+    boom.scale.set(0.8, 0.8, 0.8);
     boom.position.y = controls.userHeight;
     boom.position.z = -2.2;
     var len = boom1.length;
