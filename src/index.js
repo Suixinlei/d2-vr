@@ -965,7 +965,7 @@ function countDown() {
   });
   var plane = new THREE.Mesh( geometry, material );
   plane.position.z = -0.74;
-  plane.position.y = 0.5;
+  plane.position.y = 0.3;
 
   center0.add( plane );
 
@@ -983,7 +983,7 @@ function countDown() {
   });
   var plane1 = new THREE.Mesh( geometry1, material1 );
   plane1.position.z = -0.75;
-  plane1.position.y = 0.5;
+  plane1.position.y = 0.3;
 
   center0.add( plane1 );
   
