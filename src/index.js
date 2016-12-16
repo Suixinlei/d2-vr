@@ -299,7 +299,7 @@ function showEndPage(score) {
     var len = 0.5;
     //gameOverPage.position.set(direction.x * len, controls.userHeight +  len* direction.y, 0);
     gameOverPage.lookAt(camera.position);
-    gameOverPage.position.set(-0.01, controls.userHeight + len * direction.y, 0);
+    gameOverPage.position.set(-0.01, controls.userHeight + len * direction.y -0.2, 0.1);
     scene.add(gameOverPage);
 
     var loader = new THREE.FontLoader();
@@ -891,6 +891,7 @@ function createBoom(endPos, boomObj) {//子弹最终对象1个,炸弹最终目�
     shoot: function (callback) {
       shoot1.material.opacity = 1;
       shoot1.rotation.copy(camera.rotation);
+      playMusic('shot');
       if (callback) {
         shootFlyTween.onComplete(callback).start();
       } else {
