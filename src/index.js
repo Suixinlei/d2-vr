@@ -45,19 +45,27 @@ var mouse = new THREE.Vector2();
 
 // Add a repeating grid as a skybox.
 var boxSize = 100;
+// 瞄准框
 var hud;
+// 地板
 var skybox;
 // 怪物存储数组
 var monsterGroup = [];
 // GAME_OVER_DISPLAY_LOGO
 var GAME_END_LOGO = null;
-
 // 已经死亡的怪物
 var MONSTER_ARE_DEAD = {};
-
-// monster spawn point
 // 怪物生成点
 var Monster_Spawn_Points = [];
+// erfan
+var bgMusic;
+var startPageGroup;
+var startPageTimeOut;
+var gameOverPage;
+var gameOverPageText;
+var playBtn;
+var playBtnHover;
+var showstartHoverEffect = true;
 
 /*
  * 粒子系统
@@ -99,6 +107,9 @@ var GAME_TIME = 60000;
 // 是否显示游戏开始画面
 var DISPLAY_START_PAGE = false;
 
+var startPostion = new THREE.Vector3(0, 1.6, 0);
+var endPostion = new THREE.Vector3(0, 1.6, -16);
+
 //分数
 var SCORE = 0;
 var SCORE_PER_MONSTER = 1;
@@ -128,9 +139,6 @@ addMonsterSpawnPoints();
 var isMonsterSpawn = false;
 var monsterDisplayGroup = new THREE.Object3D();
 scene.add(monsterDisplayGroup);
-
-var startPostion = new THREE.Vector3(0, 1.6, 0);
-var endPostion = new THREE.Vector3(0, 1.6, -16);
 
 // monster spawn point
 // 怪物生成点
@@ -257,15 +265,6 @@ function createGameOver() {
 }
 
 
-// erfan
-var bgMusic;
-var startPageGroup;
-var startPageTimeOut;
-var gameOverPage;
-var gameOverPageText;
-var playBtn;
-var playBtnHover;
-var showstartHoverEffect = true;
 
 function showEndPage(score) {
   var direction = camera.getWorldDirection();
@@ -621,15 +620,11 @@ function animate(timestamp) {
   stats.update();
   TWEEN.update(timestamp);
 
-  var direction = camera.getWorldDirection();
-
   raycaster.setFromCamera(mouse, camera);
 
-  // calculate objects intersecting the picking ray
   if (isMonsterSpawn) {
     var intersects = raycaster.intersectObjects(monsterDisplayGroup.children);
     // intersects.length > 0 ? console.log(intersects) : ''; // 鼠标指向
-
     if (intersects.length == 0) {
       cursorOnMonster[0] = null;
       cursorOnMonster[1] = 0;
@@ -637,8 +632,6 @@ function animate(timestamp) {
       hud.position.y = -10;
       hud.position.z = 0;
     }
-
-
     if (intersects.length > 0) {
       hud.position.x = intersects[0].object.position.x;
       hud.position.y = intersects[0].object.position.y;
@@ -690,12 +683,6 @@ function animate(timestamp) {
     startPageTimeOut = null;
   }
 
-  //if (gameOverPage) {
-  //  var len = 0.5;
-  //  gameOverPage.position.set(direction.x * len, controls.userHeight +  len* direction.y, len * direction.z);
-  //  gameOverPage.lookAt(camera.position);
-  //}
-
   hud.lookAt(camera.position);
 
   var delta = Math.min(timestamp - lastRender, 500);
@@ -724,17 +711,9 @@ function animate(timestamp) {
   //键盘随视角移动
   for (var i = 0; i < 3; i++) {
     if (keyboardloaded[i]) {
-      //var pose = controls.getPose();
-      //if (pose.orientation) {
-      //  keyboard[i].quaternion.fromArray(pose.orientation);
-      //}
       if (pose.orientation) {
         keyboardOut[i].quaternion.fromArray(pose.orientation);
       }
-      //keyboard[i].position.copy( camera.position );
-      //keyboard[i].rotation.copy( camera.rotation );
-      //keyboard[i].translateY( 1 );
-      //keyboard[i].translateZ( - 1 );
     }
   }
 
@@ -743,13 +722,8 @@ function animate(timestamp) {
     shoot1.translateZ(-0.5);
   }
 
-  if (GAME_OVER_FLAG) {
-    // controls.resetPose();
-
-    // camera.lookAt(new THREE.Vector3(0, 0, 0));
-
-    // controls.update(new Float32Array([-0.7071030139923096, 0.0023139973636716604, 0.0023139973636716604, 0.7071030139923096]));
-  } else {
+  // 用于在游戏结束时接管camera
+  if (!GAME_OVER_FLAG) {
     controls.update();
   }
 
