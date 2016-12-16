@@ -131,6 +131,7 @@ scene.add(monsterDisplayGroup);
 
 var startPostion = new THREE.Vector3(0, 1.6, 0);
 var endPostion = new THREE.Vector3(0, 1.6, -16);
+
 // monster spawn point
 // 怪物生成点
 var Monster_Spawn_Points = [];
@@ -144,12 +145,16 @@ var Monster_Spawn_Points = [];
   }
 });
 
+// 添加地板
 addSkybox();
+// 添加机柜
 addCabinet();
+// 添加 瞄准框
 addHUD();
+// 添加AIS LOGO
 addAisLogo();
+// 创建怪物存储
 createMonsterGroup();
-
 // 显示开始画面
 showStartPage();
 
@@ -164,10 +169,10 @@ function addZuilanPic() {
     transparent: true,
     depthWrite: false
   });
-  startPage = new THREE.Mesh(geometry, material);
-  startPage.position.set(0, 10, 0);
-  startPage.lookAt(camera.position);
-  scene.add(startPage);
+  var zuilan = new THREE.Mesh(geometry, material);
+  zuilan.position.set(0, 10, 0);
+  zuilan.lookAt(camera.position);
+  scene.add(zuilan);
 }
 addZuilanPic();
 
@@ -239,9 +244,6 @@ function createGameOver() {
     .onUpdate(function (interpolation) {
       controls.update(this);
       controls.userHeight = height + interpolation * deltaH;
-    })
-    .onComplete(function () {
-
     });
 
   return {
@@ -264,49 +266,6 @@ var gameOverPageText;
 var playBtn;
 var playBtnHover;
 var showstartHoverEffect = true;
-
-function showStartPage() {
-  DISPLAY_START_PAGE = true;
-  startPageGroup = new THREE.Group();
-  scene.add(startPageGroup);
-  var distance = -0.9;
-  var startPageTexture = new new THREE.TextureLoader().load('img/start-page.png');
-  var startPageGeometry = new THREE.PlaneGeometry(1.344, 0.75, 32);
-  var startPageMaterial = new THREE.MeshBasicMaterial({
-    map: startPageTexture,
-    side: THREE.DoubleSide,
-    transparent: true,
-    depthWrite: false
-  });
-  var startPage = new THREE.Mesh(startPageGeometry, startPageMaterial);
-  startPage.position.set(0, controls.userHeight, distance);
-  startPageGroup.add(startPage);
-  var playNormalTexture = new new THREE.TextureLoader().load('img/play-normal.png');
-  var playNormalGeometry = new THREE.PlaneGeometry(0.212, 0.056, 32);
-  var playNormalMaterial = new THREE.MeshBasicMaterial({
-    map: playNormalTexture,
-    //color: 0xffff00,
-    side: THREE.DoubleSide,
-    //opacity:0.6,
-    transparent: true,
-    depthWrite: false
-  });
-  playBtn = new THREE.Mesh(playNormalGeometry, playNormalMaterial);
-  playBtn.position.set(0, controls.userHeight - 0.15, distance + 0.02);
-  startPageGroup.add(playBtn);
-  var playHoverTexture = new new THREE.TextureLoader().load('img/play-hover.png');
-  var playHoverGeometry = new THREE.PlaneGeometry(0.212, 0.056, 32);
-  var playHoverMaterial = new THREE.MeshBasicMaterial({
-    map: playHoverTexture,
-    side: THREE.DoubleSide,
-    opacity: 0,
-    transparent: true,
-    depthWrite: false
-  });
-  playBtnHover = new THREE.Mesh(playHoverGeometry, playHoverMaterial);
-  playBtnHover.position.set(0, controls.userHeight - 0.15, distance + 0.02);
-  startPageGroup.add(playBtnHover);
-}
 
 function showEndPage(score) {
   var direction = camera.getWorldDirection();

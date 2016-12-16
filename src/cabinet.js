@@ -241,3 +241,46 @@ function createPoints() {
     particles: particles
   }
 }
+
+function showStartPage() {
+  DISPLAY_START_PAGE = true;
+  startPageGroup = new THREE.Group();
+  scene.add(startPageGroup);
+  var distance = -0.9;
+  var startPageTexture = new new THREE.TextureLoader().load('img/start-page.png');
+  var startPageGeometry = new THREE.PlaneGeometry(1.344, 0.75, 32);
+  var startPageMaterial = new THREE.MeshBasicMaterial({
+    map: startPageTexture,
+    side: THREE.DoubleSide,
+    transparent: true,
+    depthWrite: false
+  });
+  var startPage = new THREE.Mesh(startPageGeometry, startPageMaterial);
+  startPage.position.set(0, controls.userHeight, distance);
+  startPageGroup.add(startPage);
+  var playNormalTexture = new new THREE.TextureLoader().load('img/play-normal.png');
+  var playNormalGeometry = new THREE.PlaneGeometry(0.212, 0.056, 32);
+  var playNormalMaterial = new THREE.MeshBasicMaterial({
+    map: playNormalTexture,
+    //color: 0xffff00,
+    side: THREE.DoubleSide,
+    //opacity:0.6,
+    transparent: true,
+    depthWrite: false
+  });
+  playBtn = new THREE.Mesh(playNormalGeometry, playNormalMaterial);
+  playBtn.position.set(0, controls.userHeight - 0.15, distance + 0.02);
+  startPageGroup.add(playBtn);
+  var playHoverTexture = new new THREE.TextureLoader().load('img/play-hover.png');
+  var playHoverGeometry = new THREE.PlaneGeometry(0.212, 0.056, 32);
+  var playHoverMaterial = new THREE.MeshBasicMaterial({
+    map: playHoverTexture,
+    side: THREE.DoubleSide,
+    opacity: 0,
+    transparent: true,
+    depthWrite: false
+  });
+  playBtnHover = new THREE.Mesh(playHoverGeometry, playHoverMaterial);
+  playBtnHover.position.set(0, controls.userHeight - 0.15, distance + 0.02);
+  startPageGroup.add(playBtnHover);
+}
