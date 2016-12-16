@@ -280,7 +280,7 @@ function showStartPage() {
   });
   var startPage = new THREE.Mesh( startPageGeometry, startPageMaterial );
   startPage.position.set(0, controls.userHeight, distance);
-  startPageGroup.add( startPage );
+  startPageGroup.add(startPage);
   var playNormalTexture = new new THREE.TextureLoader().load('img/play-normal.png');
   var playNormalGeometry = new THREE.PlaneGeometry( 0.212, 0.056, 32 );
   var playNormalMaterial = new THREE.MeshBasicMaterial( {
@@ -293,7 +293,7 @@ function showStartPage() {
   });
   playBtn = new THREE.Mesh( playNormalGeometry, playNormalMaterial );
   playBtn.position.set(0, controls.userHeight-0.15, distance+0.02);
-  startPageGroup.add( playBtn );
+  startPageGroup.add(playBtn);
   var playHoverTexture = new new THREE.TextureLoader().load('img/play-hover.png');
   var playHoverGeometry = new THREE.PlaneGeometry( 0.212, 0.056, 32 );
   var playHoverMaterial = new THREE.MeshBasicMaterial( {
@@ -305,7 +305,7 @@ function showStartPage() {
   } );
   playBtnHover = new THREE.Mesh( playHoverGeometry, playHoverMaterial );
   playBtnHover.position.set(0, controls.userHeight-0.15, distance+0.02);
-  startPageGroup.add( playBtnHover );
+  startPageGroup.add(playBtnHover);
 }
 
 function showEndPage(score) {
@@ -359,27 +359,10 @@ function showEndPage(score) {
   playMusic('score');
 }
 
-function pureRemoveMesh(mesh) {
-  if (!mesh) {
-    return;
-  }
-  var it = setInterval(function() {
-    mesh.material.opacity -= 0.1;
-    if (mesh.material.opacity <= 0) {
-      window.clearInterval(it);
-      scene.remove(mesh);
-    }
-  },20);
-}
-
 function removeStartPage() {
   showstartHoverEffect = true;
-  pureRemoveMesh(startPage);
-  startPage = null;
-  pureRemoveMesh(playBtn);
-  playBtn = null;
-  pureRemoveMesh(playBtnHover);
-  playBtnHover = null;
+  scene.remove(startPageGroup);
+  startPageGroup = null;
 
   if (!bgMusic) {
     bgMusic = playMusic('background');
@@ -411,9 +394,9 @@ function gameplay() {
 }
 
 function removeEndPage() {
-  pureRemoveMesh(gameOverPage);
+  scene.remove(gameOverPage);
+  scene.remove(gameOverPageText);
   gameOverPage = null;
-  pureRemoveMesh(gameOverPageText);
   gameOverPageText = null;
 }
 
