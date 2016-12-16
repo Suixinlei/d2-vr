@@ -93,7 +93,7 @@ var GAME_OVER_FLAG = false;
 
 var INITIAL_MONSTER_NUMBER = 10;
 var MAX_MONSTER_NUMBER = 50;
-var MAX_MONSTER_NUMBER_STORAGE = 200;
+var MAX_MONSTER_NUMBER_STORAGE = 100;
 var MONSTER_APPEAR_PER_SECOND = 0.5;
 // 锁定时间
 var LOCK_TIME = 500;
@@ -122,9 +122,9 @@ document.body.onclick = function() {
 };
 
 function addMonsterSpawnPoints() {
-  var circleHeight = [4.5, 3.6, 3.5, 2.8, 3, 2.6, 2.5, 2, 1.5, 1];
-  [1.5, 1.4, 2, 1.7, 1.8, 2, 4, 4, 3.6, 4, 3.7].forEach(function (radius, index) {
-    var circleDot = 20 + index * 5;
+  var circleHeight = [3, 2.5, 2, 1.5, 1];
+  [4, 4, 3.6, 4, 3.7].forEach(function (radius, index) {
+    var circleDot = 40 + index * 5;
     var MonsterGeoMetry = new THREE.CircleGeometry(radius, circleDot);
     MonsterGeoMetry.rotateX(Math.PI / 2);
     for (var n = 1; n <= circleDot - 2; n++) {
