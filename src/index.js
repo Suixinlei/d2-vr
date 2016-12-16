@@ -339,9 +339,9 @@ function gameplay() {
   }, 500);
   setTimeout(function () {
     keyBoardSystem(1, 3).hideKeyBoard();
+    boomFly(endPostion).tipHide();
     gameOver.over(function () {
       fetch('/new_record?record=' + SCORE);
-      boomFly(endPostion).tipHide();
       // 移除 AIS LOGO
       GAME_END_LOGO.material.opacity = 0;
       scene.remove(GAME_END_LOGO);
@@ -444,9 +444,7 @@ scene.add(center0);
 var shoot = THREE.ImageUtils.loadTexture("img/shoot.png", null, function (t) {
   var material = new THREE.MeshBasicMaterial({map: shoot});
   material.transparent = true;
-  //material.opacity=0;
   var shootGeometry = new THREE.BoxGeometry(0.3, 0.3, 0);
-  //console.log(shootGeometry)
   var mesh = new THREE.Mesh(shootGeometry, material);
   shoot1 = mesh;
   scene.add(mesh);
@@ -458,7 +456,6 @@ var boomTip = THREE.ImageUtils.loadTexture("img/boom.png", null, function (t) {
   material.transparent = true;
   material.opacity = 0;
   var boom2Geometry = new THREE.BoxGeometry(0.7, 0.4, 0);
-  //console.log(boom2Geometry)
   var mesh = new THREE.Mesh(boom2Geometry, material);
   boom2 = mesh;
   scene.add(mesh);
@@ -546,9 +543,6 @@ var GUIControl = {
   remove: function () {
     removeMonster();
   },
-  logVRPose: function () {
-    console.log()
-  },
   gameover: function () {
     keyBoardSystem(1, 3).hideKeyBoard();
     gameOver.over(function () {
@@ -614,7 +608,6 @@ document.body.appendChild(stats.dom);
 
 window.addEventListener('resize', onResize, true);
 window.addEventListener('vrdisplaypresentchange', onResize, true);
-window.addEventListener('mousemove', onMouseMove, true);
 
 // Request animation frame loop function
 var lastRender = 0;
@@ -773,53 +766,6 @@ function onResize(e) {
   camera.updateProjectionMatrix();
 }
 
-function onMouseMove(event) {
-
-  // calculate mouse position in normalized device coordinates
-  // (-1 to +1) for both components
-
-  // mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-  // mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-
-  mouse.x = 0;
-  mouse.y = 0;
-
-//  console.log('mouse', mouse); // 鼠标位置
-
-}
-
-var vrDisplay;
-
-// Get the HMD, and if we're dealing with something that specifies
-// stageParameters, rearrange the scene.
-function setupStage() {
-  navigator.getVRDisplays().then(function (displays) {
-    if (displays.length > 0) {
-      vrDisplay = displays[0];
-      if (vrDisplay.stageParameters) {
-        setStageDimensions(vrDisplay.stageParameters);
-      }
-      vrDisplay.requestAnimationFrame(animate);
-    }
-  });
-}
-
-function setStageDimensions(stage) {
-  // Make the skybox fit the stage.
-  var material = skybox.material;
-  scene.remove(skybox);
-
-  // Size the skybox according to the size of the actual stage.
-  var geometry = new THREE.BoxGeometry(stage.sizeX, boxSize, stage.sizeZ);
-  skybox = new THREE.Mesh(geometry, material);
-
-  // Place it on the floor.
-  skybox.position.y = boxSize / 2;
-  scene.add(skybox);
-
-  // Place the cube in the middle of the scene, at user height.
-  // cube.position.set(0, controls.userHeight, 0);
-}
 
 // 键盘系统
 function createKeyboard(key1, key2) {//初始键盘对象,最终键盘对象
@@ -919,8 +865,6 @@ function createBoom(endPos, boomObj) {//子弹最终对象1个,炸弹最终目�
       boomObj.position.copy(position);
       boomObj.rotateX(-1 * Math.PI * count);
       boomObj.translateY(-0.27 + 0.27 * count);//-0.2~0
-      //console.log(position)
-      //console.log(endPos)
     })
     .onComplete(function () {
       boomObj.position.copy(endPos);
@@ -955,6 +899,40 @@ function createBoom(endPos, boomObj) {//子弹最终对象1个,炸弹最终目�
       }
     }
   }
+}
+
+
+var vrDisplay;
+
+// Get the HMD, and if we're dealing with something that specifies
+// stageParameters, rearrange the scene.
+function setupStage() {
+  navigator.getVRDisplays().then(function (displays) {
+    if (displays.length > 0) {
+      vrDisplay = displays[0];
+      if (vrDisplay.stageParameters) {
+        setStageDimensions(vrDisplay.stageParameters);
+      }
+      vrDisplay.requestAnimationFrame(animate);
+    }
+  });
+}
+
+function setStageDimensions(stage) {
+  // Make the skybox fit the stage.
+  var material = skybox.material;
+  scene.remove(skybox);
+
+  // Size the skybox according to the size of the actual stage.
+  var geometry = new THREE.BoxGeometry(stage.sizeX, boxSize, stage.sizeZ);
+  skybox = new THREE.Mesh(geometry, material);
+
+  // Place it on the floor.
+  skybox.position.y = boxSize / 2;
+  scene.add(skybox);
+
+  // Place the cube in the middle of the scene, at user height.
+  // cube.position.set(0, controls.userHeight, 0);
 }
 
 
