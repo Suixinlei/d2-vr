@@ -41,6 +41,7 @@ function ButtonManager(opt_root) {
   var vrButton = this.createButton();
   vrButton.src = this.ICONS.cardboard;
   vrButton.title = 'Virtual reality mode';
+  vrButton.className += ' webvr-enter';
   var s = vrButton.style;
   s.bottom = 0;
   s.right = '48px';

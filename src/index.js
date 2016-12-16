@@ -115,6 +115,10 @@ var endPostion = new THREE.Vector3(0, 1.6, -16);
 var SCORE = 0;
 var SCORE_PER_MONSTER = 1;
 
+document.body.onclick = function() {
+  window.document.querySelector('.webvr-enter').click();
+};
+
 function addMonsterSpawnPoints() {
   var circleHeight = [4.5, 3.6, 3.5, 2.8, 3, 2.6, 2.5, 2, 1.5, 1];
   [1.5, 1.4, 2, 1.7, 1.8, 2, 4, 4, 3.6, 4, 3.7].forEach(function (radius, index) {
