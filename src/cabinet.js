@@ -1,41 +1,3 @@
-//----------------------Cabinet---------------------------
-
-
-// ObjLoader.load('asset_src/box(2).obj', function (cabinet) {
-//   cabinet.material = new THREE.MeshLambertMaterial({
-//     color: new THREE.Color(6, 135, 250)
-//   });
-//
-//   //阵列的长宽个数
-//   var matrixW = 10;
-//   var matrixH = 10;
-//
-//   //阵列中心空缺的长宽个数
-//   var vacancyW = 3;
-//   var vacancyH = 3;
-//
-//   //辅助运算的变量
-//   var outsideLeft = (matrixW - vacancyW)/2;
-//   var outsideRight = matrixW - outsideLeft;
-//   var outsideTop = (matrixH - vacancyH)/2;
-//   var outsideBottom = matrixH - outsideTop;
-//
-//   //循环生成阵列
-//   for (var i = 0; i < matrixW; i++) {
-//     for (var j = 0; j < matrixH; j++) {
-//       if (i >= outsideLeft && i <= outsideRight && j >= outsideTop && j <= outsideBottom) {
-//         continue;
-//       }
-//       var newPbj = cabinet.clone();
-//       newPbj.position.x = -boxSize/2 + (i + 0.5) * boxSize/matrixW;
-//       newPbj.position.z = -boxSize/2 + (j + 0.5) * boxSize/matrixH;
-//       newPbj.rotateX(- Math.PI/2);
-//
-//       scene.add(newPbj);
-//     }
-//   }
-// }, onProgress, onError);
-
 function addCabinet() {
   var cabinetGroup = new THREE.Object3D();
   var geometry = new THREE.BoxGeometry(4,12,4);
@@ -158,8 +120,9 @@ function addAisLogo() {
 function createMonsterGroup() {
   var RealMonsterTexture = [new THREE.TextureLoader().load('img/monster1.png'), new THREE.TextureLoader().load('img/monster2.png'), new THREE.TextureLoader().load('img/monster3.png'), new THREE.TextureLoader().load('img/monster4.png')];
 
-  for (var i=0; i<MAX_MONSTER_NUMBER_STORAGE; i++) {
+  for (var i=0; i< MAX_MONSTER_NUMBER_STORAGE; i++) {
     var RandomNumber = Helper.getRandomInt(0, Monster_Spawn_Points.length -1);
+    console.log(Monster_Spawn_Points.length);
     var RandomSpawnPoint = Monster_Spawn_Points[RandomNumber];
     Monster_Spawn_Points.splice(RandomNumber, 1);
     var RealMonsterHitBoxGeometry = new THREE.PlaneGeometry(0.5, 0.5);

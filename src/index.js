@@ -66,6 +66,7 @@ var gameOverPageText;
 var playBtn;
 var playBtnHover;
 var showstartHoverEffect = true;
+var zuilan;
 
 /*
  * 粒子系统
@@ -115,11 +116,12 @@ var SCORE = 0;
 var SCORE_PER_MONSTER = 1;
 
 function addMonsterSpawnPoints() {
-  var circleHeight = [6, 4, 3, 2.8, 3.5, 3, 2.5, 2, 1.5, 1];
-  [1.5, 1.4, 2, 1.7, 1.8, 2, 3, 4, 3.6, 4, 3.7].forEach(function (radius, index) {
-    var MonsterGeoMetry = new THREE.CircleGeometry(radius, 20);
+  var circleHeight = [4.5, 3.6, 3.5, 2.8, 3, 2.6, 2.5, 2, 1.5, 1];
+  [1.5, 1.4, 2, 1.7, 1.8, 2, 4, 4, 3.6, 4, 3.7].forEach(function (radius, index) {
+    var circleDot = 20 + index * 5;
+    var MonsterGeoMetry = new THREE.CircleGeometry(radius, circleDot);
     MonsterGeoMetry.rotateX(Math.PI / 2);
-    for (var n = 1; n <= 19; n++) {
+    for (var n = 1; n <= circleDot - 2; n++) {
       var spawnPoint = MonsterGeoMetry.vertices[n];
       spawnPoint.y += circleHeight[index];
       Monster_Spawn_Points.push(spawnPoint);
@@ -130,7 +132,7 @@ addMonsterSpawnPoints();
 
 // Monster_Spawn_Points.forEach((point) => {
 //   var monster1_Geometry = new THREE.CircleGeometry(1, 20);
-//   var circle = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.1), new THREE.MeshNormalMaterial({ color: 0xff0000}))
+//   var circle = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.1), new THREE.MeshNormalMaterial({ color: 0xff0000 }));
 //   circle.position.copy(point);
 //   circle.lookAt(camera.position);
 //   scene.add(circle);
@@ -177,7 +179,7 @@ function addZuilanPic() {
     transparent: true,
     depthWrite: false
   });
-  var zuilan = new THREE.Mesh(geometry, material);
+  zuilan = new THREE.Mesh(geometry, material);
   zuilan.position.set(0, 10, 0);
   zuilan.lookAt(camera.position);
   scene.add(zuilan);
@@ -339,6 +341,7 @@ function gameplay() {
   setTimeout(function () {
     keyBoardSystem(1, 3).hideKeyBoard();
     boomFly(endPostion).tipHide();
+    scene.remove(zuilan);
     gameOver.over(function () {
       fetch('/new_record?record=' + SCORE);
       // 移除 AIS LOGO
