@@ -202,9 +202,8 @@ var uniqueSkill = function () {
   for (var i= 0; i < UNIQUE_SKILL_KILL_NUMBER; i++) {
     var monster = monsterDisplayGroup.children[i];
     if (monster) {
-      boomFly(new THREE.Vector3(monster.position)).boom(function () {
-        monster.visible = false;
-        monsterDisplayGroup.children.splice(i, 1);
+      boomFly(monster.position, boom1[i]).boom(function () {
+        monsterDisplayGroup.children.splice(0, 10);
       });
     }
   }
