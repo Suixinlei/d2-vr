@@ -236,7 +236,7 @@ var uniqueSkill = function () {
         var monster = monsterDisplayGroup.children[killMonsterNo];
         if (monster) {
           boomFly(monster.position, boom1[killMonsterNo]).boom((function (killMonsterNo) {
-            monsterDisplayGroup.children.splice(0, 10);
+            monsterDisplayGroup.children.splice(killMonsterNo, 1);
             boomFly(endPostion).tipHide();
           })(killMonsterNo));
         }
