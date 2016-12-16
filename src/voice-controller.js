@@ -84,10 +84,6 @@ function doLisenVoiceInput(callback) {
   return julius;
 }
 
-var voiceInput = doLisenVoiceInput(function() {
-  playMusic('boom');
-});
-
 //artyom.on(['报', '包', '爆', '宝', '抱', '保', '饱', '暴', '薄']).then(function(i) {
 //  console.log('爆炸啦');
 //});

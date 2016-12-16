@@ -92,6 +92,10 @@ var LOCK_TIME = 500;
 var GAME_OVER_RELOAD_DELAY = 10000;
 // 大招一次性杀死的怪物数
 var UNIQUE_SKILL_KILL_NUMBER = 10;
+// 大招延时
+var WAIT_FOR_UNIQUE_SKILL = 10000;
+// 游戏时间
+var GAME_TIME = 60000;
 
 //分数
 var SCORE = 0;
@@ -198,16 +202,23 @@ var removeMonster = function (monster) {
 };
 
 var uniqueSkill = function () {
-  keyBoardSystem(3,1).boom();
-  for (var i= 0; i < UNIQUE_SKILL_KILL_NUMBER; i++) {
-    var monster = monsterDisplayGroup.children[i];
-    if (monster) {
-      boomFly(monster.position, boom1[i]).boom(function () {
-        monsterDisplayGroup.children.splice(0, 10);
-      });
+  boomFly(endPostion).tipShow();
+  doLisenVoiceInput(function() {
+    playMusic('boom');
+    keyBoardSystem(3,1).boom();
+    for (var i= 0; i < UNIQUE_SKILL_KILL_NUMBER; i++) {
+      var monster = monsterDisplayGroup.children[i];
+      if (monster) {
+        boomFly(monster.position, boom1[i]).boom(function () {
+          monsterDisplayGroup.children.splice(0, 10);
+          boomFly(endPostion).tipHide();
+        });
+      }
     }
-  }
-  keyBoardSystem(1,3).boom();
+    keyBoardSystem(1,3).boom();
+
+    setTimeout(uniqueSkill, WAIT_FOR_UNIQUE_SKILL);
+  });
 };
 
 
@@ -371,7 +382,11 @@ function gameplay() {
       scene.remove(GAME_END_LOGO);
       showEndPage(SCORE);
     });
-  }, 60000);
+  }, GAME_TIME);
+  setTimeout(function () {
+    // 调用声音输入
+    uniqueSkill();
+  }, WAIT_FOR_UNIQUE_SKILL);
 }
 
 function removeEndPage() {
