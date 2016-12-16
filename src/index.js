@@ -206,6 +206,7 @@ var removeMonster = function (monster) {
       pointsSystem.particles.position.copy(monster.position);
       pointsSystem.boom();
       monster.visible = false;
+      shoot1.material.opacity = 0;
       SCORE += SCORE_PER_MONSTER;
       keyBoardSystem(2, 3).boom();
       monster.parent.children.forEach((childMonster, index) => {
@@ -380,6 +381,8 @@ var texture1 = THREE.ImageUtils.loadTexture("img/keyboard1.png", null, function 
   keyboard[0] = mesh;
   keyboardOut[0].add(mesh);
   mesh.position.z = -0.7;
+  mesh.position.y = -0.08;
+  keyboardOut[0].add(mesh);
   keyboardOut[0].position.x = 0;
   keyboardOut[0].position.y = 1.6;
   keyboardOut[0].position.z = 0;
@@ -392,10 +395,12 @@ var texture2 = THREE.ImageUtils.loadTexture("img/keyboard2.png", null, function 
   material.transparent = true;
   material.opacity = 0;
   var keyboardGeometry = new THREE.BoxGeometry(2, 0.6, 0);
-  var mesh = new THREE.Mesh(keyboardGeometry, material);
-  keyboard[1] = mesh;
+  var mesh = new THREE.Mesh( keyboardGeometry,material );
+  keyboard[1]=mesh;
   keyboardOut[1].add(mesh);
   mesh.position.z = -0.7;
+  mesh.position.y = -0.08;
+  keyboardOut[1].add(mesh);
   keyboardOut[1].position.x = 0;
   keyboardOut[1].position.y = 1.6;
   keyboardOut[1].position.z = 0;
@@ -411,6 +416,8 @@ var texture3 = THREE.ImageUtils.loadTexture("img/keyboard3.png", null, function 
   keyboard[2] = mesh;
   keyboardOut[2].add(mesh);
   mesh.position.z = -0.7;
+  mesh.position.y = -0.08;
+  keyboardOut[2].add(mesh);
   keyboardOut[2].position.x = 0;
   keyboardOut[2].position.y = 1.6;
   keyboardOut[2].position.z = 0;
@@ -425,7 +432,7 @@ var center0 = new THREE.Group();//准星
 var shoot1Loaded = false;//判断加载是否完成
 var boomLoaded = [];//判断加载是否完成
 var boom2Loaded = false;//判断加载是否完成
-
+var boom2Out=new THREE.Group();
 var pointerTexture = new THREE.TextureLoader().load('img/sight-bead-white.png');
 var material = new THREE.MeshBasicMaterial({
   map: pointerTexture,
@@ -434,34 +441,44 @@ var material = new THREE.MeshBasicMaterial({
   depthWrite: false,
   side: THREE.DoubleSide
 });
-var pointerGeometry = new THREE.PlaneGeometry(0.05, 0.05);
-var mesh = new THREE.Mesh(pointerGeometry, material);
-mesh.position.z = -0.7;
+
+var pointerGeometry = new THREE.PlaneGeometry(0.07, 0.07);
+var mesh = new THREE.Mesh( pointerGeometry,material );
 center0.add(mesh);
+mesh.position.z = -0.8;
 center0.position.x = 0;
 center0.position.y = 1.6;
 center0.position.z = 0;
-scene.add(center0);
+scene.add( center0 );
 
-var shoot = THREE.ImageUtils.loadTexture("img/shoot.png", null, function (t) {
-  var material = new THREE.MeshBasicMaterial({map: shoot});
-  material.transparent = true;
-  var shootGeometry = new THREE.BoxGeometry(0.3, 0.3, 0);
-  var mesh = new THREE.Mesh(shootGeometry, material);
+
+var shoot = THREE.ImageUtils.loadTexture("img/shoot.png",null,function(t) {
+  var material = new THREE.MeshBasicMaterial({map:shoot});
+  material.transparent=true;
+  //material.opacity=0;
+  var shootGeometry = new THREE.BoxGeometry( 0.3, 0.3,0);
+  //console.log(shootGeometry)
+  var mesh = new THREE.Mesh( shootGeometry,material );
   shoot1 = mesh;
   scene.add(mesh);
   shoot1Loaded = true;
 });
 
-var boomTip = THREE.ImageUtils.loadTexture("img/boom.png", null, function (t) {
-  var material = new THREE.MeshBasicMaterial({map: boomTip});
-  material.transparent = true;
-  material.opacity = 0;
-  var boom2Geometry = new THREE.BoxGeometry(0.7, 0.4, 0);
-  var mesh = new THREE.Mesh(boom2Geometry, material);
+var boomTip = THREE.ImageUtils.loadTexture("img/boom.png",null,function(t) {
+  var material = new THREE.MeshBasicMaterial({map:boomTip});
+  material.transparent=true;
+  material.opacity=0;
+  var boom2Geometry = new THREE.BoxGeometry( 0.21, 0.12,0);
+  var mesh = new THREE.Mesh( boom2Geometry,material );
   boom2 = mesh;
-  scene.add(mesh);
-  boom2Loaded = true;
+  mesh.position.z = -0.7;
+  mesh.position.y = -0.15;
+  boom2Out.add(mesh);
+  boom2Out.position.x = 0;
+  boom2Out.position.y = 1.6;
+  boom2Out.position.z = 0;
+  scene.add( boom2Out );
+  boom2Loaded=true;
 });
 
 for (var i = 0; i < boom1Length; i++) {
@@ -472,9 +489,9 @@ for (var i = 0; i < boom1Length; i++) {
       transparent: true,
       opacity: 0
     });
-    boom.scale.set(1, 1, 1)
+    boom.scale.set(1, 1, 1);
     boom.position.y = controls.userHeight;
-    boom.position.z = -1.2;
+    boom.position.z = -2.2;
     var len = boom1.length;
     boom1[len] = boom;
     boomLoaded[len] = true;
@@ -691,19 +708,16 @@ function animate(timestamp) {
   var delta = Math.min(timestamp - lastRender, 500);
   lastRender = timestamp;
 
-  if (boomLoaded.length == 10) {
-    //boom1.rotation.copy( camera.rotation );
-    for (var j = 0; j < boom1Length; j++) {
-      boom1[j].translateX(0);
-      boom1[j].translateZ(-1);
-    }
-  }
+  //if (boomLoaded.length == 10) {
+  //  //boom1.rotation.copy( camera.rotation );
+  //  for (var j = 0; j < boom1Length; j++) {
+  //    boom1[j].translateX(0);
+  //    boom1[j].translateZ(-1);
+  //  }
+  //}
   var pose = controls.getPose();
-  if (boom2Loaded) {
-    boom2.position.copy(camera.position);// 复制位置
-    boom2.rotation.copy(camera.rotation);// 复制视角偏移角度
-    boom2.translateY(-0.25);
-    boom2.translateZ(-1.5);
+  if(boom2Loaded){
+    boom2Out.quaternion.fromArray(pose.orientation);
   }
 
   if (center0) {
@@ -712,18 +726,18 @@ function animate(timestamp) {
     }
   }
   //键盘随视角移动
-  for (var i = 0; i < 3; i++) {
-    if (keyboardloaded[i]) {
+  for(var i=0;i<3;i++){
+    if(keyboardloaded[i]){
       if (pose.orientation) {
         keyboardOut[i].quaternion.fromArray(pose.orientation);
       }
     }
   }
 
-  if (shoot1Loaded) {
-    shoot1.translateY(-0.27);//-0.2~0
-    shoot1.translateZ(-0.5);
-  }
+  //if (shoot1Loaded) {
+  //  shoot1.translateY(-0.27);//-0.2~0
+  //  shoot1.translateZ(-0.5);
+  //}
 
   // 用于在游戏结束时接管camera
   if (!GAME_OVER_FLAG) {
@@ -825,7 +839,7 @@ function createBoom(endPos, boomObj) {//子弹最终对象1个,炸弹最终目�
       shoot1.rotation.copy(camera.rotation);
       shoot1.position.copy(position);
       shoot1.translateY(-0.27 + 0.27 * count);//-0.2~0
-      shoot1.material.opacity = 1;
+      //shoot1.material.opacity = 1;
     })
     .onComplete(function () {
       shoot1.position.copy(endPos);
