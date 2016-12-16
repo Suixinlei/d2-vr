@@ -346,7 +346,6 @@ function pureRemoveMesh(mesh) {
     if (mesh.material.opacity <= 0) {
       window.clearInterval(it);
       scene.remove(mesh);
-      console.log(startPage)
     }
   },20);
 }
@@ -500,11 +499,15 @@ var boomLoaded=[];//判断加载是否完成
 var boom2Loaded=false;//判断加载是否完成
 var pointer1Loaded=false;
 
+  var pointerTexture = new THREE.TextureLoader().load('img/sight-bead-white.png');
+  var material = new THREE.MeshBasicMaterial({
+    map: pointerTexture,
+    transparent: true,
+    opacity: 1,
+    depthWrite: false,
+    side: THREE.DoubleSide
+  });
 
-var center = THREE.ImageUtils.loadTexture("img/sight-bead-white.png",null,function(t) {
-  var material = new THREE.MeshBasicMaterial({map:center});
-  material.transparent=true;
-  material.opacity=1;
   var pointerGeometry = new THREE.BoxGeometry(0.1, 0.1, 0);
   var mesh = new THREE.Mesh( pointerGeometry,material );
   center0.add(mesh);
@@ -513,19 +516,6 @@ var center = THREE.ImageUtils.loadTexture("img/sight-bead-white.png",null,functi
   center0.position.y = 1.6;
   center0.position.z = 0;
   scene.add( center0 );
-});
-
-var pointer = THREE.ImageUtils.loadTexture("img/sight-bead-white.png",null,function(t) {
-  var material = new THREE.MeshBasicMaterial({map:pointer});
-  material.transparent=true;
-  material.opacity=1;
-  var pointerGeometry = new THREE.BoxGeometry(0.125, 0.125, 0);
-  var mesh = new THREE.Mesh( pointerGeometry,material );
-  pointer1 = mesh;
-  pointer1.position.z = -3;
-  scene.add( mesh );
-  pointer1Loaded=true;
-});
 
 var shoot = THREE.ImageUtils.loadTexture("img/shoot.png",null,function(t) {
   var material = new THREE.MeshBasicMaterial({map:shoot});
@@ -538,6 +528,7 @@ var shoot = THREE.ImageUtils.loadTexture("img/shoot.png",null,function(t) {
   scene.add( mesh );
   shoot1Loaded=true;
 });
+
 var boomTip = THREE.ImageUtils.loadTexture("img/boom.png",null,function(t) {
   var material = new THREE.MeshBasicMaterial({map:boomTip});
   material.transparent=true;

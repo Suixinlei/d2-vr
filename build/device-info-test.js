@@ -102,10 +102,10 @@ DeviceInfo.prototype.determineDevice_ = function(deviceParams) {
   if (!deviceParams) {
     // No parameters, so use a default.
     if (Util.isIOS()) {
-      console.warn("Using fallback Android device measurements.");
+      0;
       return DEFAULT_IOS;
     } else {
-      console.warn("Using fallback iOS device measurements.");
+      0;
       return DEFAULT_ANDROID;
     }
   }
@@ -481,6 +481,6 @@ ctx.clearRect(0, 0, w, h);
 ctx.fillStyle = 'black';
 ctx.fillRect(x - size/2, y - size/2, size, size);
 
-console.log('Placing eye at (%d, %d).', x, y);
+0;
 
 },{"../src/device-info.js":1}]},{},[4]);
