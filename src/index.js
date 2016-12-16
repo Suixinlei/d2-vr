@@ -224,13 +224,14 @@ var uniqueSkill = function () {
   doLisenVoiceInput(function () {
     playMusic('boom');
     keyBoardSystem(3, 1).boom();
-    for (var i = 0; i < UNIQUE_SKILL_KILL_NUMBER; i++) {
-      var monster = monsterDisplayGroup.children[i];
+    for (var killMonsterNo = 0; killMonsterNo < UNIQUE_SKILL_KILL_NUMBER; killMonsterNo++) {
+      var monster = monsterDisplayGroup.children[killMonsterNo];
       if (monster) {
-        boomFly(monster.position, boom1[i]).boom(function () {
+        boomFly(monster.position, boom1[killMonsterNo]).boom((function (killMonsterNo) {
+          boom1[killMonsterNo].material.opacity = 0;
           monsterDisplayGroup.children.splice(0, 10);
           boomFly(endPostion).tipHide();
-        });
+        })(killMonsterNo));
       }
     }
     keyBoardSystem(1, 3).boom();
@@ -708,13 +709,6 @@ function animate(timestamp) {
   var delta = Math.min(timestamp - lastRender, 500);
   lastRender = timestamp;
 
-  //if (boomLoaded.length == 10) {
-  //  //boom1.rotation.copy( camera.rotation );
-  //  for (var j = 0; j < boom1Length; j++) {
-  //    boom1[j].translateX(0);
-  //    boom1[j].translateZ(-1);
-  //  }
-  //}
   var pose = controls.getPose();
   if(boom2Loaded){
     boom2Out.quaternion.fromArray(pose.orientation);
