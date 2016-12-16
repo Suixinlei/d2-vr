@@ -229,6 +229,8 @@ var uniqueSkill = function () {
       if (monster) {
         boomFly(monster.position, boom1[killMonsterNo]).boom((function (killMonsterNo) {
           boom1[killMonsterNo].material.opacity = 0;
+          //boom1[killMonsterNo].position = startPostion;
+          boom1[killMonsterNo].position.set(new THREE.Vector3(0, -1.6, -110));
           monsterDisplayGroup.children.splice(0, 10);
           boomFly(endPostion).tipHide();
         })(killMonsterNo));
@@ -473,7 +475,7 @@ var boomTip = THREE.ImageUtils.loadTexture("img/boom.png",null,function(t) {
   var mesh = new THREE.Mesh( boom2Geometry,material );
   boom2 = mesh;
   mesh.position.z = -0.7;
-  mesh.position.y = -0.15;
+  mesh.position.y = -0.28;
   center0.add(mesh);
   //boom2Out.position.x = 0;
   //boom2Out.position.y = 1.6;
@@ -861,7 +863,7 @@ function createBoom(endPos, boomObj) {//子弹最终对象1个,炸弹最终目�
   return {
     boom: function (callback) {
       boomObj.material.opacity = 1;
-      boomObj.rotation.copy(camera.rotation);
+      //boomObj.rotation.copy(camera.rotation);
       if (callback) {
         boomFlyTween.onComplete(callback).start();
       } else {
