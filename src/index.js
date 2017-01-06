@@ -356,7 +356,8 @@ function gameplay() {
     boomFly(endPostion).tipHide();
     scene.remove(zuilan);
     gameOver.over(function () {
-      fetch('/new_record?record=' + SCORE);
+      // 发送分数到后台
+      // fetch('/new_record?record=' + SCORE);
       // 移除 AIS LOGO
       GAME_END_LOGO.material.opacity = 0;
       scene.remove(GAME_END_LOGO);
