@@ -70,13 +70,14 @@ WebVRConfig = {
 <!--
   A polyfill for Promises. Needed for IE and Edge.
   -->
-<script src="node_modules/es6-promise/dist/es6-promise.js"></script>
-
+<!--<script src="node_modules/es6-promise/dist/es6-promise.js"></script>-->
+<script src="assets/es6-promise.min.js.js"></script>
 <!--
   three.js 3d library
   -->
-<script src="node_modules/three/build/three.js"></script>
-<script src="asset_src/OBJLoader.js"></script>
+<!--<script src="node_modules/three/build/three.js"></script>-->
+<script src="assets/three.min.js"></script>
+<script src="assets/OBJLoader.js"></script>
 
 <!--
   VRControls.js acquires positional information from connected VR devices and applies the transformations to a three.js camera object.
@@ -86,12 +87,14 @@ WebVRConfig = {
 <!--
   VREffect.js handles stereo camera setup and rendering.
   -->
-<script src="node_modules/three/examples/js/effects/VREffect.js"></script>
+<!--<script src="node_modules/three/examples/js/effects/VREffect.js"></script>-->
+<script src="assets/VREffect.js"></script>
 
 <!--
   A polyfill for WebVR using the Device{Motion,Orientation}Event API.
   -->
-<script src="node_modules/webvr-polyfill/build/webvr-polyfill.js"></script>
+<!--<script src="node_modules/webvr-polyfill/build/webvr-polyfill.js"></script>-->
+<script src="assets/webvr-polyfill.js"></script>
 
 <!--
   Helps enter and exit VR mode, provides best practices while in VR.
@@ -99,13 +102,16 @@ WebVRConfig = {
 <script src="build/webvr-manager.js"></script>
 
 <!-- tween.js -->
-<script src="node_modules/tween.js/src/Tween.js"></script>
+<!--<script src="node_modules/tween.js/src/Tween.js"></script>-->
+<script src="assets/Tween.js"></script>
 
 <!-- dat.gui control our dat.gui -->
-<script src="node_modules/dat.gui/build/dat.gui.js"></script>
+<!--<script src="node_modules/dat.gui/build/dat.gui.js"></script>-->
+<script src="assets/dat.gui.min.js"></script>
 
 <!-- stats.js Performance Monitor -->
-<script src="node_modules/stats.js/build/stats.min.js"></script>
+<!--<script src="node_modules/stats.js/build/stats.min.js"></script>-->
+<script src="assets/stats.min.js"></script>
 <script src="src/helper.js"></script>
 <script src="src/cabinet.js"></script>
 <script src="src/julius/julius.js"></script>
